@@ -58,6 +58,16 @@ export interface BearEditorOptionsState {
   /** Cambia el tema visual del editor. */
   updateTheme: (theme: IMonacoTheme) => void
 
+  /**
+   * Indica si se debe normalizar el whitespace (tabs → espacios) antes de comparar.
+   * Evita que diferencias de indentación oculten cambios reales de código.
+   * Aplica solo en el DiffEditor.
+   */
+  normalizeWhitespace: boolean
+
+  /** Activa o desactiva la normalización de whitespace en el diff. */
+  updateNormalizeWhitespace: (state: boolean) => void
+
   /** Resetea los valores */
   resetEditorOptions: () => void
 }

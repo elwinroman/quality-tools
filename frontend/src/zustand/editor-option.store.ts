@@ -6,7 +6,7 @@ import { BearEditorOptionsState } from '@/models/zustand'
 
 const initialState: Pick<
   BearEditorOptionsState,
-  'fontSize' | 'renderWhitespace' | 'renderSideBySide' | 'theme' | 'minimap' | 'stickyScroll' | 'guides'
+  'fontSize' | 'renderWhitespace' | 'renderSideBySide' | 'theme' | 'minimap' | 'stickyScroll' | 'guides' | 'normalizeWhitespace'
 > = {
   fontSize: 13,
   renderWhitespace: 'none',
@@ -25,6 +25,7 @@ const initialState: Pick<
     highlightActiveIndentation: true,
     indentation: false,
   },
+  normalizeWhitespace: false,
 }
 
 export const useEditorOptionsStore = create<BearEditorOptionsState>()(
@@ -59,6 +60,7 @@ export const useEditorOptionsStore = create<BearEditorOptionsState>()(
             indentation: state,
           },
         })),
+      updateNormalizeWhitespace: (state) => set({ normalizeWhitespace: state }),
       resetEditorOptions: () => set({ ...initialState }),
     }),
     {

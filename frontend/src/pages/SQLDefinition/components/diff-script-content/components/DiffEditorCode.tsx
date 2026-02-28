@@ -13,13 +13,12 @@ import { useAppStore, useAuthStore, useEditorOptionsStore } from '@/zustand'
 import { useSysObjectStore } from '../../../store/sysobject.store'
 import { useInjectionComponent } from './useInjectionComponent'
 
-const DIFF_EDITOR_OPTIONS = {
+const DIFF_EDITOR_BASE_OPTIONS = {
   originalEditable: false,
-  ignoreTrimWhitespace: false,
 } as const
 
 export function DiffEditorCode() {
-  const { renderWhitespace, fontSize, renderSideBySide, theme } = useEditorOptionsStore((state) => state)
+  const { renderWhitespace, fontSize, renderSideBySide, theme, normalizeWhitespace, guides, minimap, stickyScroll } = useEditorOptionsStore((state) => state)
   const isDark = useAppStore((state) => state.isDark)
   const authContext = useAuthStore((state) => state.authContext)
   const viewMode = useSysObjectStore((state) => state.viewMode)
@@ -28,13 +27,21 @@ export function DiffEditorCode() {
   const isLoadingProdObject = useSysObjectStore((state) => state.isLoadingProdObject)
   const errorProdObject = useSysObjectStore((state) => state.errorProdObject)
 
+  const normalizeCode = (code: string) => code.replace(/\t/g, '    ')
+
   // código del editor modificado (objeto actual)
   let modifiedCode = EDITOR_BANNER
-  if (sysobject) modifiedCode = getFormattedCodeForViewMode(sysobject, viewMode)
+  if (sysobject) {
+    modifiedCode = getFormattedCodeForViewMode(sysobject, viewMode)
+    if (normalizeWhitespace) modifiedCode = normalizeCode(modifiedCode)
+  }
 
   // código del editor original (objeto pre-producción)
   let originalCode = ''
-  if (prodSysobject) originalCode = getFormattedCodeForViewMode(prodSysobject, viewMode)
+  if (prodSysobject) {
+    originalCode = getFormattedCodeForViewMode(prodSysobject, viewMode)
+    if (normalizeWhitespace) originalCode = normalizeCode(originalCode)
+  }
 
   // marca de agua CSS para identificar las bases de datos
   if (authContext) {
@@ -55,7 +62,7 @@ export function DiffEditorCode() {
   // inyección de componentes (header + copy) dentro del DiffEditor
   const { render: injectComponents } = useInjectionComponent({ originalCode, modifiedCode, renderSideBySide })
 
-  const fullOptions = { ...BaseMonacoEditorOptions, ...DIFF_EDITOR_OPTIONS, renderWhitespace, fontSize, renderSideBySide }
+  const fullOptions = { ...BaseMonacoEditorOptions, ...DIFF_EDITOR_BASE_OPTIONS, renderWhitespace, fontSize, renderSideBySide, ignoreTrimWhitespace: normalizeWhitespace, guides, minimap, stickyScroll }
 
   if (errorProdObject) {
     return (
