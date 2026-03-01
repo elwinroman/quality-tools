@@ -1,103 +1,97 @@
-import { ReactNode } from 'react'
+import { Code2, GitCompare, Search, Settings, Shield } from 'lucide-react'
+import { type ReactNode } from 'react'
 
 import { TypeSysObjects } from '@/constants'
-import { CloudCodeIcon, CloudIdsIcon, DatabaseMigrationIcon, DataLossIcon } from '@/icons'
+import { cn } from '@/lib/utils'
 
-type Props = {
-  children: ReactNode
-  className?: string
-}
-
-export function InfoSqlDefinition({ className }: { className: string }) {
+export function InfoSqlDefinition() {
   const typeSysObjectsArray = Object.entries(TypeSysObjects).map(([, value]) => ({
     type: value.type,
     description: value.description,
   }))
 
   return (
-    <section>
-      <div className={`${className} grid grid-cols-12 grid-rows-2 gap-4`}>
-        <Card className="col-span-12 row-span-1 sm:col-span-6 md:col-span-4 lg:col-span-3">
-          <CardTitle>Definiciones SQL</CardTitle>
-          <CardDescription>
-            Consulta las estructuras de código que definen objetos de base de datos y que se almacenan como metadatos
-          </CardDescription>
-          <i className="self-center text-amber-300">
-            <CloudCodeIcon size={90} />
-          </i>
-        </Card>
-
-        <Card className="col-span-12 row-span-1 sm:col-span-6 md:col-span-4 lg:col-span-3">
-          <CardTitle>Compara</CardTitle>
-          <CardDescription>
-            Compara y alinea los objetos SQL en tus bases de datos de prueba y pre-producción, identificando cualquier diferencia
-          </CardDescription>
-          <i className="self-center text-rose-400">
-            <DatabaseMigrationIcon size={90} />
-          </i>
-        </Card>
-
-        <Card className="col-span-12 sm:col-span-12 md:col-span-4 md:row-span-2 lg:col-span-6 lg:row-span-1">
-          <CardTitle>Tipos de objetos soportados</CardTitle>
-          <CardDescription>Las definiciones SQL admiten una variedad de objetos</CardDescription>
-          <div className="grid w-full grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-x-4 gap-y-2">
-            {typeSysObjectsArray.map((typeSysObject) => (
-              <div key={typeSysObject.type} className="flex items-center gap-2">
-                <span className="grid min-h-7 min-w-7 place-content-center rounded-sm bg-slate-300 text-sm font-semibold dark:bg-zinc-950">
-                  {typeSysObject.type}
-                </span>
-                <span className="text-secondary text-[0.84rem]">{typeSysObject.description}</span>
-              </div>
-            ))}
-          </div>
-        </Card>
-
-        <Card className="col-span-12 row-span-1 sm:col-span-6 md:col-span-4 lg:col-span-3">
-          <CardTitle>Busca tu objeto</CardTitle>
-          <CardDescription>
-            Si necesitas más detalles, solo usa <strong> el buscador de arriba</strong>. ¡Te ayudará a encontrar lo que buscas en segundos!
-          </CardDescription>
-          <i className="self-center text-rose-400">
-            <DataLossIcon size={90} />
-          </i>
-        </Card>
-
-        <Card className="col-span-12 row-start-6 sm:col-span-12 sm:row-start-4 md:col-span-12 md:row-span-1 md:row-start-3 lg:col-span-6 lg:row-span-1">
-          <CardTitle>Visualiza y personaliza</CardTitle>
-          <div className="grid grid-cols-2">
-            <CardDescription className="text-balance">
-              Explora y personaliza el editor de código para adaptarlo a tu flujo de trabajo.
-            </CardDescription>
-            <div>
-              <img src="programming-code-editor-illustration-1024x819.png" alt="" className="h-44 bg-cover" />
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {/* Main: Objetos soportados — ocupa 2 columnas */}
+      <Card className="sm:col-span-2">
+        <CardIcon>
+          <Code2 size={20} />
+        </CardIcon>
+        <CardTitle>Objetos soportados</CardTitle>
+        <CardDescription>Explora el código fuente de todos estos objetos directamente desde los metadatos de MSSQL Server.</CardDescription>
+        <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
+          {typeSysObjectsArray.map((obj) => (
+            <div key={obj.type} className="bg-background-neutral flex items-center gap-3 rounded-lg px-3 py-2.5">
+              <span className="grid h-6 w-6 shrink-0 place-content-center rounded bg-amber-500/15 text-xs font-bold text-amber-600 dark:text-amber-400">
+                {obj.type}
+              </span>
+              <span className="text-secondary text-sm">{obj.description}</span>
             </div>
-          </div>
-        </Card>
+          ))}
+        </div>
+      </Card>
 
-        <Card className="col-span-12 row-span-1 sm:col-span-6 md:col-span-4 lg:col-span-3">
-          <CardTitle>Gestor de roles</CardTitle>
-          <CardDescription>
-            Recupera y gestiona los roles asociados a tu objeto. Muestra o oculta los roles disponibles, o si no hay roles asignados
-          </CardDescription>
-          <i className="self-center text-purple-300">
-            <CloudIdsIcon size={90} />
-          </i>
-        </Card>
-      </div>
-    </section>
+      {/* Compara scripts */}
+      <Card>
+        <CardIcon>
+          <GitCompare size={20} />
+        </CardIcon>
+        <CardTitle>Compara scripts</CardTitle>
+        <CardDescription>
+          Comparación side-by-side de objetos SQL entre bases de datos para detectar diferencias al instante.
+        </CardDescription>
+      </Card>
+
+      {/* Editor personalizable */}
+      <Card>
+        <CardIcon>
+          <Settings size={20} />
+        </CardIcon>
+        <CardTitle>Editor personalizable</CardTitle>
+        <CardDescription>Editor Monaco con soporte SQL: elige tema, tamaño de fuente y opciones de visualización.</CardDescription>
+      </Card>
+
+      {/* Gestor de roles */}
+      <Card>
+        <CardIcon>
+          <Shield size={20} />
+        </CardIcon>
+        <CardTitle>Gestor de roles</CardTitle>
+        <CardDescription>Visualiza y gestiona los roles y permisos asociados a cada objeto de la base de datos.</CardDescription>
+      </Card>
+
+      {/* Búsqueda rápida */}
+      <Card>
+        <CardIcon>
+          <Search size={20} />
+        </CardIcon>
+        <CardTitle>Búsqueda rápida</CardTitle>
+        <CardDescription>Encuentra cualquier objeto en segundos con el buscador integrado. Filtra por nombre y tipo.</CardDescription>
+      </Card>
+    </div>
   )
 }
 
-function Card({ children, className }: Props) {
+function Card({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <div className={`bg-background-paperchanel shadow-custom-card flex flex-col gap-4 rounded-sm px-6 py-6 ${className}`}>{children}</div>
+    <div className={cn('bg-background-paperchanel shadow-custom-card border-border flex flex-col gap-3 rounded-xl border p-6', className)}>
+      {children}
+    </div>
+  )
+}
+
+function CardIcon({ children }: { children: ReactNode }) {
+  return (
+    <div className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400">
+      {children}
+    </div>
   )
 }
 
 function CardTitle({ children }: { children: ReactNode }) {
-  return <span className="text-primary text-lg font-semibold">{children}</span>
+  return <h3 className="text-primary text-base font-semibold">{children}</h3>
 }
 
-function CardDescription({ children, className = '' }: Props) {
-  return <p className={`text-secondary text-sm ${className}`}>{children}</p>
+function CardDescription({ children }: { children: ReactNode }) {
+  return <p className="text-secondary text-sm text-balance">{children}</p>
 }

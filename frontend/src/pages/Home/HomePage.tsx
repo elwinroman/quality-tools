@@ -1,49 +1,122 @@
+import { Link } from 'react-router-dom'
+
+import { AppRoutes } from '@/constants'
 import { APP_NAME } from '@/enviroment/enviroment'
 
+import { InfoAligment } from './components/InfoAligment'
 import { InfoSqlDefinition } from './components/InfoSqlDefinition'
+import { InfoUsertable } from './components/InfoUsertable'
 
 export function HomePage() {
   return (
     <>
-      <section className="my-auto grid h-[88vh] w-full place-content-center gap-10 py-10">
-        {/* Hero section */}
-        <div className="container w-full max-w-(--breakpoint-xl) px-4 md:px-6">
-          <div className="flex flex-col items-center gap-10 text-center">
-            <div className="flex flex-col gap-6">
-              <h1 className="max-w-3xl font-['Barlow'] text-2xl font-bold tracking-normal sm:text-4xl md:text-5xl lg:text-6xl/none">
-                Optimiza tu gestión con <span className="gradient-text">{APP_NAME}</span>
-              </h1>
-              <p className="mx-auto max-w-[700px] text-[20px] text-balance">
-                Herramienta de gestión de metadatos SQL, definiciones SQL, información de tablas de usuario, y más.
-              </p>
-            </div>
+      {/* Hero */}
+      <section className="relative flex min-h-[88vh] flex-col items-center justify-center overflow-hidden px-4 py-24 text-center">
+        <div className="relative z-10 flex flex-col items-center gap-8">
+          <div className="border-border text-secondary inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium">
+            <span className="bg-palette-success-main h-1.5 w-1.5 rounded-full" />
+            Microsoft SQL Server — Soporte activo
+          </div>
 
-            <div></div>
+          <div className="flex flex-col gap-5">
+            <h1 className="max-w-4xl font-['Barlow'] text-5xl font-bold tracking-tight sm:text-6xl lg:text-7xl">
+              Gestión inteligente de
+              <br />
+              <span className="gradient-text">{APP_NAME}</span>
+            </h1>
+            <p className="text-secondary mx-auto max-w-2xl text-xl text-balance">
+              Explora definiciones SQL, inspecciona estructuras de tablas y alinea entornos de bases de datos desde una sola interfaz.
+            </p>
+          </div>
 
-            <div className="flex flex-col gap-2">
-              <div className="flex flex-col gap-1">
-                <h3 className="text-muted text-sm font-bold">SOPORTE PARA</h3>
-              </div>
-              <div className="border-border text-primary flex flex-col items-center justify-center gap-2 rounded border px-4 py-4 dark:border-transparent">
-                <img src="microsoft-sql-server-logo.svg" width={70} height={70} alt="logo de microsoft sql server" className="max-w-none" />
-                <span className="text-secondary text-sm">MSSQL Server</span>
-              </div>
-            </div>
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <Link
+              to={AppRoutes.SQL_DEFINITION}
+              className="bg-primary text-primary-foreground rounded-lg px-6 py-2.5 text-sm font-semibold transition-opacity hover:opacity-80"
+            >
+              Comenzar ahora
+            </Link>
+            <a
+              href="#herramientas"
+              className="border-border text-secondary hover:text-primary rounded-lg border px-6 py-2.5 text-sm font-semibold transition-colors"
+            >
+              Ver herramientas ↓
+            </a>
+          </div>
+
+          <div className="border-border flex items-center gap-3 rounded-xl border px-5 py-3">
+            <img src="microsoft-sql-server-logo.svg" width={32} height={32} alt="MSSQL Server" />
+            <span className="text-secondary text-sm font-medium">Microsoft SQL Server</span>
+          </div>
+        </div>
+
+        <div className="main-background" />
+      </section>
+
+      <div id="herramientas" />
+
+      {/* SQL Definition */}
+      <section className="border-border bg-background w-full border-t py-24">
+        <div className="mx-auto max-w-(--breakpoint-xl) px-4 md:px-6">
+          <SectionHeader
+            label="01 — SQL Definition"
+            title="Definiciones SQL"
+            description="Consulta el código fuente de tus objetos SQL directamente desde los metadatos del servidor. Soporte para procedimientos almacenados, funciones, vistas, triggers y más."
+          />
+          <InfoSqlDefinition />
+          <div className="mt-10">
+            <Link to={AppRoutes.SQL_DEFINITION} className="text-secondary hover:text-primary text-sm font-medium transition-colors">
+              Ir a SQL Definition →
+            </Link>
           </div>
         </div>
       </section>
 
-      <section className="bg-background w-full py-32">
-        <div className="mx-auto flex max-w-(--breakpoint-xl) flex-col gap-6">
-          <h3 className="text-muted text-sm font-bold">HERRAMIENTAS</h3>
-          <h2 className="font-['Barlow'] text-4xl font-bold tracking-normal">
-            Definiciones <span>SQL</span>
-          </h2>
-          <InfoSqlDefinition className="mx-auto max-w-(--breakpoint-xl)" />
+      {/* Usertable */}
+      <section className="bg-background-neutral w-full py-24">
+        <div className="mx-auto max-w-(--breakpoint-xl) px-4 md:px-6">
+          <SectionHeader
+            label="02 — Usertable"
+            title="Tablas de usuario"
+            description="Inspeccioná la estructura completa de tus tablas de usuario: columnas, tipos de datos, índices y relaciones en un panel resizable e intuitivo."
+          />
+          <InfoUsertable />
+          <div className="mt-10">
+            <Link to={AppRoutes.USERTABLE} className="text-secondary hover:text-primary text-sm font-medium transition-colors">
+              Ir a Usertable →
+            </Link>
+          </div>
         </div>
       </section>
 
-      <div className="main-background"></div>
+      {/* Alignment */}
+      <section className="border-border bg-background w-full border-t py-24">
+        <div className="mx-auto max-w-(--breakpoint-xl) px-4 md:px-6">
+          <SectionHeader
+            label="03 — Aligment"
+            title="Alineación de entornos"
+            description="Detecta y resuelve diferencias entre tus bases de datos de prueba y pre-producción con comparación visual side-by-side de scripts SQL."
+          />
+          <InfoAligment />
+          <div className="mt-10">
+            <Link to={AppRoutes.Aligment} className="text-secondary hover:text-primary text-sm font-medium transition-colors">
+              Ir a Aligment →
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <div className="main-background" />
     </>
+  )
+}
+
+function SectionHeader({ label, title, description }: { label: string; title: string; description: string }) {
+  return (
+    <div className="mb-12 flex flex-col gap-3">
+      <span className="text-muted text-xs font-bold tracking-widest uppercase">{label}</span>
+      <h2 className="font-['Barlow'] text-3xl font-bold sm:text-4xl">{title}</h2>
+      <p className="text-secondary max-w-2xl text-balance">{description}</p>
+    </div>
   )
 }
