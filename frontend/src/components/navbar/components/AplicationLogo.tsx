@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router-dom'
 
 import { AppRoutes } from '@/constants'
-import { APP_NAME } from '@/enviroment/enviroment'
+import { APP_SHORT_NAME } from '@/enviroment/enviroment'
 import { useAuthStore } from '@/zustand'
 
 import { SwitchDatabase } from './SwitchDatabase'
@@ -19,7 +19,7 @@ export function AplicationLogo({ className = '' }: Props) {
     <div className={`${className}`}>
       <div className="flex w-fit items-center gap-2 transition-colors">
         <NavLink to={AppRoutes.Home} className="text-primary font-bold">
-          {APP_NAME}
+          {APP_SHORT_NAME}
         </NavLink>
 
         <SwitchDatabase />

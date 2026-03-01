@@ -6,7 +6,7 @@ import { CircleLoader } from '@/components/loader'
 import { LoginUsername, ThemeToggle } from '@/components/navbar/components'
 import { Button, Checkbox } from '@/components/ui'
 import { AppRoutes } from '@/constants'
-import { APP_NAME } from '@/enviroment/enviroment'
+import { APP_SHORT_NAME } from '@/enviroment/enviroment'
 import { useAppStore, useAuthStore } from '@/zustand'
 
 import { ButtonGroup, SearchAligment, ViewModeSelect } from './components'
@@ -34,7 +34,7 @@ export function MenuSidebar({ className = '' }: Props) {
           </Button>
         ) : (
           <div className="flex w-full items-center justify-between">
-            <span className="text-primary font-bold">{APP_NAME}</span>
+            <span className="text-primary font-bold">{APP_SHORT_NAME}</span>
             <ThemeToggle />
           </div>
         )}
