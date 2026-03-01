@@ -18,7 +18,9 @@ const DIFF_EDITOR_BASE_OPTIONS = {
 } as const
 
 export function DiffEditorCode() {
-  const { renderWhitespace, fontSize, renderSideBySide, theme, normalizeWhitespace, guides, minimap, stickyScroll } = useEditorOptionsStore((state) => state)
+  const { renderWhitespace, fontSize, renderSideBySide, theme, normalizeWhitespace, guides, minimap, stickyScroll } = useEditorOptionsStore(
+    (state) => state,
+  )
   const isDark = useAppStore((state) => state.isDark)
   const authContext = useAuthStore((state) => state.authContext)
   const viewMode = useSysObjectStore((state) => state.viewMode)
@@ -62,7 +64,17 @@ export function DiffEditorCode() {
   // inyección de componentes (header + copy) dentro del DiffEditor
   const { render: injectComponents } = useInjectionComponent({ originalCode, modifiedCode, renderSideBySide })
 
-  const fullOptions = { ...BaseMonacoEditorOptions, ...DIFF_EDITOR_BASE_OPTIONS, renderWhitespace, fontSize, renderSideBySide, ignoreTrimWhitespace: normalizeWhitespace, guides, minimap, stickyScroll }
+  const fullOptions = {
+    ...BaseMonacoEditorOptions,
+    ...DIFF_EDITOR_BASE_OPTIONS,
+    renderWhitespace,
+    fontSize,
+    renderSideBySide,
+    ignoreTrimWhitespace: normalizeWhitespace,
+    guides,
+    minimap,
+    stickyScroll,
+  }
 
   if (errorProdObject) {
     return (
@@ -83,7 +95,7 @@ export function DiffEditorCode() {
   }
 
   return (
-    <div className="group relative h-full w-full overflow-auto">
+    <div className="group relative h-full w-full overflow-auto pt-1">
       <DiffEditor
         beforeMount={handleBeforeMount}
         onMount={injectComponents}

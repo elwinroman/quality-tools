@@ -7,8 +7,10 @@ export interface UserTableObject {
   type: BaseSysObjectType
   typeDesc: string
   schemaName: string
-  createDate: Date | string
-  modifyDate: Date | string
+  /** Formato DD-MM-YYYY (ej: 25-03-2024) */
+  createDate: string
+  /** Formato DD-MM-YYYY (ej: 25-03-2024) */
+  modifyDate: string
 }
 
 /** Propiedad extendida de una columna */
@@ -65,8 +67,10 @@ export interface UserTableApiResponse {
     typeDesc: string
     schemaId: number
     schemaName: string
-    createDate: Date | string
-    modifyDate: Date | string
+    /** Formato DD-MM-YYYY (ej: 25-03-2024) */
+    createDate: string
+    /** Formato DD-MM-YYYY (ej: 25-03-2024) */
+    modifyDate: string
     extendedProperties: ExtendedProperty[]
     columns: UserTableColumn[]
     indexes: UserTableIndex[]

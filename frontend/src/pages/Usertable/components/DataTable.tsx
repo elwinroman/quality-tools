@@ -32,8 +32,8 @@ export function DataTable<TData>({ columns }: Props<TData>) {
         nro: index + 1,
         nombre: {
           desc: item.name,
-          renderPrimaryKeyIcon: indexes.find((element) => element.columnId === item.id)?.isPrimaryKey ?? false,
-          renderUniqueKeyIcon: indexes.find((element) => element.columnId === item.id)?.isUnique ?? false,
+          renderPrimaryKeyIcon: indexes.find((element) => element.columns.some((col) => col.columnId === item.id))?.isPrimaryKey ?? false,
+          renderUniqueKeyIcon: indexes.find((element) => element.columns.some((col) => col.columnId === item.id))?.isUnique ?? false,
         },
         tipo: item.type,
         nulo: item.isNullable,
@@ -57,7 +57,7 @@ export function DataTable<TData>({ columns }: Props<TData>) {
   })
 
   return (
-    <div className="rounded-md border">
+    <div className="border-b">
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (

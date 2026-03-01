@@ -22,24 +22,22 @@ export function HeaderUsertable() {
   }
 
   return (
-    <header className="bg-background flex h-10 items-center justify-between px-4">
+    <header className="bg-background flex items-center justify-between px-4 pt-2 pb-3">
       {/* Breadcrumb */}
       {hasObject ? (
-        <ul className="text-secondary flex items-center gap-0.5 text-[13px] font-medium">
-          <li>{object.schemaName}</li>
-          <li>
-            <ChevronRight size={14} className="place-self-center-safe" />
-          </li>
-          <li className="text-primary overflow-hidden">{object.name}</li>
-        </ul>
+        <div className="flex items-center gap-1">
+          <ul className="text-secondary SY flex items-center gap-0.5 font-bold">
+            <li>{object.schemaName}</li>
+            <li>
+              <ChevronRight size={14} className="place-self-center-safe" />
+            </li>
+            <li className="text-primary overflow-hidden">{object.name}</li>
+          </ul>
+          <ToggleFavoritoButton isFavorite={!!currentFavorito} onClick={handleToggleFavorito} />
+        </div>
       ) : (
-        <div className="flex h-11 items-center text-[13px]"></div>
+        <div className="SY flex h-11 items-center text-[13px]"></div>
       )}
-
-      {/* Acciones */}
-      <div className="flex items-center gap-1">
-        {hasObject && <ToggleFavoritoButton isFavorite={!!currentFavorito} onClick={handleToggleFavorito} />}
-      </div>
     </header>
   )
 }

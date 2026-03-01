@@ -2,7 +2,6 @@ import { useEffect } from 'react'
 
 import { useSysObjectStore } from '../../store/sysobject.store'
 import { DiffEditorCode } from './components/DiffEditorCode'
-import { HeaderDiffEditor } from './components/HeaderDiffEditor'
 
 export function DiffScriptContent() {
   const sysobject = useSysObjectStore((state) => state.sysobject)
@@ -14,10 +13,5 @@ export function DiffScriptContent() {
     if (sysobject) fetchProdSysObject()
   }, [sysobject])
 
-  return (
-    <section className="flex h-full flex-col overflow-hidden">
-      <HeaderDiffEditor />
-      <DiffEditorCode />
-    </section>
-  )
+  return <DiffEditorCode />
 }

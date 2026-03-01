@@ -3,7 +3,7 @@ import { SearchTrigger } from '@/components/search/components/SearchTrigger'
 import { SearchProvider } from '@/components/search/context/searchContext'
 import { Search } from '@/components/search/Search'
 
-import { useSysObjectStore } from '../../../store/sysobject.store'
+import { useSysObjectStore } from '../store/sysobject.store'
 import { ViewModeSelect } from './panel-editor/ViewModeSelect'
 
 export function PanelEditor() {

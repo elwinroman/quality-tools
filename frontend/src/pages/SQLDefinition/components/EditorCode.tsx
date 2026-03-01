@@ -7,7 +7,7 @@ import { BaseMonacoEditorOptions, MonacoThemes } from '@/constants'
 import { ensureBuiltinTheme, getFormattedCodeForViewMode } from '@/utilities'
 import { useAppStore, useEditorOptionsStore } from '@/zustand'
 
-import { useSysObjectStore } from '../../../store/sysobject.store'
+import { useSysObjectStore } from '../store/sysobject.store'
 import { SQLDefinitionEmptyState } from './SQLDefinitionEmptyState'
 
 export function EditorCode() {
@@ -51,7 +51,7 @@ export function EditorCode() {
 
   return (
     // `overflow-auto h-full` soluciona el error de desbordamiento
-    <div className="group relative h-full w-full overflow-auto">
+    <div className="group relative h-full w-full overflow-auto pt-1">
       <Editor
         beforeMount={handleBeforeMount}
         language="sql"
