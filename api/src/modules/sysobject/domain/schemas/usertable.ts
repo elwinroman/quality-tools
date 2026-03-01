@@ -40,14 +40,32 @@ export interface Column {
 }
 
 /**
- * Representa un índice definido sobre una columna de una tabla en la base de datos.
- * Los índices mejoran el rendimiento de las consultas y pueden tener restricciones como unicidad o claves primarias.
+ * Representa una columna que forma parte de un índice, ya sea como columna clave o como columna incluida.
  */
-export interface Index {
-  /** Identificador de la columna a la que pertenece el índice. */
+export interface IndexColumn {
+  /** Identificador de la columna dentro de la tabla. */
   columnId: number
 
-  /** Nombre del índice. Es único solo dentro del objeto (tabla) al que pertenece. */
+  /** Nombre de la columna. */
+  columnName: string
+
+  /** Posición de la columna dentro de la clave del índice (1, 2, 3...). Es 0 si la columna es incluida (INCLUDE). */
+  keyOrdinal: number
+
+  /** Indica si la columna está ordenada de forma descendente dentro del índice. */
+  isDescendingKey: boolean
+
+  /** Indica si la columna es una columna incluida (INCLUDE), es decir, no forma parte de la clave del índice. */
+  isIncludedColumn: boolean
+}
+
+/**
+ * Representa un índice definido sobre una tabla en la base de datos.
+ * Un índice puede abarcar múltiples columnas (compuesto), tener una condición de filtro (filtrado)
+ * y puede ser de distintos tipos (CLUSTERED, NONCLUSTERED, COLUMNSTORE, etc.).
+ */
+export interface Index {
+  /** Nombre del índice. Es único dentro del objeto (tabla) al que pertenece. */
   name: string
 
   /** Descripción del tipo de índice (por ejemplo: CLUSTERED, NONCLUSTERED, COLUMNSTORE). */
@@ -58,6 +76,15 @@ export interface Index {
 
   /** Indica si el índice es exclusivo (único). true para índices únicos, false para no únicos. */
   isUnique: boolean
+
+  /** Indica si el índice tiene una condición de filtro (cláusula WHERE). */
+  isFiltered: boolean
+
+  /** Expresión SQL de la condición de filtro. null si el índice no es filtrado. */
+  filterDefinition: string | null
+
+  /** Lista de columnas que componen el índice, incluyendo columnas clave e incluidas, ordenadas por keyOrdinal. */
+  columns: IndexColumn[]
 }
 
 /**

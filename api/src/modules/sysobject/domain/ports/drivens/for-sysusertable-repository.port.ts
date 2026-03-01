@@ -69,3 +69,21 @@ export interface RawExtendedProperty {
   value: string
   name: string
 }
+
+/**
+ * Representa una fila del resultado de la consulta de índices en MSSQL.
+ * Cada fila corresponde a la relación entre un índice y una de sus columnas.
+ */
+export interface RawIndexRow {
+  index_name: string
+  type_desc: string
+  is_primary_key: boolean
+  is_unique: boolean
+  is_filtered: boolean
+  filter_definition: string | null
+  column_id: number
+  column_name: string
+  key_ordinal: number
+  is_descending_key: boolean
+  is_included_column: boolean
+}

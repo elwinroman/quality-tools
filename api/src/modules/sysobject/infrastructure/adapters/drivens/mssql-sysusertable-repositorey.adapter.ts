@@ -5,8 +5,9 @@ import {
   ForSysUsertableRepositoryPort,
   RawColumn,
   RawExtendedProperty,
+  RawIndexRow,
 } from '@sysobject/domain/ports/drivens/for-sysusertable-repository.port'
-import { Column, ExtendedProperty, ForeignKey, Index, UsertableSysObject } from '@sysobject/domain/schemas/usertable'
+import { Column, ExtendedProperty, ForeignKey, Index, IndexColumn, UsertableSysObject } from '@sysobject/domain/schemas/usertable'
 import { formatSQLDataType } from '@sysobject/infrastructure/utils/format-sql-data-type.util'
 import sql from 'mssql'
 
@@ -182,32 +183,54 @@ export class MssqlSysUsertableRepositoryAdapter implements ForSysUsertableReposi
       const request = conn.request()
 
       const stmt = `
-        SELECT 
-          A.column_id,
-          C.name,
+        SELECT
+          C.name           AS index_name,
           C.type_desc,
           C.is_primary_key,
-          C.is_unique
+          C.is_unique,
+          C.has_filter     AS is_filtered,
+          C.filter_definition,
+          A.column_id,
+          A.name           AS column_name,
+          B.key_ordinal,
+          B.is_descending_key,
+          B.is_included_column
         FROM sys.columns              A
         INNER JOIN sys.index_columns  B ON B.column_id = A.column_id AND B.object_id = A.object_id
         INNER JOIN sys.indexes        C ON C.index_id = B.index_id AND C.object_id = A.object_id
         WHERE A.object_id = @id
+        ORDER BY C.name, B.key_ordinal
       `
       request.input('id', sql.Int, id)
       const res = await request.query(stmt)
 
-      const data =
-        res.recordset.map((obj): Index => {
-          return {
-            columnId: obj.column_id,
-            name: obj.name,
-            typeDesc: obj.type_desc,
-            isPrimaryKey: obj.is_primary_key,
-            isUnique: obj.is_unique,
-          }
-        }) ?? []
+      const indexMap = new Map<string, Index>()
 
-      return data
+      for (const row of res.recordset as RawIndexRow[]) {
+        if (!indexMap.has(row.index_name)) {
+          indexMap.set(row.index_name, {
+            name: row.index_name,
+            typeDesc: row.type_desc,
+            isPrimaryKey: row.is_primary_key,
+            isUnique: row.is_unique,
+            isFiltered: row.is_filtered,
+            filterDefinition: row.filter_definition,
+            columns: [],
+          })
+        }
+
+        const column: IndexColumn = {
+          columnId: row.column_id,
+          columnName: row.column_name,
+          keyOrdinal: row.key_ordinal,
+          isDescendingKey: row.is_descending_key,
+          isIncludedColumn: row.is_included_column,
+        }
+
+        indexMap.get(row.index_name)!.columns.push(column)
+      }
+
+      return [...indexMap.values()]
     } catch (err) {
       throw wrapDatabaseError(err)
     }

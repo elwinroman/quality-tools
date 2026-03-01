@@ -26,7 +26,7 @@ interface CacheEntry {
 }
 
 const CACHE_PREFIX = 'busqueda-reciente'
-const MAX_ENTRIES_PER_KEY = 80
+const MAX_ENTRIES_PER_KEY = 30
 
 export class ValkeyCacheBusquedaRecienteRepositoryAdapter implements ForBusquedaRecienteRepositoryPort {
   async createOrUpdate(input: BusquedaRecienteInput): Promise<boolean> {

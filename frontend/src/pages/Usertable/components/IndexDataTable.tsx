@@ -7,7 +7,7 @@ import {
   type SortingState,
   useReactTable,
 } from '@tanstack/react-table'
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
@@ -22,21 +22,16 @@ export function IndexDataTable({ columns }: Props) {
   const [sorting, setSorting] = useState<SortingState>([])
 
   const indexes = useUserTableStore((state) => state.userTableIndexList)
-  const columnList = useUserTableStore((state) => state.userTableColumnList)
 
-  const formattedData = useMemo((): IndexRow[] => {
-    return indexes.map((index) => {
-      const column = columnList.find((col) => col.id === index.columnId)
-
-      return {
-        name: index.name,
-        typeDesc: index.typeDesc,
-        columnName: column?.name ?? `Column ID: ${index.columnId}`,
-        isPrimaryKey: index.isPrimaryKey,
-        isUnique: index.isUnique,
-      }
-    })
-  }, [indexes, columnList])
+  const formattedData: IndexRow[] = indexes.map((index) => ({
+    name: index.name,
+    typeDesc: index.typeDesc,
+    isPrimaryKey: index.isPrimaryKey,
+    isUnique: index.isUnique,
+    isFiltered: index.isFiltered,
+    filterDefinition: index.filterDefinition,
+    columns: index.columns,
+  }))
 
   const table = useReactTable({
     data: formattedData,

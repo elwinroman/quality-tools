@@ -28,13 +28,24 @@ export interface UserTableColumn {
   extendedProperties: ExtendedProperty[]
 }
 
+/** Columna que compone un índice (clave o incluida) */
+export interface UserTableIndexColumn {
+  columnId: number
+  columnName: string
+  keyOrdinal: number
+  isDescendingKey: boolean
+  isIncludedColumn: boolean
+}
+
 /** Índice de una tabla */
 export interface UserTableIndex {
-  columnId: number
   name: string
   typeDesc: string
   isPrimaryKey: boolean
   isUnique: boolean
+  isFiltered: boolean
+  filterDefinition: string | null
+  columns: UserTableIndexColumn[]
 }
 
 /** Foreign key de una tabla */
