@@ -46,7 +46,7 @@ export function IndexDataTable({ columns }: Props) {
   })
 
   return (
-    <div className="rounded-md border">
+    <div className="border-y">
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (

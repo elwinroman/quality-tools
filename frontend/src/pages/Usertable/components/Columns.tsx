@@ -147,9 +147,7 @@ export const Columns: ColumnDef<ColumnRow>[] = [
       return (
         <div className="flex min-w-[100px] flex-col gap-2 text-blue-400">
           {referencia.map((item) => (
-            <span key={`${item.columnId}-${item.referencedObject}`}>
-              {`${item.referencedSchema}.${item.referencedObject}`}
-            </span>
+            <span key={`${item.columnId}-${item.referencedObject}`}>{`${item.referencedSchema}.${item.referencedObject}`}</span>
           ))}
         </div>
       )

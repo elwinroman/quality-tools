@@ -50,7 +50,7 @@ export function MenuSidebar({ className = '' }: Props) {
               <span>Recupera los objetos alineados a </span>
               <strong>pre-producción </strong>
               <span>y dí adios a observaciones por desvío de ambientes </span>
-              <span className="text-palette-primary-main">(Actualizado al día de ayer)</span>
+              <span className="text-primary">(Actualizado al día de ayer)</span>
             </p>
           </div>
 

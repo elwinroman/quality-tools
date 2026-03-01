@@ -14,7 +14,7 @@ export function NormalizeWhitespaceToggle() {
       <Tooltip delayDuration={100}>
         <TooltipTrigger asChild>
           <button
-            className={`group h-7 rounded-sm px-2 transition-colors hover:bg-white/[0.08] ${normalizeWhitespace ? 'bg-white/[0.16]' : 'bg-transparent'}`}
+            className={`group h-7 rounded-sm px-2 transition-colors hover:bg-black/[0.06] dark:hover:bg-white/[0.08] ${normalizeWhitespace ? 'bg-black/[0.08] dark:bg-white/[0.16]' : 'bg-transparent'}`}
             onClick={() => updateNormalizeWhitespace(!normalizeWhitespace)}
           >
             <Pilcrow size={14} className="text-primary group-hover:text-secondary" />

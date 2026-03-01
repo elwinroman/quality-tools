@@ -1,5 +1,6 @@
 import { RotateCcw, Settings, X } from 'lucide-react'
 import { MouseEvent } from 'react'
+import { toast } from 'sonner'
 
 import { FontSize, ThemeEditor } from '@/components/editor-option'
 import { Switch } from '@/components/ui'
@@ -76,10 +77,11 @@ export function ConfigOptionEditor({ className = '' }: Props) {
   const handleResetConfigOptions = (e: MouseEvent) => {
     e.preventDefault()
     resetEditorOptions()
+    toast.success('Success', { description: 'Configuración del editor reiniciada' })
   }
 
   return (
-    <Sheet>
+    <Sheet modal={false}>
       <SheetTrigger>
         <TooltipProvider>
           <Tooltip delayDuration={100}>

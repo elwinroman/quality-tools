@@ -12,7 +12,7 @@ interface Props {
 
 export function CopyCode({ text, className = '', disabled = false }: Props) {
   const [copy, setCopy] = useState(false)
-  const message = !copy ? 'Copiar' : 'Copiado!'
+  const message = !copy ? 'Copiar script' : 'Copiado!'
 
   // Copia al clipboard
   const handleCopy = () => {

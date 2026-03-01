@@ -24,5 +24,8 @@ export const EDITOR_BANNER = String.raw`
 /****************************************************************************************/    
 `
 
+// Toast: 'colorful' (colores por tipo) o 'minimal' (estilo neutro)
+export const TOAST_STYLE: 'colorful' | 'minimal' = 'colorful'
+
 // Formatos (@formik/tempo)
 export const LOCAL_LANGUAJE = 'es'

@@ -1,4 +1,4 @@
-import { ConfigOptionEditor, DownloadScript, GenerateCodeForDropObject } from '@/components/editor-option'
+import { ConfigOptionEditor, GenerateCodeForDropObject } from '@/components/editor-option'
 import { CopyCode } from '@/components/editor-option'
 
 import { useAligmentStore } from '../zustand/aligment.store'
@@ -26,7 +26,7 @@ export function EditorAligmentOption({ className = '' }: Props) {
             disabled={!sysobject.name}
           />
           <ConfigOptionEditor /> {/* Configuración del editor */}
-          <DownloadScript text={sysobject.definition} disabled={!sysobject.definition} filename={sysobject.name} />
+          {/* <DownloadScript text={sysobject.definition} disabled={!sysobject.definition} filename={sysobject.name} /> */}
           <CopyCode text={currentEditorCode} />
         </div>
       </div>

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { toast } from 'sonner'
 
 import useFetchAndLoad from '@/hooks/useFetchAndLoad'
 import type { ApiSysObjectType } from '@/models/sysobject'
@@ -25,6 +26,7 @@ export const useFavoritos = (type: ApiSysObjectType) => {
     try {
       await callUpsertEndpoint(upsertFavoritoService({ schema, objectName, type: objectType }))
       await getFavoritos()
+      toast.success('Success', { description: `${objectName} agregado a favoritos` })
     } catch (err) {
       console.error('Error al registrar favorito: ', err)
     }
@@ -32,8 +34,10 @@ export const useFavoritos = (type: ApiSysObjectType) => {
 
   const deleteFavorito = async (id: number) => {
     try {
+      const favorito = favoritos.find((f) => f.id === id)
       await callDeleteEndpoint(deleteFavoritoService(id))
       setFavoritos((prev) => prev.filter((f) => f.id !== id))
+      toast.warning('Warning', { description: `${favorito?.objectName ?? 'Elemento'} eliminado de favoritos` })
     } catch (err) {
       console.error('Error al eliminar favorito: ', err)
     }

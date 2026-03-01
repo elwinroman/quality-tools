@@ -17,7 +17,7 @@ export function AligmentPage() {
   const lastErrorRef = useRef(error)
   useEffect(() => {
     if (error && error !== lastErrorRef.current) {
-      toast.warning(error.title, {
+      toast.warning('Warning', {
         description: error.detail,
         duration: 6000,
       })
@@ -49,7 +49,6 @@ export function AligmentPage() {
           </span>
         </footer>
       </main>
-
     </section>
   )
 }

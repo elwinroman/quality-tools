@@ -32,7 +32,7 @@ export function UsertableContent() {
 
   useEffect(() => {
     if (!error) return
-    toast.error(error.title, { description: error.detail })
+    toast.error('Error', { description: error.detail })
     updateError(null)
   }, [error, updateError])
 
@@ -63,8 +63,8 @@ export function UsertableContent() {
           {/* Panel izquierdo */}
           <ResizablePanel
             minSize={isCollapsed ? 0 : 10}
-            defaultSize={20}
-            maxSize={20}
+            defaultSize={15}
+            maxSize={15}
             className="transition-all"
             collapsible={true}
             collapsedSize={0}

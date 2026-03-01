@@ -15,12 +15,12 @@ export function HomePage() {
         <div className="relative z-10 flex flex-col items-center gap-8">
           <div className="border-border text-secondary inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium">
             <span className="bg-palette-success-main h-1.5 w-1.5 rounded-full" />
-            Microsoft SQL Server — Soporte activo
+            Microsoft SQL Server
           </div>
 
           <div className="flex flex-col gap-5">
             <h1 className="max-w-4xl font-['Barlow'] text-5xl font-bold tracking-tight sm:text-6xl lg:text-7xl">
-              Gestión inteligente de
+              Gestiona metadatos con
               <br />
               <span className="gradient-text">{APP_NAME}</span>
             </h1>
@@ -42,11 +42,6 @@ export function HomePage() {
             >
               Ver herramientas ↓
             </a>
-          </div>
-
-          <div className="border-border flex items-center gap-3 rounded-xl border px-5 py-3">
-            <img src="microsoft-sql-server-logo.svg" width={32} height={32} alt="MSSQL Server" />
-            <span className="text-secondary text-sm font-medium">Microsoft SQL Server</span>
           </div>
         </div>
 

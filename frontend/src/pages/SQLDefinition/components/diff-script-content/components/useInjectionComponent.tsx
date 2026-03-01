@@ -13,7 +13,7 @@ interface Props {
 
 function PanelHeader({ label, database, code }: { label: string; database?: string; code: string }) {
   return (
-    <div className="bg-background-alternate text-secondary flex items-center justify-between px-4 py-1 text-sm font-semibold dark:font-medium">
+    <div className="bg-background-alternate text-secondary flex items-center justify-between px-4 py-0 text-xs">
       <div className="flex items-center gap-2">
         <HardDrive size={14} />
         <p>

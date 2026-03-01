@@ -31,7 +31,7 @@ export function SwitchDatabase() {
       const response = await callListDatabases(listDatabasesAuthenticatedService())
       setDatabases(response.data.filter((db) => db !== authContext.database))
     } catch {
-      toast.error('Error al cargar bases de datos', { description: 'No se pudieron obtener las bases de datos disponibles.' })
+      toast.error('Error', { description: 'No se pudieron obtener las bases de datos disponibles.' })
     }
   }
 
@@ -41,9 +41,9 @@ export function SwitchDatabase() {
       updateDatabase(db)
       clearSysObject(null)
       resetUserTable()
-      toast.success('Base de datos cambiada', { description: `Conectado a '${db}'.` })
+      toast.success('Success', { description: `Base de datos cambiada. Conectado a '${db}'.` })
     } catch {
-      toast.error('Acceso denegado', { description: `No tienes permisos para acceder a '${db}'.` })
+      toast.error('Error', { description: `Acceso denegado. No tienes permisos para acceder a '${db}'.` })
     }
   }
 

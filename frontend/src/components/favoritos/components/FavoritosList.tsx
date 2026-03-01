@@ -45,7 +45,7 @@ export function FavoritosList({ favoritos, onDelete, onSelect, activeObjectName,
               type="button"
               disabled={inactive}
               className={cn(
-                'flex w-full items-center gap-2 rounded-sm px-4 py-1.5 text-left text-sm',
+                'flex w-full items-center gap-2 rounded-sm px-4 py-1.5 text-left text-[13px]',
                 inactive ? 'cursor-not-allowed' : 'hover:bg-action-hover cursor-pointer',
               )}
               onClick={() => handleClick(fav.objectId)}
@@ -60,7 +60,7 @@ export function FavoritosList({ favoritos, onDelete, onSelect, activeObjectName,
               )}
               <span
                 className={cn(
-                  'truncate text-sm',
+                  'truncate text-[13px]',
                   inactive
                     ? 'text-secondary line-through'
                     : isActive(fav)
