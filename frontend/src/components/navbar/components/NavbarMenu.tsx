@@ -73,7 +73,7 @@ export function NavbarMenu({ className }: Props) {
               onMouseLeave={handleMouseLeave}
             >
               <span
-                className={`text-sm font-semibold text-nowrap transition-colors ${currentLocation.pathname === menu.href ? 'text-red-500' : 'text-primary/90 group-hover:text-red-500'} `}
+                className={`text-sm font-semibold text-nowrap transition-colors ${currentLocation.pathname === menu.href ? 'text-primary/90' : 'text-primary/50 group-hover:text-primary/90'} `}
               >
                 {menu.title}
               </span>

@@ -43,9 +43,9 @@ export function AligmentPage() {
         {/* Editor code */}
         <EditorCodeAligment />
 
-        <footer className="text-muted grid place-content-center py-2.5 text-sm">
+        <footer className="text-muted grid place-content-center py-2 text-sm">
           <span>
-            © 2025 <strong>Departamento de Aseguramiento de Calidad</strong>
+            © 2026 <strong>Departamento de Aseguramiento de Calidad</strong>
           </span>
         </footer>
       </main>

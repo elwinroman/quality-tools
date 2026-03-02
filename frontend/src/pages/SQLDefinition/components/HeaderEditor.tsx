@@ -1,6 +1,6 @@
 import { ChevronRight, TriangleAlert } from 'lucide-react'
 
-import { ConfigOptionEditor, CopyCode } from '@/components/editor-option'
+import { ConfigOptionEditor, CopyCode, GenerateCodeForDropObject } from '@/components/editor-option'
 import { ToggleFavoritoButton, useFavoritoContext } from '@/components/favoritos'
 import { useEditorOptionsStore } from '@/zustand'
 
@@ -68,6 +68,10 @@ export function HeaderEditor({ activeTab }: Props) {
         ) : (
           <>
             {/* <DownloadScript text={sysobject?.definition ?? ''} disabled={!sysobject} filename={sysobject?.name ?? ''} /> */}
+            <GenerateCodeForDropObject
+              object={{ schema: sysobject?.schemaName ?? '', name: sysobject?.name ?? '', type: sysobject?.type ?? '' }}
+              disabled={!sysobject}
+            />
             <CopyCode text={currentEditorCode} disabled={!sysobject} />
           </>
         )}
