@@ -35,7 +35,7 @@ EXEC sp_addextendedproperty
 
 EXEC sp_addextendedproperty 
 	@name = N'Description', 
-	@value = N'Hash (MD5) de 32 bits generado como identificador único para un usuario a partir de (cUusario, cServer).', 
+	@value = N'Hash MD5 de 32 caracteres que identifica unívocamente un usuario. Se genera a partir del par (cUsuario, cServer).', 
 	@level0type = N'SCHEMA', @level0name = N'dbo', 
 	@level1type = N'TABLE',  @level1name = N'Usuario',
 	@level2type = N'COLUMN', @level2name = N'cHashUsuarioUID'
@@ -70,7 +70,7 @@ EXEC sp_addextendedproperty
 
 EXEC sp_addextendedproperty 
 	@name = N'Description', 
-	@value = N'Vigencia de un usuario (1: activo, 2: inactivo).', 
+	@value = N'Indica si el usuario está activo en el sistema. Valores: 1 = activo, 0 = inactivo.', 
 	@level0type = N'SCHEMA', @level0name = N'dbo', 
 	@level1type = N'TABLE',  @level1name = N'Usuario',
 	@level2type = N'COLUMN', @level2name = N'lVigente'
@@ -122,7 +122,7 @@ EXEC sp_addextendedproperty
 
 EXEC sp_addextendedproperty 
 	@name = N'Description', 
-	@value = N'Vigencia del tipo de acción (1: Vigente, 2: No vigente).', 
+	@value = N'Indica si el tipo de acción está vigente. Valores: 1 = vigente, 0 = no vigente.', 
 	@level0type = N'SCHEMA', @level0name = N'dbo', 
 	@level1type = N'TABLE',  @level1name = N'TipoAccion',
 	@level2type = N'COLUMN', @level2name = N'lVigente'
@@ -143,10 +143,10 @@ CREATE TABLE LogAcceso (
 )
 
 -- Agregar propiedades extendidas a la tabla
-EXEC sp_addextendedproperty 
-	@name = N'Description', 
-	@value = N'Tabla que almacena información de usuarios.', 
-	@level0type = N'SCHEMA', @level0name = N'dbo', 
+EXEC sp_addextendedproperty
+	@name = N'Description',
+	@value = N'Registra los accesos de usuarios a las distintas bases de datos del sistema.',
+	@level0type = N'SCHEMA', @level0name = N'dbo',
 	@level1type = N'TABLE',  @level1name = N'LogAcceso'
 
 -- Agregar propiedades extendidas a las columnas
@@ -193,15 +193,16 @@ CREATE TABLE LogBusqueda (
 	cDatabase VARCHAR(64) NOT NULL,
 	cSchema VARCHAR(64) NOT NULL,
 	cBusqueda VARCHAR(128) NOT NULL,
+	cType CHAR(2) NOT NULL,
 	lProduccion BIT NOT NULL,
 	dFechaBusqueda DATETIME NOT NULL
 )
 
 -- Agregar propiedades extendidas a la tabla
-EXEC sp_addextendedproperty 
-	@name = N'Description', 
-	@value = N'Tabla que almacena información de usuarios.', 
-	@level0type = N'SCHEMA', @level0name = N'dbo', 
+EXEC sp_addextendedproperty
+	@name = N'Description',
+	@value = N'Registra las búsquedas de objetos SQL realizadas por los usuarios, incluyendo el tipo de acción y si es en producción.',
+	@level0type = N'SCHEMA', @level0name = N'dbo',
 	@level1type = N'TABLE',  @level1name = N'LogBusqueda'
 
 -- Agregar propiedades extendidas a las columnas
@@ -240,16 +241,23 @@ EXEC sp_addextendedproperty
 	@level1type = N'TABLE',  @level1name = N'LogBusqueda',
 	@level2type = N'COLUMN', @level2name = N'cSchema'
 
-EXEC sp_addextendedproperty 
-	@name = N'Description', 
-	@value = N'Nombre del objeto que ha buscado el usuario.', 
-	@level0type = N'SCHEMA', @level0name = N'dbo', 
+EXEC sp_addextendedproperty
+	@name = N'Description',
+	@value = N'Nombre del objeto SQL buscado por el usuario.',
+	@level0type = N'SCHEMA', @level0name = N'dbo',
 	@level1type = N'TABLE',  @level1name = N'LogBusqueda',
 	@level2type = N'COLUMN', @level2name = N'cBusqueda'
 
-EXEC sp_addextendedproperty 
-	@name = N'Description', 
-	@value = N'Indica si el objeto recuperado es de produccion (1: produccion, 2: no es de produccion).', 
+EXEC sp_addextendedproperty
+	@name = N'Description',
+	@value = N'Tipo de objeto SQL según sys.objects (ej: P = Stored Procedure, V = View, FN = Function, U = Table).',
+	@level0type = N'SCHEMA', @level0name = N'dbo',
+	@level1type = N'TABLE',  @level1name = N'LogBusqueda',
+	@level2type = N'COLUMN', @level2name = N'cType'
+
+EXEC sp_addextendedproperty
+	@name = N'Description',
+	@value = N'Indica si el objeto consultado pertenece al entorno de producción. Valores: 1 = producción, 0 = no producción.', 
 	@level0type = N'SCHEMA', @level0name = N'dbo', 
 	@level1type = N'TABLE',  @level1name = N'LogBusqueda',
 	@level2type = N'COLUMN', @level2name = N'lProduccion'
@@ -272,29 +280,75 @@ END
 CREATE TABLE Favorito (
 	idFavorito INT PRIMARY KEY IDENTITY(1,1),
 	idUsuario INT NOT NULL,
-	idTipoAccion INT NOT NULL,
-	cDatabase VARCHAR(64) NOT NULL,
 	cSchema VARCHAR(64) NOT NULL,
 	cNombreObjeto VARCHAR(128) NOT NULL,
+	cType CHAR(2) NOT NULL,
 	dFecha DATETIME NOT NULL,
-	lVigente BIT DEFAULT 1 NOT NULL
+	lVigente BIT DEFAULT 1 NOT NULL,
+	CONSTRAINT FK_Favorito_Usuario FOREIGN KEY (idUsuario) REFERENCES Usuario(idUsuario)
 )
 
---================================================================
--- TABLA BusquedaReciente
---================================================================
-IF EXISTS (SELECT * FROM sysobjects WHERE name = 'BusquedaReciente' AND xtype = 'U')
-BEGIN
-	DROP TABLE BusquedaReciente
-END
+-- Agregar propiedades extendidas a la tabla
+EXEC sp_addextendedproperty
+	@name = N'Description',
+	@value = N'Almacena los objetos SQL marcados como favoritos por cada usuario (no toma en cuenta la BD, es global).',
+	@level0type = N'SCHEMA', @level0name = N'dbo',
+	@level1type = N'TABLE',  @level1name = N'Favorito'
 
-CREATE TABLE BusquedaReciente (
-	idBusquedaReciente INT PRIMARY KEY IDENTITY(1,1),
-	idUsuario INT NOT NULL,
-	idTipoAccion INT NOT NULL,
-	cDatabase VARCHAR(64) NOT NULL,
-	cSchema VARCHAR(64) NOT NULL,
-	cNombreObjeto VARCHAR(128) NOT NULL,
-	dFecha DATETIME NOT NULL,
-	lVigente BIT DEFAULT 1 NOT NULL
-)
+-- Agregar propiedades extendidas a las columnas
+EXEC sp_addextendedproperty
+	@name = N'Description',
+	@value = N'Identificador único del registro de favorito.',
+	@level0type = N'SCHEMA', @level0name = N'dbo',
+	@level1type = N'TABLE',  @level1name = N'Favorito',
+	@level2type = N'COLUMN', @level2name = N'idFavorito'
+
+EXEC sp_addextendedproperty
+	@name = N'Description',
+	@value = N'FK a Usuario(idUsuario). Identifica al usuario propietario del favorito.',
+	@level0type = N'SCHEMA', @level0name = N'dbo',
+	@level1type = N'TABLE',  @level1name = N'Favorito',
+	@level2type = N'COLUMN', @level2name = N'idUsuario'
+
+EXEC sp_addextendedproperty
+	@name = N'Description',
+	@value = N'Esquema al que pertenece el objeto marcado como favorito.',
+	@level0type = N'SCHEMA', @level0name = N'dbo',
+	@level1type = N'TABLE',  @level1name = N'Favorito',
+	@level2type = N'COLUMN', @level2name = N'cSchema'
+
+EXEC sp_addextendedproperty
+	@name = N'Description',
+	@value = N'Nombre del objeto SQL marcado como favorito.',
+	@level0type = N'SCHEMA', @level0name = N'dbo',
+	@level1type = N'TABLE',  @level1name = N'Favorito',
+	@level2type = N'COLUMN', @level2name = N'cNombreObjeto'
+
+EXEC sp_addextendedproperty
+	@name = N'Description',
+	@value = N'Tipo de objeto SQL según sys.objects (ej: P = Stored Procedure, V = View, FN = Function, U = Table).',
+	@level0type = N'SCHEMA', @level0name = N'dbo',
+	@level1type = N'TABLE',  @level1name = N'Favorito',
+	@level2type = N'COLUMN', @level2name = N'cType'
+
+EXEC sp_addextendedproperty
+	@name = N'Description',
+	@value = N'Fecha y hora en que se marcó el objeto como favorito.',
+	@level0type = N'SCHEMA', @level0name = N'dbo',
+	@level1type = N'TABLE',  @level1name = N'Favorito',
+	@level2type = N'COLUMN', @level2name = N'dFecha'
+
+EXEC sp_addextendedproperty
+	@name = N'Description',
+	@value = N'Indica si el favorito está activo. Valores: 1 = vigente, 0 = eliminado.',
+	@level0type = N'SCHEMA', @level0name = N'dbo',
+	@level1type = N'TABLE',  @level1name = N'Favorito',
+	@level2type = N'COLUMN', @level2name = N'lVigente'
+
+-- Agregar propiedades extendidas a la constraint
+EXEC sp_addextendedproperty
+	@name = N'Description',
+	@value = N'Garantiza integridad referencial entre Favorito y Usuario.',
+	@level0type = N'SCHEMA', @level0name = N'dbo',
+	@level1type = N'TABLE',  @level1name = N'Favorito',
+	@level2type = N'CONSTRAINT', @level2name = N'FK_Favorito_Usuario'

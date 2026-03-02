@@ -1,17 +1,13 @@
 --====================================
 --INSERTAR TIPOS DE ACCION TipoAccion
 --====================================
-IF NOT EXISTS(SELECT 1 FROM dbo.TipoAccion WHERE cNombre = 'sqldefinition')
+IF NOT EXISTS(SELECT 1 FROM dbo.TipoAccion WHERE cNombre = 'BUSQUEDA REGULAR')
 BEGIN
-	INSERT INTO dbo.TipoAccion (cNombre, cDescripcion, lVigente) VALUES ('sqldefinition', 'Búsqueda y recuperación de la definición de un objeto SQL local', 1)
+	INSERT INTO dbo.TipoAccion (cNombre, cDescripcion, lVigente) VALUES ('BUSQUEDA REGULAR', 'BÃºsqueda y recuperaciÃ³n de un objeto SQL de manera regular', 1)
 END
 
-IF NOT EXISTS(SELECT 1 FROM dbo.TipoAccion WHERE cNombre = 'usertable')
+IF NOT EXISTS(SELECT 1 FROM dbo.TipoAccion WHERE cNombre = 'COMPARACION')
 BEGIN
-	INSERT INTO dbo.TipoAccion (cNombre, cDescripcion, lVigente) VALUES ('usertable', 'Búsqueda y recuperación de una tabla de usuario local', 1)
+	INSERT INTO dbo.TipoAccion (cNombre, cDescripcion, lVigente) VALUES ('COMPARACION', 'BÃºsqueda y recuperaciÃ³n de un objeto SQL cuando se hace click en COMPARAR', 1)
 END
 
-IF NOT EXISTS(SELECT 1 FROM dbo.TipoAccion WHERE cNombre = 'forcompare')
-BEGIN
-	INSERT INTO dbo.TipoAccion (cNombre, cDescripcion, lVigente) VALUES ('forcompare', 'Recuperación de la definición de un objeto SQL de pre-producción mediante comparación', 1)
-END
