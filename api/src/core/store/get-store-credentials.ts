@@ -1,3 +1,4 @@
+import cryptocodeUtil from '@core/utils/cryptocode.util'
 import { StoreUserSchema } from '@shared/domain/store'
 
 import {
@@ -16,7 +17,6 @@ import {
   PREPROD_DBSERVER,
   PREPROD_DBUSERNAME,
 } from '@/config/enviroment'
-
 import { MODE } from '@/constants/commons'
 
 import { ValkeyCacheRepository } from '../cache/valkey-cache-repository'
@@ -53,7 +53,15 @@ const STATIC_CREDENTIALS: Record<DatabaseName, StoreUserSchema> = {
 export function getStaticDatabaseCredentials(name: DatabaseName): { credentials: StoreUserSchema; type: UserType } {
   if (!(name in STATIC_CREDENTIALS)) throw new Error(`Nombre de base de datos no estática: ${name}`)
 
-  return { credentials: STATIC_CREDENTIALS[name], type: UserTypeEnum.Internal }
+  const raw = STATIC_CREDENTIALS[name]
+
+  // En producción, las credenciales estáticas del .env están encriptadas
+  const credentials: StoreUserSchema =
+    NODE_ENV !== MODE.development
+      ? { ...raw, user: cryptocodeUtil.decrypt(raw.user) ?? raw.user, password: cryptocodeUtil.decrypt(raw.password) ?? raw.password }
+      : raw
+
+  return { credentials, type: UserTypeEnum.Internal }
 }
 
 export async function getCacheDatabaseCredentials(userId: number): Promise<{ credentials: StoreUserSchema; type: UserType } | null> {
@@ -65,7 +73,13 @@ export async function getCacheDatabaseCredentials(userId: number): Promise<{ cre
   // si no existe la credencial en la caché
   if (!cachedCredentials) return null
 
-  const credentials = JSON.parse(cachedCredentials)
+  const credentials: StoreUserSchema = JSON.parse(cachedCredentials)
+
+  // En producción, las credenciales se guardan encriptadas en cache
+  if (NODE_ENV !== MODE.development) {
+    credentials.user = cryptocodeUtil.decrypt(credentials.user) ?? credentials.user
+    credentials.password = cryptocodeUtil.decrypt(credentials.password) ?? credentials.password
+  }
 
   return {
     credentials,

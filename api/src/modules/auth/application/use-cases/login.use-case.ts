@@ -8,7 +8,7 @@ import { Logger } from '@shared/domain/logger'
 import { StoreUserSchema } from '@shared/domain/store'
 
 import { JWT_REFRESH_TOKEN_TTL, NODE_ENV } from '@/config/enviroment'
-import { MODE } from '@/constants'
+import { MODE } from '@/constants/commons'
 
 export class LoginUseCase {
   constructor(
@@ -20,16 +20,8 @@ export class LoginUseCase {
   ) {}
 
   async execute(sqlUser: StoreUserSchema): Promise<AuthenticatedUser> {
-    // encriptación de las credenciales del usuario
-    const credential = {
-      host: sqlUser.host,
-      database: sqlUser.database,
-      user: NODE_ENV === MODE.development ? sqlUser.user : cryptocodeUtil.encrypt(sqlUser.user),
-      password: NODE_ENV === MODE.development ? sqlUser.password : cryptocodeUtil.encrypt(sqlUser.password),
-    }
-
-    const details = await this.storeRepository.getDetails(credential)
-    const permissionStore = await this.storeRepository.getPermission(credential)
+    const details = await this.storeRepository.getDetails(sqlUser)
+    const permissionStore = await this.storeRepository.getPermission(sqlUser)
 
     const user = User.create({
       user: sqlUser.user,
@@ -50,13 +42,17 @@ export class LoginUseCase {
     const accessToken = this.tokenManager.createAccessToken(repoUser.id, repoUser.user)
     const refreshToken = this.tokenManager.createRefreshToken(repoUser.id, repoUser.user)
 
+    // En producción, encriptar credenciales antes de guardar en cache
+    const cachedUser = NODE_ENV === MODE.development ? sqlUser.user : cryptocodeUtil.encrypt(sqlUser.user)
+    const cachedPassword = NODE_ENV === MODE.development ? sqlUser.password : cryptocodeUtil.encrypt(sqlUser.password)
+
     await this.cacheRepository.set(
       `auth:credentials:${repoUser.id}`,
       JSON.stringify({
-        host: credential.host,
+        host: sqlUser.host,
         database: details.name,
-        user: credential.user,
-        password: credential.password,
+        user: cachedUser,
+        password: cachedPassword,
       }),
       JWT_REFRESH_TOKEN_TTL,
     )

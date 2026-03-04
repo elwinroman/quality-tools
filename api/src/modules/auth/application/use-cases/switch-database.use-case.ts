@@ -1,9 +1,13 @@
 import { ForStoreRepositoryPort } from '@auth/domain/ports/drivens'
 import { PermissionStore, StoreInfo } from '@auth/domain/schemas/store'
 import { CacheCredentialNotFoundException } from '@core/exceptions/cache/cache-credential-not-found.exception'
+import cryptocodeUtil from '@core/utils/cryptocode.util'
 import { CacheRepository } from '@shared/domain/cache-repository'
 import { Logger } from '@shared/domain/logger'
 import { StoreUserSchema } from '@shared/domain/store'
+
+import { NODE_ENV } from '@/config/enviroment'
+import { MODE } from '@/constants/commons'
 
 export class SwitchDatabaseUseCase {
   constructor(
@@ -25,14 +29,18 @@ export class SwitchDatabaseUseCase {
     const details = await this.storeRepository.getDetails(newCredentials)
     const permissionStore = await this.storeRepository.getPermission(newCredentials)
 
+    // Re-encriptar credenciales antes de guardar (llegan desencriptadas desde buildStoreAuthContext)
+    const cachedUser = NODE_ENV === MODE.development ? currentCredentials.user : cryptocodeUtil.encrypt(currentCredentials.user)
+    const cachedPassword = NODE_ENV === MODE.development ? currentCredentials.password : cryptocodeUtil.encrypt(currentCredentials.password)
+
     // actualiza las credenciales en cache con la nueva BD, conservando el TTL restante
     await this.cacheRepository.set(
       cacheKey,
       JSON.stringify({
         host: currentCredentials.host,
         database: details.name,
-        user: currentCredentials.user,
-        password: currentCredentials.password,
+        user: cachedUser,
+        password: cachedPassword,
       }),
       remainingTtl,
     )
