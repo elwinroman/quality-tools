@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/swcrc",
   "sourceMaps": true,
-  "minify": true,
+  "minify": false,
   "jsc": {
     "parser": {
       "syntax": "typescript",
@@ -10,15 +10,19 @@
     },
     "baseUrl": "./",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "@core/*": ["src/core/*"],
+      "@shared/*": ["src/modules/shared/*"],
+      "@auth/*": ["src/modules/auth/*"],
+      "@finlog/*": ["src/modules/fin-log/*"],
+      "@sysobject/*": ["src/modules/sysobject/*"],
+      "@busqueda-reciente/*": ["src/modules/busqueda-reciente/*"],
+      "@favorito/*": ["src/modules/favorito/*"]
     },
     "target": "esnext",
     "minify": {
-      "compress": {
-        "drop_console": false,
-        "unused": true
-      },
-      "mangle": true
+      "compress": false,
+      "mangle": false
     }
   },
   "module": {

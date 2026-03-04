@@ -4,7 +4,7 @@ FROM node:22.11.0-slim AS build
 ARG VITE_API_URL=PRODUCTION_API_URL
 
 WORKDIR /app
-COPY package*.json /app
+COPY package.json /app
 
 # Instalar Bun y dos2unix
 RUN apt-get update && \

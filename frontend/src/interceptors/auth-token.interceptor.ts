@@ -1,5 +1,6 @@
 import axios, { AxiosError, AxiosRequestConfig } from 'axios'
 
+import { API_URL } from '@/enviroment/enviroment'
 import { getAccessToken, setAccessToken } from '@/zustand/auth.store'
 
 interface RetryAxiosRequestConfig extends AxiosRequestConfig {
@@ -14,7 +15,7 @@ interface RetryAxiosRequestConfig extends AxiosRequestConfig {
  */
 
 const api = axios.create({
-  baseURL: 'http://192.168.1.68:3000/api/v1',
+  baseURL: `${API_URL}/api/v1`,
 })
 
 api.interceptors.request.use((config) => {
@@ -33,7 +34,7 @@ api.interceptors.response.use(
       originalRequest._retry = true
 
       try {
-        const response = await axios.post('http://192.168.1.68:3000/api/v1/auth/refresh-token', {}, { withCredentials: true })
+        const response = await axios.post(`${API_URL}/api/v1/auth/refresh-token`, {}, { withCredentials: true })
 
         const newToken = response.data.data.accessToken
 
