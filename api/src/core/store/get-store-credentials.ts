@@ -5,22 +5,26 @@ import {
   DBPASSWORD,
   DBSERVER,
   DBUSERNAME,
-  FINLOG_DBNAME,
-  FINLOG_DBPASSWORD,
-  FINLOG_DBSERVER,
-  FINLOG_DBUSERNAME,
+  NODE_ENV,
+  // FINLOG: en pruebas, descomentar cuando esté listo
+  // FINLOG_DBNAME,
+  // FINLOG_DBPASSWORD,
+  // FINLOG_DBSERVER,
+  // FINLOG_DBUSERNAME,
   PREPROD_DBNAME,
   PREPROD_DBPASSWORD,
   PREPROD_DBSERVER,
   PREPROD_DBUSERNAME,
 } from '@/config/enviroment'
 
+import { MODE } from '@/constants/commons'
+
 import { ValkeyCacheRepository } from '../cache/valkey-cache-repository'
 import { DatabaseName } from './database.enum'
 import { UserType, UserTypeEnum } from './mssql-database-connection'
 
 /** Credenciales estáticas (para uso sincrónico) */
-const STATIC_CREDENTIALS: Record<DatabaseName.PREPROD | DatabaseName.APP | DatabaseName.LOG, StoreUserSchema> = {
+const STATIC_CREDENTIALS: Record<DatabaseName, StoreUserSchema> = {
   [DatabaseName.PREPROD]: {
     host: PREPROD_DBSERVER,
     database: PREPROD_DBNAME,
@@ -33,12 +37,13 @@ const STATIC_CREDENTIALS: Record<DatabaseName.PREPROD | DatabaseName.APP | Datab
     user: DBUSERNAME,
     password: DBPASSWORD,
   },
-  [DatabaseName.LOG]: {
-    host: FINLOG_DBSERVER,
-    database: FINLOG_DBNAME,
-    user: FINLOG_DBUSERNAME,
-    password: FINLOG_DBPASSWORD,
-  },
+  // FINLOG: en pruebas, descomentar cuando esté listo
+  // [DatabaseName.LOG]: {
+  //   host: FINLOG_DBSERVER,
+  //   database: FINLOG_DBNAME,
+  //   user: FINLOG_DBUSERNAME,
+  //   password: FINLOG_DBPASSWORD,
+  // },
 }
 
 /**

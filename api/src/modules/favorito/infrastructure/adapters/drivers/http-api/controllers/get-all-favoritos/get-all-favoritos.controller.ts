@@ -16,17 +16,11 @@ export class GetAllFavoritosController {
       const dto: GetAllFavoritosQuery = GetAllFavoritosQuerySchema.parse({ type, limit })
 
       // credenciales de usuario e idUser
-      const {
-        store: {
-          credentials: { database },
-        },
-        authContext,
-      } = await buildStoreAuthContext()
+      const { authContext } = await buildStoreAuthContext()
 
       const filter: FavoritoFilter = {
         type: dto.type as TypeSysObject,
         idUser: authContext.userId,
-        database,
       }
 
       const { data, meta } = await this.service.getAllFavoritos(filter, dto.limit)

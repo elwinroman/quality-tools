@@ -8,7 +8,6 @@ export class RegisterFavoritoUseCase {
   async execute(favoritoInput: FavoritoInput): Promise<{ data: FavoritoRepoResponse; action: 'INSERT' | 'UPDATE'; message: string }> {
     const criteria = {
       idUser: favoritoInput.idUser,
-      database: favoritoInput.database,
       schema: favoritoInput.schema,
       objectName: favoritoInput.objectName,
     }

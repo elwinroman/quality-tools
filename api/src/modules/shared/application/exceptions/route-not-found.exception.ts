@@ -8,6 +8,7 @@ export class RouteNotFoundException extends ApplicationError {
 
   constructor(path?: string) {
     super(`[route] Ruta no encontrada${path ? `: ${path}` : ''}`)
-    this.detail = 'La dirección solicitada no existe o no está disponible en este momento. Verifica que la URL sea correcta e inténtalo nuevamente.'
+    this.detail =
+      'La dirección solicitada no existe o no está disponible en este momento. Verifica que la URL sea correcta e inténtalo nuevamente.'
   }
 }

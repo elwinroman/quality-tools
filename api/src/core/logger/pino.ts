@@ -35,7 +35,7 @@ function buildTransports(): TransportTargetOptions[] {
         host: LOKI_HOST,
         batching: true,
         interval: 5,
-        labels: { app: 'quality-tools-api' },
+        labels: { app: 'qt-api' },
         basicAuth: LOKI_USERNAME && LOKI_PASSWORD ? { username: LOKI_USERNAME, password: LOKI_PASSWORD } : undefined,
       },
       level: LOKI_LOG_LEVEL ?? 'info',
