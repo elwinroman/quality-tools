@@ -67,8 +67,9 @@ export function useInjectionComponent({ originalCode, modifiedCode, renderSideBy
     return rootRef.current
   }
 
+  const observerRef = useRef<MutationObserver | null>(null)
+
   const render = () => {
-    // verificar que existan los nodos del DiffEditor
     for (const panel of panels) {
       const target = document.querySelector(panel.selector)
       if (!target) return
@@ -90,7 +91,31 @@ export function useInjectionComponent({ originalCode, modifiedCode, renderSideBy
     }
   }
 
+  /** Espera a que los nodos de Monaco existan en el DOM antes de renderizar */
+  const waitForNodesAndRender = () => {
+    // Si los nodos ya existen, renderizar directo
+    const allExist = panels.every((p) => document.querySelector(p.selector))
+    if (allExist) {
+      render()
+      return
+    }
+
+    // Si no, observar el DOM hasta que aparezcan
+    observerRef.current?.disconnect()
+    observerRef.current = new MutationObserver(() => {
+      const ready = panels.every((p) => document.querySelector(p.selector))
+      if (ready) {
+        observerRef.current?.disconnect()
+        observerRef.current = null
+        render()
+      }
+    })
+    observerRef.current.observe(document.body, { childList: true, subtree: true })
+  }
+
   const cleanup = () => {
+    observerRef.current?.disconnect()
+    observerRef.current = null
     for (const panel of panels) {
       panel.rootRef.current?.unmount()
       panel.rootRef.current = null
@@ -99,8 +124,8 @@ export function useInjectionComponent({ originalCode, modifiedCode, renderSideBy
   }
 
   useEffect(() => {
-    queueMicrotask(render)
-    return () => queueMicrotask(cleanup)
+    waitForNodesAndRender()
+    return cleanup
   }, [originalCode, modifiedCode, renderSideBySide])
 
   return { render }

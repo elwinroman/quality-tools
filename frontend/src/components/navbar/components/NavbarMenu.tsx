@@ -25,7 +25,7 @@ export function NavbarMenu({ className }: Props) {
     },
     {
       id: 3,
-      title: 'Aligment',
+      title: 'Alaingment',
       href: AppRoutes.Aligment,
     },
   ]

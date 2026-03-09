@@ -77,7 +77,7 @@ export function Form() {
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-0.5">
           <Label text="Server" />
-          <Input name="server" placeholder="Ingresa el nombre de tu servidor" defaultValue="DeSKTOP-M41n" />
+          <Input name="server" placeholder="Ingresa el nombre de tu servidor" defaultValue="10.5.81.141\pruebas" />
           {formErrors?.server && <p className="mt-0.5 text-xs text-red-500">{formErrors.server}</p>}
         </div>
 
