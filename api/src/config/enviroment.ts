@@ -52,6 +52,12 @@ const envSchema = z
     LOKI_USERNAME: z.string().optional(),
     LOKI_PASSWORD: z.string().optional(),
     LOKI_LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error', 'fatal']).optional().default('info'),
+    // Porcentaje de logs INFO enviados a Loki (0 a 1). Ej: 0.15 = 15%. No afecta warn/error/fatal (siempre 100%)
+    LOKI_INFO_SAMPLE_RATE: z
+      .string()
+      .default('0.15')
+      .transform(val => Number(val))
+      .pipe(z.number().min(0).max(1)),
 
     // Cache (Valkey, Redis, etc.)
     CACHE_HOST: z.string().min(1),
@@ -135,6 +141,7 @@ export const {
   LOKI_USERNAME,
   LOKI_PASSWORD,
   LOKI_LOG_LEVEL,
+  LOKI_INFO_SAMPLE_RATE,
 
   CACHE_HOST,
   CACHE_PORT,
