@@ -10,7 +10,9 @@ if [ -z "$1" ]; then
   exit 1
 fi
 
+ENV_FILES="--env-file .env.docker --env-file .env.valkey"
+
 export APP_VERSION=$1
 echo ">>> Rollback a versión: $APP_VERSION"
-docker compose --env-file .env.docker --env-file .env.valkey up -d
-docker compose ps
+docker compose $ENV_FILES up -d
+docker compose $ENV_FILES ps
