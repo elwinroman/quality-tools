@@ -1,4 +1,4 @@
-import { AxiosResponse, isAxiosError } from 'axios'
+import { AxiosResponse, isAxiosError, isCancel } from 'axios'
 import { useEffect, useState } from 'react'
 
 import { AxiosCall } from '@/models'
@@ -25,6 +25,9 @@ const useFetchAndLoad = <T = unknown>() => {
     try {
       result = await axiosCall.call // ejecuta la llamada a la API
     } catch (err) {
+      // request cancelada (cambio de tab, desmontaje) → ignorar silenciosamente
+      if (isCancel(err)) return result
+
       setLoading(false)
 
       // manejo del error

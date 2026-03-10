@@ -40,7 +40,7 @@ export class VerifyAccessTokenUseCase {
 
     this.logger.info('[auth] Token de acceso verificado', {
       actionDetails: {
-        userId: decoded.type,
+        userId: decoded.user_id,
         jti: decoded.jti,
         type: decoded.type,
         expirationCountdown: decoded.expirationCountdown,
