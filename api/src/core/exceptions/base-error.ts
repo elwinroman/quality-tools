@@ -3,9 +3,12 @@
  * @property status - Código de estado HTTP (400, 401, 404, 500, etc.)
  * @property errorCode - Código único de error para identificación en el cliente
  */
+export type LogLevel = 'error' | 'warn' | 'info' | 'debug'
+
 export interface ErrorMetadata {
   status: number
   errorCode: number
+  logLevel?: LogLevel
 }
 
 /**

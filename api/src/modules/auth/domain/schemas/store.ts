@@ -14,6 +14,9 @@ export interface StoreInfo {
 
   /** Nombre o dirección del servidor donde se encuentra alojada la base de datos. */
   server: string
+
+  /** Nombre de la base de datos de pre-producción usada para comparación. */
+  prodDatabase: string
 }
 
 /**

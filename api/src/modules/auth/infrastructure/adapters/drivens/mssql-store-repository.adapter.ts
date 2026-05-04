@@ -5,6 +5,8 @@ import { UserTypeEnum } from '@core/store'
 import { wrapDatabaseError } from '@core/utils'
 import { StoreUserSchema } from '@shared/domain/store'
 
+import { PREPROD_DBNAME } from '@/config/enviroment'
+
 export class MssqlStoreRepositoryAdapter implements ForStoreRepositoryPort {
   private connection = new MSSQLDatabaseConnection()
 
@@ -29,6 +31,7 @@ export class MssqlStoreRepositoryAdapter implements ForStoreRepositoryPort {
         compatibility: res.recordset[0].cmptlevel,
         description: res.recordset[0].value,
         server: res.recordset[0].server_name,
+        prodDatabase: PREPROD_DBNAME,
       }
 
       return data

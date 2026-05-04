@@ -58,16 +58,20 @@ export function handleErrorMiddleware(err: unknown, req: Request, res: Response,
     }
 
     // Errores de dominio (reglas de negocio) - SE EXPONEN al cliente
-    case err instanceof DomainError:
-      logger.warn(err.message, { err })
+    case err instanceof DomainError: {
+      const level = err.metadata.logLevel ?? 'warn'
+      logger[level](err.message, { err })
       error = err
       break
+    }
 
     // Errores de aplicación (validaciones, auth) - SE EXPONEN al cliente
-    case err instanceof ApplicationError:
-      logger.warn(err.message, { err })
+    case err instanceof ApplicationError: {
+      const level = err.metadata.logLevel ?? 'warn'
+      logger[level](err.message, { err })
       error = err
       break
+    }
 
     // Errores de infraestructura - SE ENMASCARAN
     case err instanceof InfrastructureError:
