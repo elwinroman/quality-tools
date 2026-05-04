@@ -4,6 +4,7 @@ import { ImperativePanelHandle } from 'react-resizable-panels'
 import { toast } from 'sonner'
 
 import { FavoritoProvider } from '@/components/favoritos'
+import { DatabaseSwitchOverlay } from '@/components/loader'
 import { Navbar } from '@/components/navbar/Navbar'
 import { DialogSearchProvider } from '@/components/search/context/dialogSearchContext'
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup, Tabs, TabsContent } from '@/components/ui'
@@ -52,7 +53,7 @@ export function UsertablePage() {
     <section className="bg-background flex h-full w-full flex-col">
       <Navbar />
 
-      <main className="h-full w-full overflow-hidden">
+      <main className="relative h-full w-full overflow-hidden">
         <section className="bg-background-paperchanel relative h-full w-full overflow-hidden">
           <FavoritoProvider type="U">
             <ResizablePanelGroup
@@ -129,6 +130,7 @@ export function UsertablePage() {
             )}
           </FavoritoProvider>
         </section>
+        <DatabaseSwitchOverlay />
       </main>
     </section>
   )

@@ -14,6 +14,7 @@ export interface AuthenticatedUserApiResponse {
       compatibility: number
       description: string
       server: string
+      prodDatabase: string
       date: Date | string
       viewDefinitionPermission: boolean
     }

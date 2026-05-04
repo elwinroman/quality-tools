@@ -7,7 +7,8 @@ import { dialogSearchContext } from './context/dialogSearchContext'
 import { searchContext } from './context/searchContext'
 
 export function Search() {
-  const { updateQuerySearch, debounceGetSuggestions, updateSuggestions } = searchContext()
+  const { suggestions, activeIndex, updateQuerySearch, debounceGetSuggestions, updateSuggestions, updateActiveIndex, onSelect } =
+    searchContext()
   const { open, updateOpen } = dialogSearchContext()
 
   const handleSearchByTiping = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -16,7 +17,33 @@ export function Search() {
     if (newSearch.length > 2) debounceGetSuggestions(newSearch)
     else updateSuggestions([])
 
+    updateActiveIndex(newSearch.length > 2 ? 0 : null)
     updateQuerySearch(newSearch)
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!suggestions.length) return
+
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      e.preventDefault()
+      updateActiveIndex((current) => {
+        if (current === null) return 0
+        if (e.key === 'ArrowDown') return (current + 1) % suggestions.length
+        return (current - 1 + suggestions.length) % suggestions.length
+      })
+    }
+
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      const selectedSuggestion = suggestions[activeIndex ?? 0]
+      if (!selectedSuggestion) return
+
+      onSelect(selectedSuggestion.id)
+      updateOpen(false)
+      updateQuerySearch('')
+      updateSuggestions([])
+      updateActiveIndex(null)
+    }
   }
 
   const handleOpenChange = (isOpen: boolean) => {
@@ -24,6 +51,7 @@ export function Search() {
     if (!isOpen) {
       updateQuerySearch('')
       updateSuggestions([])
+      updateActiveIndex(null)
     }
   }
 
@@ -43,6 +71,7 @@ export function Search() {
                   placeholder="Escribe el nombre del objeto"
                   spellCheck={false}
                   onChange={handleSearchByTiping}
+                  onKeyDown={handleKeyDown}
                 />
               </div>
             </DialogTitle>

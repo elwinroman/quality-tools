@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useContext } from 'react'
+import { createContext, ReactNode, useContext, useState, type Dispatch, type SetStateAction } from 'react'
 
 import { useSearchSuggestions } from '@/components/search/hooks'
 import { ApiSysObjectType, SysObjectSuggestion } from '@/models/sysobject'
@@ -18,8 +18,10 @@ export interface SearchContextType {
   // Sugerencias
   querySearch: string
   suggestions: SysObjectSuggestion[]
+  activeIndex: number | null
   updateQuerySearch(inputText: string): void
   updateSuggestions(suggestionsList: SysObjectSuggestion[]): void
+  updateActiveIndex(index: number | null | ((current: number | null) => number | null)): void
   debounceGetSuggestions(search: string): void
   loading: boolean
   error: {
@@ -41,10 +43,25 @@ export const SearchContext = createContext<SearchContextType | null>(null)
 export const SearchProvider = ({ children, type, onSelect }: ContextProps) => {
   const { querySearch, suggestions, updateQuerySearch, updateSuggestions, debounceGetSuggestions, loading, error } =
     useSearchSuggestions(type)
+  const [activeIndex, setActiveIndex] = useState<number | null>(0)
+
+  const updateActiveIndex: Dispatch<SetStateAction<number | null>> = setActiveIndex
 
   return (
     <SearchContext.Provider
-      value={{ querySearch, suggestions, updateQuerySearch, updateSuggestions, debounceGetSuggestions, loading, error, type, onSelect }}
+      value={{
+        querySearch,
+        suggestions,
+        activeIndex,
+        updateQuerySearch,
+        updateSuggestions,
+        updateActiveIndex,
+        debounceGetSuggestions,
+        loading,
+        error,
+        type,
+        onSelect,
+      }}
     >
       {children}
     </SearchContext.Provider>

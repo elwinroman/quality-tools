@@ -10,7 +10,7 @@ import { Item } from './components/Item'
 import { Recents } from './components/Recents'
 
 export function Results() {
-  const { suggestions, querySearch, loading: loadingSuggestions, type } = searchContext()
+  const { suggestions, querySearch, loading: loadingSuggestions, type, activeIndex, updateActiveIndex } = searchContext()
   const { open, updateOpen } = dialogSearchContext()
   const { recents, getRecents, deleteRecent, loading: loadingRecents } = useRecents(type)
 
@@ -18,6 +18,15 @@ export function Results() {
     if (!open) return
     getRecents()
   }, [open])
+
+  useEffect(() => {
+    if (!suggestions.length) {
+      updateActiveIndex(null)
+      return
+    }
+
+    if (activeIndex === null || activeIndex >= suggestions.length) updateActiveIndex(0)
+  }, [suggestions, activeIndex, updateActiveIndex])
 
   const isSearching = querySearch.length > 2
   const noResults = isSearching && suggestions.length === 0
@@ -34,8 +43,8 @@ export function Results() {
 
       {!loadingSuggestions && isSearching && suggestions.length > 0 && (
         <CardWrapper title="Sugerencias">
-          {suggestions.map((data) => (
-            <Item key={data.id} objectId={data.id} updateOpen={updateOpen}>
+          {suggestions.map((data, index) => (
+            <Item key={data.id} objectId={data.id} updateOpen={updateOpen} active={index === activeIndex} index={index}>
               <div className="flex w-full items-center justify-between gap-1 transition-colors">
                 <p className="flex flex-col">
                   <span className="text-secondary overflow-hidden text-[0.75rem]">{data.schema}</span>

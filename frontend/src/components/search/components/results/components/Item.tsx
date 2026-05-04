@@ -1,13 +1,16 @@
 import { searchContext } from '@/components/search/context/searchContext'
+import { cn } from '@/lib/utils'
 
 interface Props {
   children: React.ReactNode
   objectId: number
   updateOpen(state: boolean): void
+  active?: boolean
+  index?: number
 }
 
-export function Item({ children, objectId, updateOpen }: Props) {
-  const { onSelect, updateSuggestions, updateQuerySearch } = searchContext()
+export function Item({ children, objectId, updateOpen, active = false, index = 0 }: Props) {
+  const { onSelect, updateSuggestions, updateQuerySearch, updateActiveIndex } = searchContext()
 
   const handleClickGetObject = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
@@ -27,7 +30,12 @@ export function Item({ children, objectId, updateOpen }: Props) {
     <li key={objectId}>
       <button
         data-object-id={objectId}
-        className="hover:bg-action-hover group text-secondary pointer-events-auto flex w-full cursor-pointer items-center gap-2 px-4 py-2 text-left align-text-top text-sm"
+        aria-current={active}
+        onMouseEnter={() => updateActiveIndex(index)}
+        className={cn(
+          'group text-secondary pointer-events-auto flex w-full cursor-pointer items-center gap-2 px-4 py-2 text-left align-text-top text-sm transition-colors',
+          active ? 'bg-action-hover text-primary' : 'hover:bg-action-hover hover:text-primary',
+        )}
         onClick={handleClickGetObject}
       >
         {children}

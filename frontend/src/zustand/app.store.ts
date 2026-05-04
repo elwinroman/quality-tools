@@ -3,8 +3,9 @@ import { createJSONStorage, persist } from 'zustand/middleware'
 
 import { BearAppState } from '@/models/zustand'
 
-const initialState: Pick<BearAppState, 'isDark'> = {
+const initialState: Pick<BearAppState, 'isDark' | 'switchingDatabase'> = {
   isDark: true,
+  switchingDatabase: null,
 }
 
 export const useAppStore = create<BearAppState>()(
@@ -20,10 +21,15 @@ export const useAppStore = create<BearAppState>()(
 
         set({ isDark: state })
       },
+
+      updateSwitchingDatabase: (database) => {
+        set({ switchingDatabase: database })
+      },
     }),
     {
       name: 'app.global.settings',
       storage: createJSONStorage(() => localStorage),
+      partialize: (state) => ({ isDark: state.isDark }) as BearAppState,
 
       // ejecuta cuando el estado se rehidrata desde localStorage (agrega la clase 'dark' si es necesario)
       onRehydrateStorage: () => (state) => {

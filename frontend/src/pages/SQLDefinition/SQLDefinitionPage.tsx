@@ -4,6 +4,7 @@ import { ImperativePanelHandle } from 'react-resizable-panels'
 import { toast } from 'sonner'
 
 import { FavoritoProvider } from '@/components/favoritos'
+import { DatabaseSwitchOverlay } from '@/components/loader'
 import { Navbar } from '@/components/navbar/Navbar'
 import { DialogSearchProvider } from '@/components/search/context/dialogSearchContext'
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup, Tabs, TabsContent } from '@/components/ui'
@@ -19,6 +20,7 @@ export function SQLDefinitionPage() {
   const leftPanelRef = useRef<ImperativePanelHandle>(null)
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [activeTab, setActiveTab] = useState(TabOption.Script)
+  const sysobject = useSysObjectStore((state) => state.sysobject)
   const error = useSysObjectStore((state) => state.errorObject)
   const updateError = useSysObjectStore((state) => state.updateErrorObject)
 
@@ -27,6 +29,15 @@ export function SQLDefinitionPage() {
     toast.error('Error', { description: error.detail })
     updateError(null)
   }, [error, updateError])
+
+  useEffect(() => {
+    setActiveTab((currentTab) => (currentTab === TabOption.Compare ? TabOption.Script : currentTab))
+  }, [database])
+
+  useEffect(() => {
+    if (!sysobject) return
+    setActiveTab((currentTab) => (currentTab === TabOption.Compare ? TabOption.Script : currentTab))
+  }, [sysobject])
 
   const handleHidePanel = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
@@ -43,7 +54,7 @@ export function SQLDefinitionPage() {
     <section className="bg-background flex h-full w-full flex-col">
       <Navbar />
 
-      <main className="h-full w-full overflow-hidden">
+      <main className="relative h-full w-full overflow-hidden">
         <section className="bg-background-paperchanel relative h-full w-full overflow-hidden">
           <FavoritoProvider type="ALL_EXCEPT_USERTABLE">
             <ResizablePanelGroup
@@ -109,6 +120,7 @@ export function SQLDefinitionPage() {
             )}
           </FavoritoProvider>
         </section>
+        <DatabaseSwitchOverlay />
       </main>
     </section>
   )

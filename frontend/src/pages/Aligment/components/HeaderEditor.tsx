@@ -21,8 +21,8 @@ export function HeaderEditor() {
       <div className="flex flex-[0_0_auto] flex-wrap items-center gap-2">
         <div className="flex items-center gap-2">
           <h4 className="text-primary text-sm font-semibold dark:font-medium">{fullName}</h4>
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-red-500/30 bg-red-500/10 px-2 py-0.5 text-xs font-medium text-red-600 dark:text-red-400">
-            <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
+          <span className="inline-flex items-center gap-1.5 rounded-sm border border-palette-primary-main/20 bg-palette-primary-main/10 px-2 py-0.5 text-xs font-medium text-palette-primary-dark dark:border-palette-primary-main/30 dark:bg-palette-primary-main/15 dark:text-palette-primary-light">
+            <span className="h-1.5 w-1.5 rounded-full bg-palette-primary-main" />
             Pre-producción
           </span>
         </div>

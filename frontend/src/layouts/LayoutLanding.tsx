@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 
+import { DatabaseSwitchOverlay } from '@/components/loader'
 import { Navbar } from '@/components/navbar/Navbar'
 
 interface LayoutLandingProps {
@@ -10,7 +11,8 @@ export function LayoutLanding({ children }: LayoutLandingProps) {
   return (
     <section className="bg-baselayer h-full w-full overflow-auto">
       <Navbar />
-      <div className="w-full">
+      <main className="relative w-full">
+        <DatabaseSwitchOverlay />
         <div className="w-full">{children}</div>
 
         <footer className="py-6">
@@ -20,7 +22,7 @@ export function LayoutLanding({ children }: LayoutLandingProps) {
             </span>
           </p>
         </footer>
-      </div>
+      </main>
     </section>
   )
 }

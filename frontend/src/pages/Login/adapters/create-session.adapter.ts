@@ -6,7 +6,7 @@ export const createSessionAdapter = (authenticatedUser: AuthenticatedUser): Auth
     database: authenticatedUser.databaseInfo.name,
     server: authenticatedUser.databaseInfo.server,
     username: authenticatedUser.username,
-    prodDatabase: 'SI_FinFinanciero',
+    prodDatabase: authenticatedUser.databaseInfo.prodDatabase,
     originalServer: authenticatedUser.originalServer,
   }
 }

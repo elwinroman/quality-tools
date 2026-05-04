@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import { useLocation } from 'react-router-dom'
 
 import { ENABLE_NAVBAR_REPO_LINK } from '@/enviroment/enviroment'
@@ -11,10 +12,28 @@ interface Props {
 export function Navbar({ className = '' }: Props) {
   const { pathname } = useLocation()
   const isLanding = pathname === '/'
+  const navbarRef = useRef<HTMLElement | null>(null)
+
+  useEffect(() => {
+    const element = navbarRef.current
+    if (!element) return
+
+    const updateNavbarHeight = () => {
+      document.documentElement.style.setProperty('--navbar-height', `${element.offsetHeight}px`)
+    }
+
+    updateNavbarHeight()
+
+    const observer = new ResizeObserver(updateNavbarHeight)
+    observer.observe(element)
+
+    return () => observer.disconnect()
+  }, [pathname])
 
   return (
     <header
       id="navbar"
+      ref={navbarRef}
       className={`w-full px-3 transition-all sm:px-4 md:px-5 lg:px-6 dark:shadow-none ${className} ${isLanding ? 'bg-transparent' : 'bg-action-hover'}`}
     >
       <ul className="flex h-full flex-col items-center justify-between gap-3 py-2 sm:flex-row sm:flex-wrap">

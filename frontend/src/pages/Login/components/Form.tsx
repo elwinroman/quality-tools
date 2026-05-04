@@ -2,7 +2,7 @@ import { Search } from 'lucide-react'
 import { useState } from 'react'
 import { safeParse } from 'valibot'
 
-import { Button, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui'
+import { Button, Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput, ComboboxItem, ComboboxList } from '@/components/ui'
 import { AlertCircle as AlertCircleIcon } from '@/icons/alert-circle'
 
 import { useLoginContext } from '../hooks/useLoginContext'
@@ -44,6 +44,11 @@ export function Form() {
     e.preventDefault()
     setFormErrors(null)
 
+    if (!selectedDb) {
+      await onFetchDatabases(e.currentTarget)
+      return
+    }
+
     const data = new FormData(e.currentTarget)
     const rawData = { ...Object.fromEntries(data), dbname: selectedDb }
 
@@ -71,6 +76,10 @@ export function Form() {
   }
 
   const hasDatabases = databases.length > 0
+
+  const onSelectDatabase = (database: string | null) => {
+    setSelectedDb(database ?? '')
+  }
 
   return (
     <form onSubmit={onSubmitHandler} className="flex flex-col gap-8">
@@ -100,23 +109,30 @@ export function Form() {
           onClick={(e) => onFetchDatabases(e.currentTarget.closest('form')!)}
         >
           <Search className="mr-2 h-4 w-4" />
-          Buscar bases de datos
+          {hasDatabases ? 'Actualizar bases de datos' : 'Buscar bases de datos'}
         </Button>
 
         <div className="flex flex-col gap-0.5">
           <Label text="Database" />
-          <Select name="dbname" value={selectedDb} onValueChange={setSelectedDb} disabled={!hasDatabases}>
-            <SelectTrigger>
-              <SelectValue placeholder={hasDatabases ? 'Selecciona una base de datos' : 'Primero busca las bases de datos'} />
-            </SelectTrigger>
-            <SelectContent>
-              {databases.map((db) => (
-                <SelectItem key={db} value={db}>
-                  {db}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <Combobox items={databases} value={selectedDb} onValueChange={onSelectDatabase}>
+            <ComboboxInput
+              disabled={!hasDatabases}
+              placeholder={hasDatabases ? 'Selecciona una base de datos' : 'Primero busca las bases de datos'}
+            />
+            <ComboboxContent>
+              <ComboboxEmpty>No se encontraron bases de datos</ComboboxEmpty>
+              <ComboboxList>
+                {(db: string) => (
+                  <ComboboxItem key={db} value={db}>
+                    {db}
+                  </ComboboxItem>
+                )}
+              </ComboboxList>
+            </ComboboxContent>
+          </Combobox>
+          {hasDatabases && (
+            <p className="text-muted mt-0.5 text-xs">{databases.length} bases de datos encontradas. Selecciona una para iniciar sesión.</p>
+          )}
           {formErrors?.dbname && <p className="mt-0.5 text-xs text-red-500">{formErrors.dbname}</p>}
         </div>
       </div>

@@ -17,7 +17,7 @@ export function AplicationLogo({ className = '' }: Props) {
 
   return (
     <div className={`${className}`}>
-      <div className="flex w-fit items-center gap-2 transition-colors">
+      <div className="flex w-fit items-center gap-4 transition-colors">
         <NavLink to={AppRoutes.Home} className="text-primary font-bold">
           {APP_SHORT_NAME}
         </NavLink>
