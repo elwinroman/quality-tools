@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@base-ui/react": "^1.4.1",
     "@fontsource-variable/fira-code": "5.1.0",
     "@fontsource-variable/public-sans": "5.1.1",
     "@fontsource/barlow": "5.1.0",
@@ -36,9 +37,11 @@
     "axios": "^1.10.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "2.1.1",
+    "cmdk": "^1.1.1",
     "date-fns": "3.6.0",
     "just-debounce-it": "3.2.0",
     "lucide-react": "^0.542.0",
+    "radix-ui": "^1.4.3",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-resizable-panels": "^3.0.3",
