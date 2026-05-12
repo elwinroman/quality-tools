@@ -46,17 +46,28 @@ export class MssqlStoreRepositoryAdapter implements ForStoreRepositoryPort {
       const request = conn.request()
 
       const stmt = `
-        SELECT
-          viewdefinition_permission = COALESCE((SELECT TOP 1 IIF(definition IS NULL, 0, 1) FROM sys.sql_modules), 0),
-          definition_counts = (SELECT COUNT(*) FROM sys.sql_modules)
+        SELECT viewdefinition_permission =
+          CAST(
+              CASE
+                  WHEN HAS_PERMS_BY_NAME(DB_NAME(), 'DATABASE', 'VIEW DEFINITION') = 1 THEN 1
+                  WHEN HAS_PERMS_BY_NAME(SCHEMA_NAME(), 'SCHEMA', 'VIEW DEFINITION') = 1 THEN 1
+                  WHEN EXISTS (
+                      SELECT 1
+                      FROM sys.sql_modules
+                      WHERE definition IS NOT NULL
+                  ) THEN 1
+                  ELSE 0
+              END
+          AS bit)
       `
       const res = await request.query(stmt)
 
-      // si no existen SPs, views: por defecto asumimos que tiene permisos (lo cual no es necesariamente correcto)
-      const definitionCounts = res.recordset[0].definition_counts
+      const hasPermsViewDefinition: boolean = Boolean(
+        res.recordset[0].viewdefinition_permission
+      )
 
       const data: PermissionStore = {
-        viewdefinitionPermission: definitionCounts > 0 ? Boolean(res.recordset[0].viewdefinition_permission) : true,
+        viewdefinitionPermission: hasPermsViewDefinition,
       }
       return data
     } catch (err) {

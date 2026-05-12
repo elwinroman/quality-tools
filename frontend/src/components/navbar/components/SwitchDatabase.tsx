@@ -21,7 +21,6 @@ import { cn } from '@/lib/utils'
 import { useSysObjectStore } from '@/pages/SQLDefinition/store/sysobject.store'
 import { useUserTableStore } from '@/pages/Usertable/store/usertable.store'
 import { listDatabasesAuthenticatedService, switchDatabaseService } from '@/services'
-import { sleep } from '@/utilities'
 import { useAppStore, useAuthStore } from '@/zustand'
 
 export function SwitchDatabase() {
@@ -58,7 +57,6 @@ export function SwitchDatabase() {
     setOpen(false)
     try {
       await callSwitchDatabase(switchDatabaseService(db))
-      await sleep(2000)
       updateDatabase(db)
       clearSysObject(null)
       resetUserTable()
