@@ -47,6 +47,7 @@ export interface SysObject {
  * - 'FN' → Función escalar (`SQL_SCALAR_FUNCTION`)
  * - 'TR' → Trigger (`SQL_TRIGGER`)
  * - 'TF' → Función con valor de tabla (`SQL_TABLE_VALUED_FUNCTION`)
+ * - 'IF' → Función tabular inline (`SQL_INLINE_TABLE_VALUED_FUNCTION`)
  * - 'V'  → Vista (`VIEW`)
  * - 'U'  → Tabla de usuario (`USER_TABLE`)
  * - 'ALL' → Todos los tipos de objeto.
@@ -57,6 +58,7 @@ export const TypeSysObjectEnum = {
   SQL_SCALAR_FUNCTION: 'FN',
   SQL_TRIGGER: 'TR',
   SQL_TABLE_VALUED_FUNCTION: 'TF',
+  SQL_INLINE_TABLE_VALUED_FUNCTION: 'IF',
   VIEW: 'V',
   USER_TABLE: 'U',
   ALL: 'ALL',
@@ -65,9 +67,22 @@ export const TypeSysObjectEnum = {
 
 export type TypeSysObject = (typeof TypeSysObjectEnum)[keyof typeof TypeSysObjectEnum]
 
-// obtiene solo los valores válidos (sin 'ALL' ni 'ALL_EXCEPT_USERTABLE')
-export const ValidTypeSysObjectValues: TypeSysObject[] = Object.values(TypeSysObjectEnum).filter(
-  v => v !== 'ALL' && v !== 'ALL_EXCEPT_USERTABLE',
-) as TypeSysObject[]
-
 export type ValidTypeSysObject = Exclude<TypeSysObject, 'ALL' | 'ALL_EXCEPT_USERTABLE'>
+
+const AggregateTypeSysObjectValues = [TypeSysObjectEnum.ALL, TypeSysObjectEnum.ALL_EXCEPT_USERTABLE] as const
+
+// obtiene solo los valores válidos (sin 'ALL' ni 'ALL_EXCEPT_USERTABLE')
+export const ValidTypeSysObjectValues: ValidTypeSysObject[] = Object.values(TypeSysObjectEnum).filter(
+  (v): v is ValidTypeSysObject => !AggregateTypeSysObjectValues.includes(v as (typeof AggregateTypeSysObjectValues)[number]),
+)
+
+export function resolveTypeSysObjectValues(type: TypeSysObject): ValidTypeSysObject[] {
+  switch (type) {
+    case TypeSysObjectEnum.ALL:
+      return ValidTypeSysObjectValues
+    case TypeSysObjectEnum.ALL_EXCEPT_USERTABLE:
+      return ValidTypeSysObjectValues.filter(v => v !== TypeSysObjectEnum.USER_TABLE)
+    default:
+      return [type as ValidTypeSysObject]
+  }
+}

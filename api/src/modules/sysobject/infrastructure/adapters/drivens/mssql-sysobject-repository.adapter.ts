@@ -33,7 +33,7 @@ export class MssqlSysObjectRepositoryAdapter implements ForSysObjectRepositoryPo
         FROM sys.objects            A
         INNER JOIN sys.schemas      B ON B.schema_id = A.schema_id
         INNER JOIN sys.sql_modules  C ON C.object_id = A.object_id
-        WHERE type IN('P','FN','TR','TF','V')
+        WHERE type IN('P','FN','TR','TF', 'IF', 'V')
           AND A.object_id = @id
       `
 

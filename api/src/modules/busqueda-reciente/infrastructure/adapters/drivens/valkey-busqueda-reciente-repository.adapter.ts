@@ -10,7 +10,7 @@ import {
 } from '@busqueda-reciente/domain/schemas/busqueda-reciente'
 import { valkeyClient } from '@core/cache/valkey-client'
 import type { Meta } from '@shared/domain/schemas/meta'
-import { TypeSysObjectEnum } from '@sysobject/domain/schemas/sysobject'
+import { resolveTypeSysObjectValues } from '@sysobject/domain/schemas/sysobject'
 
 import { BUSQUEDA_RECIENTE_CACHE_TTL } from '@/config/enviroment'
 
@@ -80,10 +80,10 @@ export class ValkeyCacheBusquedaRecienteRepositoryAdapter implements ForBusqueda
     const key = this.buildKey(filter.idUser, filter.database)
     const entries = await this.readEntries(key)
 
-    const typeValues = this.resolveTypes(filter.type)
+    const typeValues = new Set<string>(resolveTypeSysObjectValues(filter.type))
 
     const filtered = entries
-      .filter(e => e.isActive && typeValues.includes(e.type))
+      .filter(e => e.isActive && typeValues.has(e.type))
       .sort((a, b) => new Date(b.dateSearch).getTime() - new Date(a.dateSearch).getTime())
 
     const total = filtered.length
@@ -139,16 +139,5 @@ export class ValkeyCacheBusquedaRecienteRepositoryAdapter implements ForBusqueda
       return
     }
     await valkeyClient.set(key, JSON.stringify(entries), 'EX', BUSQUEDA_RECIENTE_CACHE_TTL)
-  }
-
-  private resolveTypes(type: string): string[] {
-    switch (type) {
-      case TypeSysObjectEnum.ALL:
-        return ['P', 'FN', 'TR', 'TF', 'V', 'U']
-      case TypeSysObjectEnum.ALL_EXCEPT_USERTABLE:
-        return ['P', 'FN', 'TR', 'TF', 'V']
-      default:
-        return [type]
-    }
   }
 }
