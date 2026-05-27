@@ -37,6 +37,45 @@ export interface SysObject {
 }
 
 /**
+ * Vista reducida de un objeto SQL.
+ *
+ * Se usa para listados, sugerencias y relaciones entre objetos donde no hace falta
+ * cargar la definición SQL completa ni permisos asociados.
+ */
+export type SysObjectSummary = Pick<SysObject, 'id' | 'name' | 'schemaName' | 'typeDesc'>
+
+/**
+ * Vista reducida de una relación entre objetos SQL.
+ *
+ * SQL Server puede devolver relaciones cuyo objeto no logra resolver en `sys.objects`;
+ * en esos casos el identificador puede ser `null`, aunque el schema y el nombre se
+ * conserven desde las funciones `sys.dm_sql_*`.
+ */
+export type SysObjectRelationSummary = Omit<SysObjectSummary, 'id' | 'schemaName'> & {
+  /** Identificador del objeto relacionado. Puede ser null si SQL Server no logra resolverlo. */
+  id: number | null
+
+  /** Nombre del esquema relacionado. Puede ser null si SQL Server no logra resolverlo. */
+  schemaName: string | null
+}
+
+/**
+ * Objeto del que depende el objeto consultado.
+ *
+ * Ejemplo: si una vista `dbo.vwOrders` consulta la tabla `dbo.Orders`,
+ * entonces `dbo.Orders` es una dependencia de `dbo.vwOrders`.
+ */
+export type SysObjectDependency = SysObjectRelationSummary
+
+/**
+ * Objeto que depende del objeto consultado.
+ *
+ * Ejemplo: si el procedimiento `dbo.GetOrders` consulta la vista `dbo.vwOrders`,
+ * entonces `dbo.GetOrders` es un dependiente de `dbo.vwOrders`.
+ */
+export type SysObjectDependent = SysObjectRelationSummary
+
+/**
  * Enum de tipos de objetos SQL utilizados en el sistema.
  *
  * Las claves representan el tipo semántico, mientras que los valores son los identificadores cortos

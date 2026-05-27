@@ -1,9 +1,7 @@
 import { LogObjectContext, LogProdObjectContext } from '@sysobject/domain/schemas/log-object-context'
 import { PermissionRol } from '@sysobject/domain/schemas/permission-rol'
-import { SysObject, TypeSysObject } from '@sysobject/domain/schemas/sysobject'
+import { SysObject, SysObjectDependency, SysObjectDependent, SysObjectSummary, TypeSysObject } from '@sysobject/domain/schemas/sysobject'
 import { Usertable } from '@sysobject/domain/schemas/usertable'
-
-export type SearchSysObject = Pick<SysObject, 'id' | 'name' | 'schemaName' | 'typeDesc'>
 
 /**
  * Puerto de acceso (interface) de tipo driver (primary) para recuperar objetos del sistema (SysObject)
@@ -27,7 +25,7 @@ export interface ForSysObjectRetrievalPort {
    * @param type - Tipo de objeto (por ejemplo, 'P', 'FN', 'V', etc.).
    * @returns Una promesa que resuelve con una lista de objetos que coinciden con el criterio.
    */
-  searchSuggestions(name: string, type: TypeSysObject): Promise<SearchSysObject[]>
+  searchSuggestions(name: string, type: TypeSysObject): Promise<SysObjectSummary[]>
 
   /**
    * Recupera una tabla de usuario por su ID.
@@ -52,4 +50,30 @@ export interface ForSysObjectRetrievalPort {
     actionType: number,
     log: LogProdObjectContext,
   ): Promise<SysObject & { permission: PermissionRol[] }>
+
+  /**
+   * Recupera los objetos que dependen del objeto indicado.
+   *
+   * En SQL Server este concepto corresponde a las entidades que referencian al objeto
+   * consultado (`sys.dm_sql_referencing_entities`). Es decir, responde la pregunta:
+   * "si cambio este objeto, que otros objetos podrian verse afectados?".
+   *
+   * @param name - Nombre del objeto consultado.
+   * @param schema - Nombre del esquema al que pertenece el objeto consultado.
+   * @returns Una promesa que resuelve con los objetos dependientes.
+   */
+  getSysObjectDependents(name: string, schema: string): Promise<SysObjectDependent[]>
+
+  /**
+   * Recupera los objetos usados por el objeto indicado.
+   *
+   * En SQL Server este concepto corresponde a las entidades referenciadas por el objeto
+   * consultado (`sys.dm_sql_referenced_entities`). Es decir, responde la pregunta:
+   * "que objetos necesita este objeto para funcionar?".
+   *
+   * @param name - Nombre del objeto consultado.
+   * @param schema - Nombre del esquema al que pertenece el objeto consultado.
+   * @returns Una promesa que resuelve con las dependencias del objeto.
+   */
+  getSysObjectDependencies(name: string, schema: string): Promise<SysObjectDependency[]>
 }

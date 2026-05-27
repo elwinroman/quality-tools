@@ -5,6 +5,8 @@ import { Router as ExpressRouter } from 'express'
 import {
   getProdSysObjectController,
   getSysObjectController,
+  getSysObjectDependenciesController,
+  getSysObjectReferencesController,
   getSysUsertableController,
   searchSuggestionsController,
 } from './composition-root'
@@ -15,6 +17,10 @@ export function sysObjectRouter(): ExpressRouter {
   router.get('/search', verifyTokenMiddleware, searchSuggestionsController.run.bind(searchSuggestionsController))
 
   router.get('/prod', getProdSysObjectController.run.bind(getProdSysObjectController))
+
+  router.get('/references', verifyTokenMiddleware, getSysObjectReferencesController.run.bind(getSysObjectReferencesController))
+
+  router.get('/dependencies', verifyTokenMiddleware, getSysObjectDependenciesController.run.bind(getSysObjectDependenciesController))
 
   router.get('/:id', verifyTokenMiddleware, getSysObjectController.run.bind(getSysObjectController))
 

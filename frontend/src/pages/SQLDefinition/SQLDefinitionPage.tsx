@@ -10,7 +10,7 @@ import { DialogSearchProvider } from '@/components/search/context/dialogSearchCo
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup, Tabs, TabsContent } from '@/components/ui'
 import { useAuthStore } from '@/zustand'
 
-import { EditorCode, HeaderEditor, HeaderTabs, OverviewContent, PanelEditor } from './components'
+import { DependenciesContent, EditorCode, HeaderEditor, HeaderTabs, OverviewContent, PanelEditor } from './components'
 import { DiffScriptContent } from './components/diff-script-content/DiffScriptContent'
 import { TabOption } from './constants/tabs-options'
 import { useSysObjectStore } from './store/sysobject.store'
@@ -93,6 +93,10 @@ export function SQLDefinitionPage() {
 
                   <TabsContent value={TabOption.Script} className="flex-1 overflow-hidden">
                     <EditorCode />
+                  </TabsContent>
+
+                  <TabsContent value={TabOption.Dependencies} className="flex-1 overflow-hidden">
+                    <DependenciesContent />
                   </TabsContent>
 
                   <TabsContent value={TabOption.Compare} className="flex-1 overflow-hidden">

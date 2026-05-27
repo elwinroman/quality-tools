@@ -2,10 +2,10 @@ import { isAxiosError } from 'axios'
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
 
-import { FullSysObject, TypeViews, ViewMode } from '@/models/sysobject'
+import { FullSysObject, SysObjectRelation, TypeViews, ViewMode } from '@/models/sysobject'
 import { getProdSysObjectService } from '@/services'
 
-import { getSysObjectByIdService } from '../services/sysobject.service'
+import { getSysObjectByIdService, getSysObjectDependenciesService, getSysObjectDependentsService } from '../services/sysobject.service'
 
 interface SysObjectError {
   title: string
@@ -28,8 +28,23 @@ interface SysObjectState {
   /** Error al obtener el objeto SQL */
   errorObject: SysObjectError | null
 
+  /** Objetos que el objeto SQL actual usa. */
+  dependencies: SysObjectRelation[]
+
+  /** Objetos que usan al objeto SQL actual. */
+  dependents: SysObjectRelation[]
+
+  /** Indica si se estan cargando dependencias y dependientes. */
+  isLoadingRelations: boolean
+
+  /** Error al obtener dependencias o dependientes. */
+  errorRelations: SysObjectError | null
+
   /** Obtiene un objeto por ID desde la API y actualiza el store */
   fetchSysObject: (id: number) => Promise<void>
+
+  /** Obtiene dependencias y dependientes del objeto SQL actual. */
+  fetchSysObjectRelations: () => Promise<void>
 
   /** Actualiza el error del objeto SQL */
   updateErrorObject: (error: SysObjectError | null) => void
@@ -72,8 +87,12 @@ export const useSysObjectStore = create<SysObjectState>()(
       currentEditorCode: '',
       isLoadingObject: false,
       isLoadingProdObject: false,
+      isLoadingRelations: false,
       errorObject: null,
       errorProdObject: null,
+      errorRelations: null,
+      dependencies: [],
+      dependents: [],
 
       updateErrorObject: (error) => {
         set({ errorObject: error })
@@ -85,7 +104,15 @@ export const useSysObjectStore = create<SysObjectState>()(
           const { call } = getSysObjectByIdService(id)
           const response = await call
           // resetea el objeto de pre-producción al cambiar de objeto
-          set({ sysobject: response.data, prodSysobject: null, errorProdObject: null, errorObject: null })
+          set({
+            sysobject: response.data,
+            prodSysobject: null,
+            errorProdObject: null,
+            errorObject: null,
+            errorRelations: null,
+            dependencies: [],
+            dependents: [],
+          })
         } catch (err) {
           if (isAxiosError(err) && err.response) {
             const { data } = err.response
@@ -105,6 +132,46 @@ export const useSysObjectStore = create<SysObjectState>()(
           }
         } finally {
           set({ isLoadingObject: false })
+        }
+      },
+
+      fetchSysObjectRelations: async () => {
+        const { sysobject, dependencies, dependents, errorRelations } = get()
+        if (!sysobject) return
+
+        if (dependencies.length > 0 || dependents.length > 0 || errorRelations) return
+
+        set({ isLoadingRelations: true })
+        try {
+          const dependenciesCall = getSysObjectDependenciesService(sysobject.schemaName, sysobject.name)
+          const dependentsCall = getSysObjectDependentsService(sysobject.schemaName, sysobject.name)
+
+          const [dependenciesResponse, dependentsResponse] = await Promise.all([dependenciesCall.call, dependentsCall.call])
+
+          set({
+            dependencies: dependenciesResponse.data,
+            dependents: dependentsResponse.data,
+            errorRelations: null,
+          })
+        } catch (err) {
+          if (isAxiosError(err) && err.response) {
+            const { data } = err.response
+            set({
+              errorRelations: {
+                title: data.error?.title ?? 'Error al obtener relaciones',
+                detail: data.error?.detail ?? 'Error desconocido',
+              },
+            })
+          } else {
+            set({
+              errorRelations: {
+                title: 'Error de red',
+                detail: 'No se pudo conectar al servidor o el servidor no está disponible.',
+              },
+            })
+          }
+        } finally {
+          set({ isLoadingRelations: false })
         }
       },
 
@@ -146,7 +213,8 @@ export const useSysObjectStore = create<SysObjectState>()(
         }
       },
 
-      createSysObject: (sysobject: FullSysObject | null) => set({ sysobject, prodSysobject: null, errorProdObject: null }),
+      createSysObject: (sysobject: FullSysObject | null) =>
+        set({ sysobject, prodSysobject: null, errorProdObject: null, dependencies: [], dependents: [], errorRelations: null }),
       updateViewMode: (mode: ViewMode) => set({ viewMode: mode }),
       updateCurrentEditorCode: (code: string) => set({ currentEditorCode: code }),
       reset: () => {
@@ -155,8 +223,12 @@ export const useSysObjectStore = create<SysObjectState>()(
           currentEditorCode: '',
           isLoadingObject: false,
           isLoadingProdObject: false,
+          isLoadingRelations: false,
           errorObject: null,
           errorProdObject: null,
+          errorRelations: null,
+          dependencies: [],
+          dependents: [],
         })
       },
     }),
