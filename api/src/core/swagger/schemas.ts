@@ -4,6 +4,7 @@ import { NotProvidedTokenException, TokenExpiredException, UserAlreadyAuthentica
 import { InvalidCredentialsException, PermissionDenyException } from '@auth/domain/exceptions'
 // Busqueda Reciente Exceptions
 import { BusquedaRecienteNotFoundException } from '@busqueda-reciente/domain/exceptions/busqueda-reciente-not-found.exception'
+import { CacheCredentialNotFoundException } from '@core/exceptions/cache/cache-credential-not-found.exception'
 // Favorito Exceptions
 import { FavoritoAlreadyExistsException } from '@favorito/domain/exceptions/favorito-already-exists.exception'
 import { FavoritoNotFoundException } from '@favorito/domain/exceptions/favorito-not-found.exception'
@@ -136,6 +137,10 @@ const exceptionRegistry = {
   PermissionDenyException: {
     class: PermissionDenyException,
     detail: 'Tu cuenta está inactiva o no tienes permisos.',
+  },
+  CacheCredentialNotFoundException: {
+    class: CacheCredentialNotFoundException,
+    detail: 'No se encontraron las credenciales de base de datos en caché para la sesión.',
   },
 
   // Sysobject (3xxx)

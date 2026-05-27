@@ -4,7 +4,7 @@ import { SysObjectNotFoundException } from '@sysobject/domain/exceptions/sysobje
 import { ForProxyBusquedaRecienteRegistrationPort } from '@sysobject/domain/ports/drivens/for-proxy-busqueda-reciente-registration.port'
 import { ForSysUsertableRepositoryPort } from '@sysobject/domain/ports/drivens/for-sysusertable-repository.port'
 import { LogObjectContext } from '@sysobject/domain/schemas/log-object-context'
-import { Usertable } from '@sysobject/domain/schemas/usertable'
+import { Usertable, UsertableSysObject } from '@sysobject/domain/schemas/usertable'
 
 import { RegisterSearchLogUseCase } from './register-search-log.use-case'
 
@@ -16,10 +16,16 @@ export class GetSysUsertableUseCase {
     private readonly logger: Logger,
   ) {}
 
-  async execute(id: number, log: LogObjectContext): Promise<Usertable> {
-    const sysUsertable = await this.sysUsertableRepository.getById(id)
+  async executeBySchemaAndName(schema: string, name: string, log: LogObjectContext): Promise<Usertable> {
+    const sysUsertable = await this.sysUsertableRepository.getBySchemaAndName(schema, name)
 
-    if (!sysUsertable) throw new SysObjectNotFoundException(id)
+    if (!sysUsertable) throw new SysObjectNotFoundException(`${schema}.${name}`)
+
+    return this.buildResponse(sysUsertable, log)
+  }
+
+  private async buildResponse(sysUsertable: UsertableSysObject, log: LogObjectContext): Promise<Usertable> {
+    const id = sysUsertable.id
 
     const tableExtendedProperties = await this.sysUsertableRepository.getUsertableExtendedPropertieById(id) // descripcion (extended propertie) del usertable
     const columns = await this.sysUsertableRepository.getColumnsById(id) // columnas, incluye las descripciones (extended_properties)

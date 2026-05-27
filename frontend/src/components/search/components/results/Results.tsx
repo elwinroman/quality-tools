@@ -69,6 +69,8 @@ export function Results() {
               key={data.id}
               ref={index === activeIndex ? activeItemRef : undefined}
               objectId={data.id}
+              schema={data.schema}
+              objectName={data.name}
               updateOpen={updateOpen}
               active={index === activeIndex}
             >

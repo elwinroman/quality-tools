@@ -1,6 +1,7 @@
 import { ArrowLeftToLine, ArrowRightToLine } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { ImperativePanelHandle } from 'react-resizable-panels'
+import { useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 
 import { FavoritoProvider } from '@/components/favoritos'
@@ -16,13 +17,26 @@ import { TabOption } from './constants/tabs-options'
 import { useSysObjectStore } from './store/sysobject.store'
 
 export function SQLDefinitionPage() {
+  const { schema, name } = useParams()
   const database = useAuthStore((state) => state.authContext?.database)
   const leftPanelRef = useRef<ImperativePanelHandle>(null)
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [activeTab, setActiveTab] = useState(TabOption.Script)
   const sysobject = useSysObjectStore((state) => state.sysobject)
+  const fetchSysObjectByName = useSysObjectStore((state) => state.fetchSysObjectByName)
   const error = useSysObjectStore((state) => state.errorObject)
   const updateError = useSysObjectStore((state) => state.updateErrorObject)
+
+  useEffect(() => {
+    if (!schema || !name) return
+
+    const schemaName = decodeURIComponent(schema)
+    const objectName = decodeURIComponent(name)
+    setActiveTab(TabOption.Script)
+    if (sysobject?.schemaName === schemaName && sysobject.name === objectName) return
+
+    fetchSysObjectByName(schemaName, objectName)
+  }, [fetchSysObjectByName, name, schema, sysobject?.name, sysobject?.schemaName])
 
   useEffect(() => {
     if (!error) return

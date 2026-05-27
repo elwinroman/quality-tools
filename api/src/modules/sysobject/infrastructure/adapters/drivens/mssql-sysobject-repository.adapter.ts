@@ -36,7 +36,7 @@ export class MssqlSysObjectRepositoryAdapter implements ForSysObjectRepositoryPo
     )
   }
 
-  async getById(id: number): Promise<SysObject | null> {
+  async getBySchemaAndName(schema: string, name: string): Promise<SysObject | null> {
     const { store } = await buildStoreAuthContext()
 
     try {
@@ -58,15 +58,16 @@ export class MssqlSysObjectRepositoryAdapter implements ForSysObjectRepositoryPo
         INNER JOIN sys.schemas      B ON B.schema_id = A.schema_id
         INNER JOIN sys.sql_modules  C ON C.object_id = A.object_id
         WHERE type IN('P','FN','TR','TF', 'IF', 'V')
-          AND A.object_id = @id
+          AND B.name = @schema
+          AND A.name = @name
       `
 
-      request.input('id', sql.Int, id)
+      request.input('schema', sql.VarChar(128), schema)
+      request.input('name', sql.VarChar(128), name)
       const res = await request.query(stmt)
 
       if (res && res.rowsAffected[0] === 0) return null
 
-      // adapter
       const data: SysObject = {
         id: res.recordset[0].object_id,
         name: res.recordset[0].name,
@@ -74,8 +75,8 @@ export class MssqlSysObjectRepositoryAdapter implements ForSysObjectRepositoryPo
         typeDesc: res.recordset[0].type_desc,
         schemaId: res.recordset[0].schema_id,
         schemaName: res.recordset[0].schema_name,
-        createDate: convertLocalToUTC(res.recordset[0].create_date, TIMEZONE_DATABASE), // sql server devuelve zona horaria local
-        modifyDate: convertLocalToUTC(res.recordset[0].modify_date, TIMEZONE_DATABASE), // sql server devuelve zona horaria local
+        createDate: convertLocalToUTC(res.recordset[0].create_date, TIMEZONE_DATABASE),
+        modifyDate: convertLocalToUTC(res.recordset[0].modify_date, TIMEZONE_DATABASE),
         definition: res.recordset[0].definition,
       }
 

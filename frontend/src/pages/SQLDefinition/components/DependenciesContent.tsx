@@ -1,7 +1,9 @@
 import { GitBranch, Link2Off, Table2 } from 'lucide-react'
 import { useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 
-import { Button, Skeleton } from '@/components/ui'
+import { Skeleton } from '@/components/ui'
+import { AppRoutes } from '@/constants'
 import { SysObjectRelation } from '@/models/sysobject'
 
 import { useSysObjectStore } from '../store/sysobject.store'
@@ -11,30 +13,36 @@ interface RelationListProps {
   description: string
   items: SysObjectRelation[]
   emptyMessage: string
-  onSelect: (id: number) => void
+  onSelect: (relation: SysObjectRelation) => void
   withDivider?: boolean
 }
 
 function canOpenRelation(relation: SysObjectRelation) {
-  return relation.id !== null && relation.typeDesc !== 'USER_TABLE'
+  return relation.id !== null && relation.schemaName !== null
 }
 
 function RelationList({ title, description, items, emptyMessage, onSelect, withDivider = false }: RelationListProps) {
   return (
-    <section className={withDivider ? 'border-border flex flex-col gap-1.5 border-t pt-4' : 'flex flex-col gap-1.5'}>
+    <section
+      className={
+        withDivider
+          ? 'border-border/60 flex flex-col gap-2 border-t pt-4'
+          : 'border-border/50 flex flex-col gap-2 rounded-sm border px-3 py-3'
+      }
+    >
       <div className="flex flex-col gap-0.5">
         <div className="flex items-center gap-2">
-          <h3 className="text-primary text-base font-semibold">{title}</h3>
-          <span className="bg-background-neutral text-secondary rounded px-1.5 py-0.5 text-[10px] leading-none">{items.length}</span>
+          <h3 className="text-primary text-sm font-semibold">{title}</h3>
+          <span className="text-secondary text-xs">{items.length}</span>
         </div>
         <p className="text-secondary text-xs">{description}</p>
       </div>
 
       <div>
         {items.length === 0 ? (
-          <div className="text-secondary py-2 text-sm">{emptyMessage}</div>
+          <div className="text-secondary py-1 text-xs">{emptyMessage}</div>
         ) : (
-          <ul className="flex flex-col gap-0.5">
+          <ul className="flex flex-col">
             {items.map((relation, index) => {
               const schemaName = relation.schemaName ?? '(sin schema)'
               const isUserTable = relation.typeDesc === 'USER_TABLE'
@@ -46,31 +54,26 @@ function RelationList({ title, description, items, emptyMessage, onSelect, withD
                   className="min-w-0"
                 >
                   {isOpenable ? (
-                    <Button
-                      variant="ghost"
-                      className="h-6 max-w-full justify-start gap-2.5 px-0 py-0 text-left hover:bg-transparent hover:underline"
-                      onClick={() => onSelect(relation.id as number)}
+                    <button
+                      type="button"
+                      className="hover:bg-action-hover flex h-7 max-w-full items-center gap-2 rounded-sm px-2 text-left"
+                      onClick={() => onSelect(relation)}
                     >
-                      <span className="bg-background-neutral text-secondary max-w-28 shrink-0 truncate rounded px-1.5 py-0.5 text-[10px] leading-none">
-                        {schemaName}
-                      </span>
-                      <span className="text-primary min-w-0 truncate text-[13px] font-semibold">{relation.name}</span>
-                      <span className="text-secondary truncate text-[11px]">{relation.typeDesc || 'No resuelto'}</span>
-                    </Button>
-                  ) : (
-                    <div className="flex h-6 min-w-0 items-center gap-2.5">
                       {isUserTable ? (
-                        <Table2 size={12} className="text-secondary shrink-0" />
+                        <Table2 size={13} className="text-secondary shrink-0" />
                       ) : (
-                        <Link2Off size={12} className="text-secondary shrink-0" />
+                        <GitBranch size={13} className="text-secondary shrink-0" />
                       )}
-                      <span className="bg-background-neutral text-secondary max-w-28 shrink-0 truncate rounded px-1.5 py-0.5 text-[10px] leading-none">
-                        {schemaName}
-                      </span>
-                      <span className="text-primary min-w-0 truncate text-[13px] font-semibold">{relation.name}</span>
-                      <span className="text-secondary truncate text-[11px]">
-                        {isUserTable ? 'USER_TABLE' : relation.typeDesc || 'No resuelto'}
-                      </span>
+                      <span className="text-secondary max-w-24 shrink-0 truncate text-xs">{schemaName}</span>
+                      <span className="text-primary min-w-0 flex-1 truncate text-[13px]">{relation.name}</span>
+                      <span className="text-secondary hidden shrink-0 text-[11px] lg:inline">{relation.typeDesc || 'No resuelto'}</span>
+                    </button>
+                  ) : (
+                    <div className="flex h-7 min-w-0 items-center gap-2 px-2 opacity-70">
+                      <Link2Off size={13} className="text-secondary shrink-0" />
+                      <span className="text-secondary max-w-24 shrink-0 truncate text-xs">{schemaName}</span>
+                      <span className="text-primary min-w-0 flex-1 truncate text-[13px]">{relation.name}</span>
+                      <span className="text-secondary hidden shrink-0 text-[11px] lg:inline">{relation.typeDesc || 'No resuelto'}</span>
                     </div>
                   )}
                 </li>
@@ -85,7 +88,7 @@ function RelationList({ title, description, items, emptyMessage, onSelect, withD
 
 function LoadingState() {
   return (
-    <div className="flex h-full flex-col gap-5 overflow-auto p-6">
+    <div className="flex h-full flex-col gap-5 overflow-auto p-4">
       {[0, 1].map((section) => (
         <div key={section} className="flex flex-col gap-2">
           <div className="flex items-center gap-2">
@@ -94,9 +97,9 @@ function LoadingState() {
             <Skeleton className="h-3 w-48" />
           </div>
           <div className="flex flex-col gap-1.5">
-            <Skeleton className="h-6 w-full max-w-xl" />
-            <Skeleton className="h-6 w-full max-w-lg" />
-            <Skeleton className="h-6 w-full max-w-md" />
+            <Skeleton className="h-7 w-full max-w-xl" />
+            <Skeleton className="h-7 w-full max-w-lg" />
+            <Skeleton className="h-7 w-full max-w-md" />
           </div>
         </div>
       ))}
@@ -105,13 +108,19 @@ function LoadingState() {
 }
 
 export function DependenciesContent() {
+  const navigate = useNavigate()
   const sysobject = useSysObjectStore((state) => state.sysobject)
   const dependencies = useSysObjectStore((state) => state.dependencies)
   const dependents = useSysObjectStore((state) => state.dependents)
   const isLoadingRelations = useSysObjectStore((state) => state.isLoadingRelations)
   const errorRelations = useSysObjectStore((state) => state.errorRelations)
-  const fetchSysObject = useSysObjectStore((state) => state.fetchSysObject)
   const fetchSysObjectRelations = useSysObjectStore((state) => state.fetchSysObjectRelations)
+  const navigateToRelation = (relation: SysObjectRelation) => {
+    if (!relation.schemaName) return
+
+    const basePath = relation.typeDesc === 'USER_TABLE' ? AppRoutes.USERTABLE : AppRoutes.SQL_DEFINITION
+    navigate(`${basePath}/${encodeURIComponent(relation.schemaName)}/${encodeURIComponent(relation.name)}`)
+  }
 
   useEffect(() => {
     if (sysobject) fetchSysObjectRelations()
@@ -131,26 +140,22 @@ export function DependenciesContent() {
   }
 
   return (
-    <div className="flex h-full flex-col gap-4 overflow-auto p-6">
+    <div className="flex h-full flex-col gap-4 overflow-auto p-5">
       <RelationList
-        title="Objetos que lo referencian"
-        description="Objetos relacionados que utilizan este objeto."
+        title="Referencias"
+        description="Objetos que utilizan este objeto."
         items={dependents}
-        emptyMessage="No hay referencias registradas."
-        onSelect={fetchSysObject}
+        emptyMessage="Sin referencias."
+        onSelect={navigateToRelation}
       />
       <RelationList
-        title="Dependencias del objeto"
-        description="Objetos relacionados que este objeto utiliza."
+        title="Dependencias"
+        description="Objetos que este objeto utiliza."
         items={dependencies}
-        emptyMessage="Este objeto no registra dependencias."
-        onSelect={fetchSysObject}
+        emptyMessage="Sin dependencias."
+        onSelect={navigateToRelation}
         withDivider
       />
-
-      <p className="border-border text-secondary border-t pt-3 text-xs">
-        La información mostrada es referencial y puede variar según la resolución disponible de la base de datos.
-      </p>
     </div>
   )
 }

@@ -22,7 +22,7 @@ registry.registerPath({
   },
   responses: {
     200: {
-      description: 'Login exitoso. Se setea cookie `refresh_token` (httpOnly).',
+      description: 'Login exitoso. Retorna los datos de sesión con `accessToken` y setea cookie `refresh_token` (httpOnly).',
       content: { 'application/json': { schema: SuccessResponseSchema } },
     },
     ...errorResponses('InvalidCredentialsException', 'UserAlreadyAuthenticatedException', 'ValidationException'),
@@ -35,14 +35,15 @@ registry.registerPath({
   path: '/api/v1/auth/logout',
   tags: ['Auth'],
   summary: 'Cerrar sesión',
-  description: 'Invalida el access token y limpia la cookie de refresh token.',
+  description: 'Invalida el access token enviado por Bearer y el refresh token recibido desde la cookie httpOnly.',
+  security: [{ BearerAuth: [] }],
   request: {},
   responses: {
     200: {
       description: 'Logout exitoso. Cookie `refresh_token` eliminada.',
       content: { 'application/json': { schema: SuccessResponseSchema } },
     },
-    ...errorResponses('NotProvidedTokenException', 'TokenExpiredException'),
+    ...errorResponses('NotProvidedTokenException', 'TokenExpiredException', 'UnauthorizedException'),
   },
 })
 
@@ -59,7 +60,7 @@ registry.registerPath({
       description: 'Token renovado exitosamente',
       content: { 'application/json': { schema: SuccessResponseSchema } },
     },
-    ...errorResponses('TokenExpiredException', 'NotProvidedTokenException'),
+    ...errorResponses('TokenExpiredException', 'NotProvidedTokenException', 'CacheCredentialNotFoundException', 'UnauthorizedException'),
   },
 })
 
@@ -69,7 +70,7 @@ registry.registerPath({
   path: '/api/v1/auth/check-session',
   tags: ['Auth'],
   summary: 'Verificar sesión activa',
-  description: 'Valida que el access token sea válido y la sesión esté activa.',
+  description: 'Valida que el access token sea válido y comprueba la conexión de la base de datos activa de la sesión.',
   security: [{ BearerAuth: [] }],
   request: {},
   responses: {
@@ -77,7 +78,7 @@ registry.registerPath({
       description: 'Sesión activa',
       content: { 'application/json': { schema: SuccessResponseSchema } },
     },
-    ...errorResponses('TokenExpiredException', 'NotProvidedTokenException'),
+    ...errorResponses('TokenExpiredException', 'NotProvidedTokenException', 'CacheCredentialNotFoundException', 'UnauthorizedException'),
   },
 })
 
@@ -88,8 +89,7 @@ registry.registerPath({
   tags: ['Auth'],
   summary: 'Listar bases de datos disponibles',
   description:
-    'Retorna las bases de datos accesibles en la instancia SQL Server. Acepta dos modos: **post-login** (con Bearer token, las credenciales se obtienen de la sesión) o **pre-login** (sin token, las credenciales se envían en el body y son validadas por Zod).',
-  security: [{ BearerAuth: [] }],
+    'Retorna las bases de datos accesibles en la instancia SQL Server. Acepta dos modos: **post-login** (con Bearer token, las credenciales se obtienen de la sesión) o **pre-login** (sin token, las credenciales se envían en el body).',
   request: {
     body: {
       description: 'Credenciales directas (solo requerido en modo pre-login, sin Bearer token)',
@@ -102,7 +102,14 @@ registry.registerPath({
       description: 'Lista de bases de datos disponibles',
       content: { 'application/json': { schema: SuccessListResponseSchema } },
     },
-    ...errorResponses('InvalidCredentialsException', 'TokenExpiredException', 'ValidationException'),
+    ...errorResponses(
+      'InvalidCredentialsException',
+      'TokenExpiredException',
+      'NotProvidedTokenException',
+      'CacheCredentialNotFoundException',
+      'ValidationException',
+      'UnauthorizedException',
+    ),
   },
 })
 
@@ -123,6 +130,13 @@ registry.registerPath({
       description: 'Base de datos cambiada exitosamente. Retorna los detalles de la nueva BD.',
       content: { 'application/json': { schema: SuccessResponseSchema } },
     },
-    ...errorResponses('TokenExpiredException', 'NotProvidedTokenException', 'ValidationException'),
+    ...errorResponses(
+      'InvalidCredentialsException',
+      'TokenExpiredException',
+      'NotProvidedTokenException',
+      'CacheCredentialNotFoundException',
+      'ValidationException',
+      'UnauthorizedException',
+    ),
   },
 })

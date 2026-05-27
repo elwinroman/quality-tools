@@ -13,12 +13,13 @@ import {
  */
 export interface ForSysObjectRepositoryPort {
   /**
-   * Obtiene un objeto del sistema (`SysObject`) por su identificador único. No incluye el objeto de tipo USER_TABLE
+   * Obtiene un objeto del sistema por esquema y nombre. No incluye el objeto de tipo USER_TABLE.
    *
-   * @param id - Identificador del objeto.
+   * @param schema - Nombre del esquema.
+   * @param name - Nombre del objeto.
    * @returns Una promesa que resuelve con el objeto si existe, o `null` si no se encuentra.
    */
-  getById(id: number): Promise<SysObject | null>
+  getBySchemaAndName(schema: string, name: string): Promise<SysObject | null>
 
   /**
    * Recupera la lista de roles con permisos asociados a un objeto determinado.

@@ -20,16 +20,20 @@ export class SysObjectService implements ForSysObjectRetrievalPort {
     private readonly getSysObjectDependenciesUC: GetSysObjectDependenciesUseCase,
   ) {}
 
-  async getSysObject(id: number, log: LogObjectContext): Promise<SysObject & { permission: PermissionRol[] }> {
-    return this.getSysObjectUC.execute(id, log)
+  async getSysObjectBySchemaAndName(
+    schema: string,
+    name: string,
+    log: LogObjectContext,
+  ): Promise<SysObject & { permission: PermissionRol[] }> {
+    return this.getSysObjectUC.executeBySchemaAndName(schema, name, log)
   }
 
   async searchSuggestions(name: string, type: TypeSysObject): Promise<SysObjectSummary[]> {
     return this.searchSuggestionsUC.execute(name, type)
   }
 
-  async getSysUsertable(id: number, log: LogObjectContext): Promise<Usertable> {
-    return this.getSysUsertableUC.execute(id, log)
+  async getSysUsertableBySchemaAndName(schema: string, name: string, log: LogObjectContext): Promise<Usertable> {
+    return this.getSysUsertableUC.executeBySchemaAndName(schema, name, log)
   }
 
   async getProdSysObject(

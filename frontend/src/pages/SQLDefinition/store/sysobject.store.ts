@@ -5,7 +5,11 @@ import { createJSONStorage, persist } from 'zustand/middleware'
 import { FullSysObject, SysObjectRelation, TypeViews, ViewMode } from '@/models/sysobject'
 import { getProdSysObjectService } from '@/services'
 
-import { getSysObjectByIdService, getSysObjectDependenciesService, getSysObjectDependentsService } from '../services/sysobject.service'
+import {
+  getSysObjectByNameService,
+  getSysObjectDependenciesService,
+  getSysObjectDependentsService,
+} from '../services/sysobject.service'
 
 interface SysObjectError {
   title: string
@@ -40,8 +44,8 @@ interface SysObjectState {
   /** Error al obtener dependencias o dependientes. */
   errorRelations: SysObjectError | null
 
-  /** Obtiene un objeto por ID desde la API y actualiza el store */
-  fetchSysObject: (id: number) => Promise<void>
+  /** Obtiene un objeto por esquema y nombre desde la API y actualiza el store */
+  fetchSysObjectByName: (schema: string, name: string) => Promise<void>
 
   /** Obtiene dependencias y dependientes del objeto SQL actual. */
   fetchSysObjectRelations: () => Promise<void>
@@ -98,12 +102,11 @@ export const useSysObjectStore = create<SysObjectState>()(
         set({ errorObject: error })
       },
 
-      fetchSysObject: async (id: number) => {
+      fetchSysObjectByName: async (schema: string, name: string) => {
         set({ isLoadingObject: true })
         try {
-          const { call } = getSysObjectByIdService(id)
+          const { call } = getSysObjectByNameService(schema, name)
           const response = await call
-          // resetea el objeto de pre-producción al cambiar de objeto
           set({
             sysobject: response.data,
             prodSysobject: null,

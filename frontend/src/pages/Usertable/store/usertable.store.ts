@@ -3,7 +3,7 @@ import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
 
 import type { ExtendedProperty, UserTableColumn, UserTableForeignKey, UserTableIndex, UserTableObject } from '../models/usertable.model'
-import { getUserTableByIdService } from '../services/usertable.service'
+import { getUserTableByNameService } from '../services/usertable.service'
 
 interface UserTableError {
   title: string
@@ -25,7 +25,7 @@ interface UserTableState {
   userTableError: UserTableError | null
 
   /** Acciones */
-  fetchUserTable(id: number): Promise<void>
+  fetchUserTableByName(schema: string, name: string): Promise<void>
   updateUsertableError(error: UserTableError | null): void
   reset(): void
 }
@@ -49,11 +49,11 @@ export const useUserTableStore = create<UserTableState>()(
         set({ userTableError: error })
       },
 
-      fetchUserTable: async (id: number) => {
+      fetchUserTableByName: async (schema: string, name: string) => {
         set({ loading: true })
 
         try {
-          const { call } = getUserTableByIdService(id)
+          const { call } = getUserTableByNameService(schema, name)
           const response = await call
           const { data } = response.data
 

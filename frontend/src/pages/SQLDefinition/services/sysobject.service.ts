@@ -5,12 +5,12 @@ import type { FullSysObjectApiResponse, SysObjectRelationsApiResponse } from '@/
 import type { FullSysObject, SysObjectRelation } from '@/models/sysobject'
 import { loadAbort } from '@/utilities'
 
-/** Obtiene un objeto de tipo SQL Definition por ID */
-export const getSysObjectByIdService = (id: number): AxiosCall<FullSysObject> => {
+export const getSysObjectByNameService = (schema: string, name: string): AxiosCall<FullSysObject> => {
   const controller = loadAbort()
 
   const adapterCall = api
-    .get<FullSysObjectApiResponse>(`/sysobject/${id}`, {
+    .get<FullSysObjectApiResponse>('/sysobject/by-name', {
+      params: { schema, name },
       signal: controller.signal,
     })
     .then((response) => ({

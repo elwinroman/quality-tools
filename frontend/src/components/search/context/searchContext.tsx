@@ -11,7 +11,7 @@ interface ContextProps {
   type: ApiSysObjectType
 
   /** Callback al seleccionar un objeto (search result, recent, etc.) */
-  onSelect(objectId: number): void
+  onSelect(schema: string, name: string): void
 }
 
 export interface SearchContextType {
@@ -33,7 +33,7 @@ export interface SearchContextType {
   type: ApiSysObjectType
 
   /** Callback al seleccionar un objeto */
-  onSelect(objectId: number): void
+  onSelect(schema: string, name: string): void
 }
 
 // crea contexto

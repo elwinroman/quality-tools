@@ -1,5 +1,6 @@
 import { Check, ChevronsUpDown, RefreshCw } from 'lucide-react'
 import { useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 
 import { CircleLoader } from '@/components/loader'
@@ -16,6 +17,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui'
+import { AppRoutes } from '@/constants'
 import useFetchAndLoad from '@/hooks/useFetchAndLoad'
 import { cn } from '@/lib/utils'
 import { useSysObjectStore } from '@/pages/SQLDefinition/store/sysobject.store'
@@ -24,6 +26,8 @@ import { listDatabasesAuthenticatedService, switchDatabaseService } from '@/serv
 import { useAppStore, useAuthStore } from '@/zustand'
 
 export function SwitchDatabase() {
+  const location = useLocation()
+  const navigate = useNavigate()
   const authContext = useAuthStore((state) => state.authContext)
   const updateDatabase = useAuthStore((state) => state.updateDatabase)
   const switchingDatabase = useAppStore((state) => state.switchingDatabase)
@@ -57,9 +61,11 @@ export function SwitchDatabase() {
     setOpen(false)
     try {
       await callSwitchDatabase(switchDatabaseService(db))
-      updateDatabase(db)
+      if (location.pathname.startsWith(AppRoutes.SQL_DEFINITION)) navigate(AppRoutes.SQL_DEFINITION)
+      if (location.pathname.startsWith(AppRoutes.USERTABLE)) navigate(AppRoutes.USERTABLE)
       clearSysObject(null)
       resetUserTable()
+      updateDatabase(db)
       toast.success('Success', { description: `Base de datos cambiada. Conectado a '${db}'.` })
     } catch {
       toast.error('Error', { description: `Acceso denegado. No tienes permisos para acceder a '${db}'.` })

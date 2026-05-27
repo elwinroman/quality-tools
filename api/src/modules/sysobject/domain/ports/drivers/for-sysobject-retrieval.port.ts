@@ -11,12 +11,13 @@ import { Usertable } from '@sysobject/domain/schemas/usertable'
  */
 export interface ForSysObjectRetrievalPort {
   /**
-   * Recupera un objeto del sistema por su ID, incluyendo los roles con permisos sobre él.
+   * Recupera un objeto del sistema por esquema y nombre, incluyendo los roles con permisos sobre él.
    *
-   * @param id - Identificador único del objeto.
+   * @param schema - Nombre del esquema.
+   * @param name - Nombre del objeto.
    * @returns Una promesa que resuelve con el objeto y sus permisos asociados.
    */
-  getSysObject(id: number, log: LogObjectContext): Promise<SysObject & { permission: PermissionRol[] }>
+  getSysObjectBySchemaAndName(schema: string, name: string, log: LogObjectContext): Promise<SysObject & { permission: PermissionRol[] }>
 
   /**
    * Realiza una búsqueda de sugerencias de objetos del sistema, basada en el nombre parcial y tipo.
@@ -28,12 +29,13 @@ export interface ForSysObjectRetrievalPort {
   searchSuggestions(name: string, type: TypeSysObject): Promise<SysObjectSummary[]>
 
   /**
-   * Recupera una tabla de usuario por su ID.
+   * Recupera una tabla de usuario por esquema y nombre.
    *
-   * @param id - Identificador único de la tabla de usuario.
+   * @param schema - Nombre del esquema.
+   * @param name - Nombre de la tabla.
    * @returns Una promesa que resuelve con la tabla de usuario correspondiente.
    */
-  getSysUsertable(id: number, log: LogObjectContext): Promise<Usertable>
+  getSysUsertableBySchemaAndName(schema: string, name: string, log: LogObjectContext): Promise<Usertable>
 
   /**
    * Recupera un objeto del sistema desde el entorno de producción, incluyendo los roles con permisos sobre él.

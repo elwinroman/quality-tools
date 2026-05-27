@@ -38,7 +38,7 @@ export function Search() {
       const selectedSuggestion = suggestions[activeIndex ?? 0]
       if (!selectedSuggestion) return
 
-      onSelect(selectedSuggestion.id)
+      onSelect(selectedSuggestion.schema, selectedSuggestion.name)
       updateOpen(false)
       updateQuerySearch('')
       updateSuggestions([])

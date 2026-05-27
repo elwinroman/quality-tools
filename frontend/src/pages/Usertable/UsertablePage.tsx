@@ -1,6 +1,7 @@
 import { ArrowLeftToLine, ArrowRightToLine } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { ImperativePanelHandle } from 'react-resizable-panels'
+import { useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 
 import { FavoritoProvider } from '@/components/favoritos'
@@ -24,13 +25,25 @@ import { TabOption } from './constants/tab-options'
 import { useUserTableStore } from './store/usertable.store'
 
 export function UsertablePage() {
+  const { schema, name } = useParams()
   const database = useAuthStore((state) => state.authContext?.database)
   const leftPanelRef = useRef<ImperativePanelHandle>(null)
   const [isCollapsed, setIsCollapsed] = useState(false)
   const loading = useUserTableStore((state) => state.loading)
   const object = useUserTableStore((state) => state.userTableObject)
+  const fetchUserTableByName = useUserTableStore((state) => state.fetchUserTableByName)
   const error = useUserTableStore((state) => state.userTableError)
   const updateError = useUserTableStore((state) => state.updateUsertableError)
+
+  useEffect(() => {
+    if (!schema || !name) return
+
+    const schemaName = decodeURIComponent(schema)
+    const objectName = decodeURIComponent(name)
+    if (object?.schemaName === schemaName && object.name === objectName) return
+
+    fetchUserTableByName(schemaName, objectName)
+  }, [fetchUserTableByName, name, object?.name, object?.schemaName, schema])
 
   useEffect(() => {
     if (!error) return

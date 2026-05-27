@@ -6,12 +6,13 @@ import { Column, ExtendedProperty, ForeignKey, Index, UsertableSysObject } from 
  */
 export interface ForSysUsertableRepositoryPort {
   /**
-   * Obtiene los metadatos base de una tabla de usuario por su identificador.
+   * Obtiene los metadatos base de una tabla de usuario por esquema y nombre.
    *
-   * @param id - ID de la tabla de usuario.
+   * @param schema - Nombre del esquema.
+   * @param name - Nombre de la tabla.
    * @returns Una promesa que resuelve con el objeto de sistema o null si no existe.
    */
-  getById(id: number): Promise<UsertableSysObject | null>
+  getBySchemaAndName(schema: string, name: string): Promise<UsertableSysObject | null>
 
   /**
    * Obtiene las columnas de una tabla de usuario por su identificador.

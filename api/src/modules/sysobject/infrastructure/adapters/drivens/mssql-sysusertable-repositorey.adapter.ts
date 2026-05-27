@@ -14,7 +14,7 @@ import sql from 'mssql'
 export class MssqlSysUsertableRepositoryAdapter implements ForSysUsertableRepositoryPort {
   private connection = new MSSQLDatabaseConnection()
 
-  async getById(id: number): Promise<UsertableSysObject | null> {
+  async getBySchemaAndName(schema: string, name: string): Promise<UsertableSysObject | null> {
     const { store } = await buildStoreAuthContext()
 
     try {
@@ -33,15 +33,17 @@ export class MssqlSysUsertableRepositoryAdapter implements ForSysUsertableReposi
           A.modify_date
         FROM sys.objects        A
         INNER JOIN sys.schemas  B ON B.schema_id = A.schema_id
-        WHERE type IN('U') AND A.object_id = @id
+        WHERE type IN('U')
+          AND B.name = @schema
+          AND A.name = @name
       `
 
-      request.input('id', sql.Int, id)
+      request.input('schema', sql.VarChar(128), schema)
+      request.input('name', sql.VarChar(128), name)
       const res = await request.query(stmt)
 
       if (res && res.rowsAffected[0] === 0) return null
 
-      // adapter
       const data: UsertableSysObject = {
         id: res.recordset[0].object_id,
         name: res.recordset[0].name,
