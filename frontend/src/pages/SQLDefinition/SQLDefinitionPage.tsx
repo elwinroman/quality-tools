@@ -9,6 +9,7 @@ import { DatabaseSwitchOverlay } from '@/components/loader'
 import { Navbar } from '@/components/navbar/Navbar'
 import { DialogSearchProvider } from '@/components/search/context/dialogSearchContext'
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup, Tabs, TabsContent } from '@/components/ui'
+import { parseQualifiedSysObjectName } from '@/utilities/sysobject-route.util'
 import { useAuthStore } from '@/zustand'
 
 import { DependenciesContent, EditorCode, HeaderEditor, HeaderTabs, OverviewContent, PanelEditor } from './components'
@@ -17,7 +18,7 @@ import { TabOption } from './constants/tabs-options'
 import { useSysObjectStore } from './store/sysobject.store'
 
 export function SQLDefinitionPage() {
-  const { schema, name } = useParams()
+  const { qualifiedName } = useParams()
   const database = useAuthStore((state) => state.authContext?.database)
   const leftPanelRef = useRef<ImperativePanelHandle>(null)
   const [isCollapsed, setIsCollapsed] = useState(false)
@@ -28,15 +29,15 @@ export function SQLDefinitionPage() {
   const updateError = useSysObjectStore((state) => state.updateErrorObject)
 
   useEffect(() => {
-    if (!schema || !name) return
+    const parsedName = parseQualifiedSysObjectName(qualifiedName)
+    if (!parsedName) return
 
-    const schemaName = decodeURIComponent(schema)
-    const objectName = decodeURIComponent(name)
+    const { schemaName, objectName } = parsedName
     setActiveTab(TabOption.Script)
     if (sysobject?.schemaName === schemaName && sysobject.name === objectName) return
 
     fetchSysObjectByName(schemaName, objectName)
-  }, [fetchSysObjectByName, name, schema, sysobject?.name, sysobject?.schemaName])
+  }, [fetchSysObjectByName, qualifiedName, sysobject?.name, sysobject?.schemaName])
 
   useEffect(() => {
     if (!error) return

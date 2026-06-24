@@ -10,6 +10,7 @@ import { Navbar } from '@/components/navbar/Navbar'
 import { DialogSearchProvider } from '@/components/search/context/dialogSearchContext'
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup, Tabs, TabsContent } from '@/components/ui'
 import { cn } from '@/lib/utils'
+import { parseQualifiedSysObjectName } from '@/utilities/sysobject-route.util'
 import { useAuthStore } from '@/zustand'
 
 import { Columns } from './components/Columns'
@@ -25,7 +26,7 @@ import { TabOption } from './constants/tab-options'
 import { useUserTableStore } from './store/usertable.store'
 
 export function UsertablePage() {
-  const { schema, name } = useParams()
+  const { qualifiedName } = useParams()
   const database = useAuthStore((state) => state.authContext?.database)
   const leftPanelRef = useRef<ImperativePanelHandle>(null)
   const [isCollapsed, setIsCollapsed] = useState(false)
@@ -36,14 +37,14 @@ export function UsertablePage() {
   const updateError = useUserTableStore((state) => state.updateUsertableError)
 
   useEffect(() => {
-    if (!schema || !name) return
+    const parsedName = parseQualifiedSysObjectName(qualifiedName)
+    if (!parsedName) return
 
-    const schemaName = decodeURIComponent(schema)
-    const objectName = decodeURIComponent(name)
+    const { schemaName, objectName } = parsedName
     if (object?.schemaName === schemaName && object.name === objectName) return
 
     fetchUserTableByName(schemaName, objectName)
-  }, [fetchUserTableByName, name, object?.name, object?.schemaName, schema])
+  }, [fetchUserTableByName, object?.name, object?.schemaName, qualifiedName])
 
   useEffect(() => {
     if (!error) return
@@ -95,14 +96,9 @@ export function UsertablePage() {
 
               {/* Panel derecho: headers + tabs content */}
               <ResizablePanel>
-                <Tabs key={database} defaultValue={TabOption.Overview} className="flex h-full flex-col">
+                <Tabs key={database} defaultValue={TabOption.Structure} className="flex h-full flex-col">
                   <HeaderUsertable />
                   <HeaderTabsUsertable />
-
-                  {/* Tab Overview */}
-                  <TabsContent value={TabOption.Overview} className="flex-1 overflow-auto">
-                    {!object ? <UsertableEmptyState /> : <UsertableOverviewContent />}
-                  </TabsContent>
 
                   {/* Tab Estructura */}
                   <TabsContent value={TabOption.Structure} className={cn('flex-1 overflow-auto', object && !loading && 'px-4 py-4')}>
@@ -111,6 +107,11 @@ export function UsertablePage() {
                     ) : (
                       <DataTable columns={Columns} />
                     )}
+                  </TabsContent>
+
+                  {/* Tab Overview */}
+                  <TabsContent value={TabOption.Overview} className="flex-1 overflow-auto">
+                    {!object ? <UsertableEmptyState /> : <UsertableOverviewContent />}
                   </TabsContent>
 
                   {/* Tab Índices */}

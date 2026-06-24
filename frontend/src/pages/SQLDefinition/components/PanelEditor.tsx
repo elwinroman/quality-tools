@@ -5,6 +5,7 @@ import { SearchTrigger } from '@/components/search/components/SearchTrigger'
 import { SearchProvider } from '@/components/search/context/searchContext'
 import { Search } from '@/components/search/Search'
 import { AppRoutes } from '@/constants'
+import { buildQualifiedSysObjectPath } from '@/utilities/sysobject-route.util'
 
 import { useSysObjectStore } from '../store/sysobject.store'
 import { ViewModeSelect } from './panel-editor/ViewModeSelect'
@@ -13,8 +14,14 @@ export function PanelEditor() {
   const navigate = useNavigate()
   const { favoritos, deleteFavorito } = useFavoritoContext()
   const sysobject = useSysObjectStore((state) => state.sysobject)
+  const fetchSysObjectByName = useSysObjectStore((state) => state.fetchSysObjectByName)
   const navigateToSysObject = (schema: string, name: string) => {
-    navigate(`${AppRoutes.SQL_DEFINITION}/${encodeURIComponent(schema)}/${encodeURIComponent(name)}`)
+    if (sysobject?.schemaName === schema && sysobject.name === name) {
+      fetchSysObjectByName(schema, name)
+      return
+    }
+
+    navigate(buildQualifiedSysObjectPath(AppRoutes.SQL_DEFINITION, schema, name))
   }
 
   return (

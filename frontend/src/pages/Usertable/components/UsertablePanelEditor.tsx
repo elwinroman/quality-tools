@@ -5,6 +5,7 @@ import { SearchTrigger } from '@/components/search/components/SearchTrigger'
 import { SearchProvider } from '@/components/search/context/searchContext'
 import { Search } from '@/components/search/Search'
 import { AppRoutes } from '@/constants'
+import { buildQualifiedSysObjectPath } from '@/utilities/sysobject-route.util'
 
 import { useUserTableStore } from '../store/usertable.store'
 
@@ -12,8 +13,14 @@ export function UsertablePanelEditor() {
   const navigate = useNavigate()
   const { favoritos, deleteFavorito } = useFavoritoContext()
   const object = useUserTableStore((state) => state.userTableObject)
+  const fetchUserTableByName = useUserTableStore((state) => state.fetchUserTableByName)
   const navigateToUserTable = (schema: string, name: string) => {
-    navigate(`${AppRoutes.USERTABLE}/${encodeURIComponent(schema)}/${encodeURIComponent(name)}`)
+    if (object?.schemaName === schema && object.name === name) {
+      fetchUserTableByName(schema, name)
+      return
+    }
+
+    navigate(buildQualifiedSysObjectPath(AppRoutes.USERTABLE, schema, name))
   }
 
   return (

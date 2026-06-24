@@ -13,19 +13,7 @@ export function HeaderTabsUsertable() {
     <header className="border-b-border h-9 border-b px-2">
       <div className="SY flex h-full flex-nowrap items-center gap-2">
         <TabsList className="h-full gap-0 rounded-none">
-          {/* Tab Overview */}
-          <TabsTrigger
-            value={TabOption.Overview}
-            className={cn(
-              'h-full gap-1.5 rounded-none border-b-2 border-transparent',
-              'data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none',
-            )}
-          >
-            <LayoutDashboard size={12} />
-            <span>Overview</span>
-          </TabsTrigger>
-
-          {/* Tab Estructura */}
+          {/* Tab Esquema */}
           <TabsTrigger
             value={TabOption.Structure}
             disabled={!object}
@@ -37,7 +25,19 @@ export function HeaderTabsUsertable() {
             )}
           >
             <TableProperties size={12} />
-            <span>Estructura</span>
+            <span>Esquema</span>
+          </TabsTrigger>
+
+          {/* Tab Overview */}
+          <TabsTrigger
+            value={TabOption.Overview}
+            className={cn(
+              'h-full gap-1.5 rounded-none border-b-2 border-transparent',
+              'data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none',
+            )}
+          >
+            <LayoutDashboard size={12} />
+            <span>Overview</span>
           </TabsTrigger>
 
           {/* Tab Índices */}
