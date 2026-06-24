@@ -57,7 +57,7 @@ export function Search() {
 
   return (
     <>
-      <Dialog open={open} onOpenChange={handleOpenChange}>
+      <Dialog modal={false} open={open} onOpenChange={handleOpenChange}>
         <DialogContent
           className="bg-background shadow-custom-dialog flex h-[60%] flex-col gap-1 overflow-hidden p-0 sm:max-w-2xl"
           showCloseButton={false}
