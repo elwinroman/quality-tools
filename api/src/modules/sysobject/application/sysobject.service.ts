@@ -1,7 +1,14 @@
 import { ForSysObjectRetrievalPort } from '@sysobject/domain/ports/drivers/for-sysobject-retrieval.port'
 import { LogObjectContext, LogProdObjectContext } from '@sysobject/domain/schemas/log-object-context'
 import { PermissionRol } from '@sysobject/domain/schemas/permission-rol'
-import { SysObject, SysObjectDependency, SysObjectDependent, SysObjectSummary, TypeSysObject } from '@sysobject/domain/schemas/sysobject'
+import {
+  SysObject,
+  SysObjectDependency,
+  SysObjectDependent,
+  SysObjectRelationsResult,
+  SysObjectSummary,
+  TypeSysObject,
+} from '@sysobject/domain/schemas/sysobject'
 import { Usertable } from '@sysobject/domain/schemas/usertable'
 
 import { GetProdSysObjectUseCase } from './use-cases/get-prod-sysobject.use-case'
@@ -45,11 +52,11 @@ export class SysObjectService implements ForSysObjectRetrievalPort {
     return this.getProdSysObjectUC.execute(name, schema, actionType, log)
   }
 
-  async getSysObjectDependents(name: string, schema: string): Promise<SysObjectDependent[]> {
+  async getSysObjectDependents(name: string, schema: string): Promise<SysObjectRelationsResult<SysObjectDependent>> {
     return this.getSysObjectDependentsUC.execute(name, schema)
   }
 
-  async getSysObjectDependencies(name: string, schema: string): Promise<SysObjectDependency[]> {
+  async getSysObjectDependencies(name: string, schema: string): Promise<SysObjectRelationsResult<SysObjectDependency>> {
     return this.getSysObjectDependenciesUC.execute(name, schema)
   }
 }

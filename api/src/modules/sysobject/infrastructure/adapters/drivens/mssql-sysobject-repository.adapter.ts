@@ -7,6 +7,8 @@ import {
   SysObject,
   SysObjectDependency,
   SysObjectDependent,
+  SysObjectRelationsResult,
+  SysObjectRelationsWarning,
   SysObjectSummary,
   ValidTypeSysObject,
 } from '@sysobject/domain/schemas/sysobject'
@@ -34,6 +36,21 @@ export class MssqlSysObjectRepositoryAdapter implements ForSysObjectRepositoryPo
       err.message.includes('The dependencies reported for entity') ||
       err.message.includes('might not include references to all columns')
     )
+  }
+
+  private buildDependencyFallbackWarning(
+    err: unknown,
+    source: SysObjectRelationsWarning['source'],
+    fullName: string,
+  ): SysObjectRelationsWarning {
+    const detail = err instanceof Error ? err.message : String(err)
+
+    return {
+      type: 'DependencyMetadataFallback',
+      detail: `[${fullName}] ${detail}`,
+      source,
+      fallbackSource: 'sys.sql_expression_dependencies',
+    }
   }
 
   async getBySchemaAndName(schema: string, name: string): Promise<SysObject | null> {
@@ -169,7 +186,7 @@ export class MssqlSysObjectRepositoryAdapter implements ForSysObjectRepositoryPo
     }
   }
 
-  async findDependentsBySchemaAndName(name: string, schema: string): Promise<SysObjectDependent[]> {
+  async findDependentsBySchemaAndName(name: string, schema: string): Promise<SysObjectRelationsResult<SysObjectDependent>> {
     const { store } = await buildStoreAuthContext()
 
     try {
@@ -196,12 +213,8 @@ export class MssqlSysObjectRepositoryAdapter implements ForSysObjectRepositoryPo
 
       request.input('fullName', sql.VarChar(192), fullName)
       let res: sql.IResult<SysObjectRelationRow>
-
-      try {
-        res = await request.query(stmt)
-      } catch (err) {
-        if (!this.isIncompleteDependencyMetadataError(err)) throw err
-
+      let warning: SysObjectRelationsWarning | undefined
+      const getFallbackDependents = async () => {
         const fallbackRequest = conn.request()
         const fallbackStmt = `
           SELECT DISTINCT
@@ -226,7 +239,16 @@ export class MssqlSysObjectRepositoryAdapter implements ForSysObjectRepositoryPo
         fallbackRequest.input('fullName', sql.VarChar(192), fullName)
         fallbackRequest.input('schema', sql.VarChar(128), schema)
         fallbackRequest.input('name', sql.VarChar(128), name)
-        res = await fallbackRequest.query(fallbackStmt)
+        return fallbackRequest.query<SysObjectRelationRow>(fallbackStmt)
+      }
+
+      try {
+        res = await request.query(stmt)
+      } catch (err) {
+        if (!this.isIncompleteDependencyMetadataError(err)) throw err
+
+        warning = this.buildDependencyFallbackWarning(err, 'sys.dm_sql_referencing_entities', fullName)
+        res = await getFallbackDependents()
       }
 
       // adapter
@@ -240,13 +262,13 @@ export class MssqlSysObjectRepositoryAdapter implements ForSysObjectRepositoryPo
           }
         }) ?? []
 
-      return data
+      return warning ? { data, meta: { warning } } : { data }
     } catch (err) {
       throw wrapDatabaseError(err)
     }
   }
 
-  async findDependenciesBySchemaAndName(name: string, schema: string): Promise<SysObjectDependency[]> {
+  async findDependenciesBySchemaAndName(name: string, schema: string): Promise<SysObjectRelationsResult<SysObjectDependency>> {
     const { store } = await buildStoreAuthContext()
 
     try {
@@ -274,12 +296,8 @@ export class MssqlSysObjectRepositoryAdapter implements ForSysObjectRepositoryPo
 
       request.input('fullName', sql.VarChar(192), fullName)
       let res: sql.IResult<SysObjectRelationRow>
-
-      try {
-        res = await request.query(stmt)
-      } catch (err) {
-        if (!this.isIncompleteDependencyMetadataError(err)) throw err
-
+      let warning: SysObjectRelationsWarning | undefined
+      const getFallbackDependencies = async () => {
         const fallbackRequest = conn.request()
         const fallbackStmt = `
           SELECT DISTINCT
@@ -299,7 +317,16 @@ export class MssqlSysObjectRepositoryAdapter implements ForSysObjectRepositoryPo
         `
 
         fallbackRequest.input('fullName', sql.VarChar(192), fullName)
-        res = await fallbackRequest.query(fallbackStmt)
+        return fallbackRequest.query<SysObjectRelationRow>(fallbackStmt)
+      }
+
+      try {
+        res = await request.query(stmt)
+      } catch (err) {
+        if (!this.isIncompleteDependencyMetadataError(err)) throw err
+
+        warning = this.buildDependencyFallbackWarning(err, 'sys.dm_sql_referenced_entities', fullName)
+        res = await getFallbackDependencies()
       }
 
       const data =
@@ -312,7 +339,7 @@ export class MssqlSysObjectRepositoryAdapter implements ForSysObjectRepositoryPo
           }
         }) ?? []
 
-      return data
+      return warning ? { data, meta: { warning } } : { data }
     } catch (err) {
       throw wrapDatabaseError(err)
     }

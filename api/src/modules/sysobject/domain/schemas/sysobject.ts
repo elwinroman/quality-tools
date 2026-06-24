@@ -75,6 +75,20 @@ export type SysObjectDependency = SysObjectRelationSummary
  */
 export type SysObjectDependent = SysObjectRelationSummary
 
+export interface SysObjectRelationsWarning {
+  type: 'DependencyMetadataFallback'
+  detail: string
+  source: 'sys.dm_sql_referenced_entities' | 'sys.dm_sql_referencing_entities'
+  fallbackSource: 'sys.sql_expression_dependencies'
+}
+
+export interface SysObjectRelationsResult<T extends SysObjectRelationSummary> {
+  data: T[]
+  meta?: {
+    warning?: SysObjectRelationsWarning
+  }
+}
+
 /**
  * Enum de tipos de objetos SQL utilizados en el sistema.
  *

@@ -3,6 +3,7 @@ import {
   SysObject,
   SysObjectDependency,
   SysObjectDependent,
+  SysObjectRelationsResult,
   SysObjectSummary,
   ValidTypeSysObject,
 } from '@sysobject/domain/schemas/sysobject'
@@ -48,7 +49,7 @@ export interface ForSysObjectRepositoryPort {
    * @param schema - Nombre del esquema al que pertenece el objeto consultado.
    * @returns Una promesa que resuelve con los objetos dependientes.
    */
-  findDependentsBySchemaAndName(name: string, schema: string): Promise<SysObjectDependent[]>
+  findDependentsBySchemaAndName(name: string, schema: string): Promise<SysObjectRelationsResult<SysObjectDependent>>
 
   /**
    * Busca los objetos usados por el objeto indicado por esquema y nombre.
@@ -60,5 +61,5 @@ export interface ForSysObjectRepositoryPort {
    * @param schema - Nombre del esquema al que pertenece el objeto consultado.
    * @returns Una promesa que resuelve con las dependencias del objeto.
    */
-  findDependenciesBySchemaAndName(name: string, schema: string): Promise<SysObjectDependency[]>
+  findDependenciesBySchemaAndName(name: string, schema: string): Promise<SysObjectRelationsResult<SysObjectDependency>>
 }

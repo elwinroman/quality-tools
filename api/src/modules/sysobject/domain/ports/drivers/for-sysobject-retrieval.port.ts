@@ -1,6 +1,13 @@
 import { LogObjectContext, LogProdObjectContext } from '@sysobject/domain/schemas/log-object-context'
 import { PermissionRol } from '@sysobject/domain/schemas/permission-rol'
-import { SysObject, SysObjectDependency, SysObjectDependent, SysObjectSummary, TypeSysObject } from '@sysobject/domain/schemas/sysobject'
+import {
+  SysObject,
+  SysObjectDependency,
+  SysObjectDependent,
+  SysObjectRelationsResult,
+  SysObjectSummary,
+  TypeSysObject,
+} from '@sysobject/domain/schemas/sysobject'
 import { Usertable } from '@sysobject/domain/schemas/usertable'
 
 /**
@@ -64,7 +71,7 @@ export interface ForSysObjectRetrievalPort {
    * @param schema - Nombre del esquema al que pertenece el objeto consultado.
    * @returns Una promesa que resuelve con los objetos dependientes.
    */
-  getSysObjectDependents(name: string, schema: string): Promise<SysObjectDependent[]>
+  getSysObjectDependents(name: string, schema: string): Promise<SysObjectRelationsResult<SysObjectDependent>>
 
   /**
    * Recupera los objetos usados por el objeto indicado.
@@ -77,5 +84,5 @@ export interface ForSysObjectRetrievalPort {
    * @param schema - Nombre del esquema al que pertenece el objeto consultado.
    * @returns Una promesa que resuelve con las dependencias del objeto.
    */
-  getSysObjectDependencies(name: string, schema: string): Promise<SysObjectDependency[]>
+  getSysObjectDependencies(name: string, schema: string): Promise<SysObjectRelationsResult<SysObjectDependency>>
 }

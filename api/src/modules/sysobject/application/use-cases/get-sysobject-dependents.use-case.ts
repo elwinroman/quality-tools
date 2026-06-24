@@ -1,6 +1,6 @@
 import { Logger } from '@shared/domain/logger'
 import { ForSysObjectRepositoryPort } from '@sysobject/domain/ports/drivens/for-sysobject-repository.port'
-import { SysObjectDependent } from '@sysobject/domain/schemas/sysobject'
+import { SysObjectDependent, SysObjectRelationsResult } from '@sysobject/domain/schemas/sysobject'
 
 /**
  * Recupera los objetos que dependen del objeto consultado.
@@ -11,17 +11,27 @@ export class GetSysObjectDependentsUseCase {
     private readonly logger: Logger,
   ) {}
 
-  async execute(name: string, schema: string): Promise<SysObjectDependent[]> {
-    const dependents = await this.sysObjectRepository.findDependentsBySchemaAndName(name, schema)
+  async execute(name: string, schema: string): Promise<SysObjectRelationsResult<SysObjectDependent>> {
+    const result = await this.sysObjectRepository.findDependentsBySchemaAndName(name, schema)
+
+    if (result.meta?.warning) {
+      this.logger.warn('[sysobject] Fallback aplicado al recuperar dependientes', {
+        actionDetails: {
+          objectName: name,
+          schema,
+          warning: result.meta.warning,
+        },
+      })
+    }
 
     this.logger.info('[sysobject] Dependientes de objeto recuperados', {
       actionDetails: {
         objectName: name,
         schema,
-        resultsCount: dependents.length,
+        resultsCount: result.data.length,
       },
     })
 
-    return dependents
+    return result
   }
 }

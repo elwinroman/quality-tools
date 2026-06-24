@@ -13,7 +13,7 @@ export class GetSysObjectReferencesController {
       const dto: GetSysObjectReferencesHttpDto = GetSysObjectReferencesQuerySchema.parse({ name, schema })
       const result = await this.sysObjectService.getSysObjectDependents(dto.name, dto.schema)
 
-      return res.status(200).json({ correlationId: req.correlationId, data: result })
+      return res.status(200).json({ correlationId: req.correlationId, meta: result.meta, data: result.data })
     } catch (err) {
       next(err)
     }
