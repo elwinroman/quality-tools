@@ -83,6 +83,9 @@ export interface Index {
   /** Expresión SQL de la condición de filtro. null si el índice no es filtrado. */
   filterDefinition: string | null
 
+  /** Indica si el índice está deshabilitado */
+  isDisabled: boolean
+
   /** Lista de columnas que componen el índice, incluyendo columnas clave e incluidas, ordenadas por keyOrdinal. */
   columns: IndexColumn[]
 }

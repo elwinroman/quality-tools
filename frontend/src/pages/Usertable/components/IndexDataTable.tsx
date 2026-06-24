@@ -7,9 +7,10 @@ import {
   type SortingState,
   useReactTable,
 } from '@tanstack/react-table'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { cn } from '@/lib/utils'
 
 import { useUserTableStore } from '../store/usertable.store'
 import type { IndexRow } from './IndexColumns'
@@ -23,15 +24,18 @@ export function IndexDataTable({ columns }: Props) {
 
   const indexes = useUserTableStore((state) => state.userTableIndexList)
 
-  const formattedData: IndexRow[] = indexes.map((index) => ({
-    name: index.name,
-    typeDesc: index.typeDesc,
-    isPrimaryKey: index.isPrimaryKey,
-    isUnique: index.isUnique,
-    isFiltered: index.isFiltered,
-    filterDefinition: index.filterDefinition,
-    columns: index.columns,
-  }))
+  const formattedData: IndexRow[] = useMemo(() => {
+    return indexes.map((index) => ({
+      name: index.name,
+      typeDesc: index.typeDesc,
+      isPrimaryKey: index.isPrimaryKey,
+      isUnique: index.isUnique,
+      isFiltered: index.isFiltered,
+      filterDefinition: index.filterDefinition,
+      isDisabled: index.isDisabled,
+      columns: index.columns,
+    }))
+  }, [indexes])
 
   const table = useReactTable({
     data: formattedData,
@@ -62,7 +66,11 @@ export function IndexDataTable({ columns }: Props) {
         <TableBody>
           {table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row) => (
-              <TableRow key={row.id}>
+              <TableRow
+                key={row.id}
+                className={cn(row.original.isDisabled && 'opacity-55 hover:opacity-75')}
+                data-disabled={row.original.isDisabled || undefined}
+              >
                 {row.getVisibleCells().map((cell) => (
                   <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
                 ))}

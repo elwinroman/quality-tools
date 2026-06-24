@@ -196,7 +196,8 @@ export class MssqlSysUsertableRepositoryAdapter implements ForSysUsertableReposi
           A.name           AS column_name,
           B.key_ordinal,
           B.is_descending_key,
-          B.is_included_column
+          B.is_included_column,
+          C.is_disabled
         FROM sys.columns              A
         INNER JOIN sys.index_columns  B ON B.column_id = A.column_id AND B.object_id = A.object_id
         INNER JOIN sys.indexes        C ON C.index_id = B.index_id AND C.object_id = A.object_id
@@ -217,6 +218,7 @@ export class MssqlSysUsertableRepositoryAdapter implements ForSysUsertableReposi
             isUnique: row.is_unique,
             isFiltered: row.is_filtered,
             filterDefinition: row.filter_definition,
+            isDisabled: row.is_disabled,
             columns: [],
           })
         }

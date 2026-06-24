@@ -87,4 +87,5 @@ export interface RawIndexRow {
   key_ordinal: number
   is_descending_key: boolean
   is_included_column: boolean
+  is_disabled: boolean
 }

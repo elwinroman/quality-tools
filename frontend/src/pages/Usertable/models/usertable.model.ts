@@ -47,6 +47,7 @@ export interface UserTableIndex {
   isUnique: boolean
   isFiltered: boolean
   filterDefinition: string | null
+  isDisabled: boolean
   columns: UserTableIndexColumn[]
 }
 
