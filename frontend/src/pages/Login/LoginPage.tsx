@@ -27,7 +27,7 @@ export function LoginPage() {
         <header className="flex flex-col items-center gap-3">
           <h1 className="text-primary text-xl font-bold">Inicia sesión con tu cuenta</h1>
           <p className="text-secondary flex gap-1 text-sm">
-            <span>¿Solo buscas objetos de pre-producción?</span>
+            <span>¿Solo buscas objetos de producción?</span>
             <Link to="/aligment" className="text-palette-primary-main hover:underline">
               Empieza aquí
             </Link>

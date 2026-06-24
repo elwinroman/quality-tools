@@ -29,7 +29,7 @@ export class GetProdSysObjectController {
       }
 
       const log: LogProdObjectContext = {
-        databaseName: getStaticDatabaseCredentials(DatabaseName.PREPROD).credentials.database, // nombre de la BD de pre-producción
+        databaseName: getStaticDatabaseCredentials(DatabaseName.PREPROD).credentials.database, // nombre de la BD de producción
         idUser,
       }
 

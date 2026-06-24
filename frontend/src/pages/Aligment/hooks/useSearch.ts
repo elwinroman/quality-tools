@@ -33,7 +33,7 @@ export const useSearch = () => {
       // crear el objeto en el store
       createSysObject(createSysObjectStoreAdapter(response.data))
     } catch (err) {
-      console.error('Error al recuperar el objeto de pre-producción: ', err)
+      console.error('Error al recuperar el objeto de producción: ', err)
       createSysObject(null)
       return false
     }

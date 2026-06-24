@@ -82,7 +82,7 @@ export function useInjectionComponent({ originalCode, modifiedCode, renderSideBy
     if (!originalRoot || !modifiedRoot) return
 
     const panelConfigs = [
-      { root: originalRoot, label: 'BD Pre-producción:', database: authContext?.prodDatabase, code: originalCode },
+      { root: originalRoot, label: 'BD Producción:', database: authContext?.prodDatabase, code: originalCode },
       { root: modifiedRoot, label: 'BD Pruebas:', database: authContext?.database, code: modifiedCode },
     ]
 

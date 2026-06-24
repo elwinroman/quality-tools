@@ -90,7 +90,7 @@ export function HomePage() {
           <SectionHeader
             label="03 — Aligment"
             title="Alineación de entornos"
-            description="Detecta y resuelve diferencias entre tus bases de datos de prueba y pre-producción con comparación visual side-by-side de scripts SQL."
+            description="Detecta y resuelve diferencias entre tus bases de datos de prueba y producción con comparación visual side-by-side de scripts SQL."
           />
           <InfoAligment />
           <div className="mt-10">

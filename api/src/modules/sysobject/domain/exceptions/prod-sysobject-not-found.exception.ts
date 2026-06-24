@@ -8,6 +8,6 @@ export class ProdSysObjectNotFoundException extends DomainError {
 
   constructor(name: string, schema: string) {
     super(`[sysobject] Objeto no encontrado en preprod: [${schema}].[${name}]`)
-    this.detail = `No se ha encontrado el objeto \`[${schema}].[${name}]\` en pre-producción.`
+    this.detail = `No se ha encontrado el objeto \`[${schema}].[${name}]\` en producción.`
   }
 }

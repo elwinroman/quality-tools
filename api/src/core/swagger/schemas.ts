@@ -150,7 +150,7 @@ const exceptionRegistry = {
   },
   ProdSysObjectNotFoundException: {
     class: ProdSysObjectNotFoundException,
-    detail: 'No se ha encontrado el objeto en pre-producción.',
+    detail: 'No se ha encontrado el objeto en producción.',
   },
 
   // Busqueda Reciente / Favorito (4xxx)

@@ -49,16 +49,16 @@ interface SysObjectState {
   /** Actualiza el error del objeto SQL */
   updateErrorObject: (error: SysObjectError | null) => void
 
-  /** Objeto SQL de pre-producción para comparación. Si no existe, es `null`. */
+  /** Objeto SQL de producción para comparación. Si no existe, es `null`. */
   prodSysobject: FullSysObject | null
 
-  /** Indica si se está cargando el objeto de pre-producción */
+  /** Indica si se está cargando el objeto de producción */
   isLoadingProdObject: boolean
 
-  /** Error al obtener el objeto de pre-producción */
+  /** Error al obtener el objeto de producción */
   errorProdObject: SysObjectError | null
 
-  /** Obtiene el objeto de pre-producción desde la API para comparación */
+  /** Obtiene el objeto de producción desde la API para comparación */
   fetchProdSysObject: () => Promise<void>
 
   /** Crea el objeto con la data recuperada en el buscador */
