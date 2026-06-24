@@ -1,7 +1,8 @@
-import { ChevronRight, TriangleAlert } from 'lucide-react'
+import { ChevronRight, Code2, RefreshCw, TriangleAlert } from 'lucide-react'
 
 import { ConfigOptionEditor, CopyCode, GenerateCodeForDropObject } from '@/components/editor-option'
 import { ToggleFavoritoButton, useFavoritoContext } from '@/components/favoritos'
+import { Badge, Button, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui'
 import { useEditorOptionsStore } from '@/zustand'
 
 import { TabOption } from '../constants/tabs-options'
@@ -15,7 +16,9 @@ interface Props {
 
 export function HeaderEditor({ activeTab }: Props) {
   const sysobject = useSysObjectStore((state) => state.sysobject)
+  const isLoadingObject = useSysObjectStore((state) => state.isLoadingObject)
   const currentEditorCode = useSysObjectStore((state) => state.currentEditorCode)
+  const fetchSysObjectByName = useSysObjectStore((state) => state.fetchSysObjectByName)
   const normalizeWhitespace = useEditorOptionsStore((state) => state.normalizeWhitespace)
   const { isFavorito, upsertFavorito, deleteFavorito } = useFavoritoContext()
 
@@ -32,6 +35,12 @@ export function HeaderEditor({ activeTab }: Props) {
     }
   }
 
+  const handleRefresh = () => {
+    if (!sysobject || isLoadingObject) return
+
+    fetchSysObjectByName(sysobject.schemaName, sysobject.name)
+  }
+
   return (
     <header className="bg-background flex items-center justify-between px-4 pt-2 pb-3">
       {/* Breadcrumb */}
@@ -44,6 +53,10 @@ export function HeaderEditor({ activeTab }: Props) {
             </li>
             <li className="text-primary overflow-hidden">{sysobject.name}</li>
           </ul>
+          <Badge variant="outline" className="text-muted ml-2 gap-1 border-dashed font-medium">
+            <Code2 size={11} />
+            SQL Definition
+          </Badge>
           <ToggleFavoritoButton isFavorite={!!currentFavorito} onClick={handleToggleFavorito} />
         </div>
       ) : (
@@ -60,6 +73,21 @@ export function HeaderEditor({ activeTab }: Props) {
 
       {/* Acciones */}
       <div className="flex items-center gap-1">
+        <TooltipProvider>
+          <Tooltip delayDuration={100}>
+            <TooltipTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-7 w-7" disabled={!sysobject || isLoadingObject} onClick={handleRefresh}>
+                <RefreshCw size={14} className="text-primary" />
+              </Button>
+            </TooltipTrigger>
+            {sysobject && (
+              <TooltipContent side="bottom">
+                <p>Refrescar objeto</p>
+              </TooltipContent>
+            )}
+          </Tooltip>
+        </TooltipProvider>
+
         {isComparing ? (
           <>
             <NormalizeWhitespaceToggle />
