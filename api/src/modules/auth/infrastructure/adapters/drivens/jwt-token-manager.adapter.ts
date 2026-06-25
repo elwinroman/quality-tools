@@ -15,10 +15,11 @@ import jwt, { JwtPayload } from 'jsonwebtoken'
 import { JWT_ACCESS_TOKEN_TTL, JWT_REFRESH_TOKEN_TTL, JWT_SECRET } from '@/config/enviroment'
 
 export class JwtTokenManagerAdapter implements ForTokenManagementPort {
-  createAccessToken(id: number, username: string): string {
+  createAccessToken(id: number, username: string, sessionId: string): string {
     const accessTokenPaylod: AccessTokenPayload = {
       user_id: id,
       username,
+      session_id: sessionId,
       role: 'rol no definido',
       type: TokenTypeEnum.Access,
       jti: randomUUID(),
@@ -28,10 +29,11 @@ export class JwtTokenManagerAdapter implements ForTokenManagementPort {
     return accessToken
   }
 
-  createRefreshToken(id: number, username: string): string {
+  createRefreshToken(id: number, username: string, sessionId: string): string {
     const refreshTokenPayload: RefreshTokenPayload = {
       user_id: id,
       username,
+      session_id: sessionId,
       type: TokenTypeEnum.Refresh,
       jti: randomUUID(),
     }
@@ -45,7 +47,9 @@ export class JwtTokenManagerAdapter implements ForTokenManagementPort {
       const decoded = jwt.verify(accessToken, JWT_SECRET) as JwtPayload
       const currentTime = Math.floor(Date.now() / 1000)
 
-      if (!decoded || !decoded.jti || !decoded.exp) throw new Error('[auth] Error en la decodificación del access token')
+      if (!decoded || !decoded.jti || !decoded.exp || !decoded.session_id) {
+        throw new Error('[auth] Error en la decodificación del access token')
+      }
 
       // tiempo de expiración que le queda en segundos
       const expirationCountdown: number = decoded.exp - currentTime
@@ -53,6 +57,7 @@ export class JwtTokenManagerAdapter implements ForTokenManagementPort {
       return {
         user_id: decoded.user_id,
         username: decoded.username,
+        session_id: decoded.session_id,
         role: decoded.role,
         type: decoded.type,
         jti: decoded.jti,
@@ -71,7 +76,9 @@ export class JwtTokenManagerAdapter implements ForTokenManagementPort {
       const decoded = jwt.verify(refreshToken, JWT_SECRET) as JwtPayload
       const currentTime = Math.floor(Date.now() / 1000)
 
-      if (!decoded || !decoded.jti || !decoded.exp) throw new Error('[auth] Error en la decodificación del refresh token')
+      if (!decoded || !decoded.jti || !decoded.exp || !decoded.session_id) {
+        throw new Error('[auth] Error en la decodificación del refresh token')
+      }
 
       // tiempo de expiración que le queda en segundos
       const expirationCountdown: number = decoded.exp - currentTime
@@ -79,6 +86,7 @@ export class JwtTokenManagerAdapter implements ForTokenManagementPort {
       return {
         user_id: decoded.user_id,
         username: decoded.username,
+        session_id: decoded.session_id,
         type: decoded.type,
         jti: decoded.jti,
         expirationCountdown,

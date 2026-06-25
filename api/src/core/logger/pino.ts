@@ -1,7 +1,15 @@
 import { Context, Logger, LoggerLevel, Message } from '@shared/domain/logger'
 import pino, { TransportTargetOptions } from 'pino'
 
-import { LOKI_HOST, LOKI_INFO_SAMPLE_RATE, LOKI_LOG_LEVEL, LOKI_PASSWORD, LOKI_REPORTING_ENABLED, LOKI_USERNAME, NODE_ENV } from '@/config/enviroment'
+import {
+  LOKI_HOST,
+  LOKI_INFO_SAMPLE_RATE,
+  LOKI_LOG_LEVEL,
+  LOKI_PASSWORD,
+  LOKI_REPORTING_ENABLED,
+  LOKI_USERNAME,
+  NODE_ENV,
+} from '@/config/enviroment'
 import { MODE } from '@/constants/commons'
 
 import { getLoggerRequestContext, LoggerRequestContext } from './logger-context'

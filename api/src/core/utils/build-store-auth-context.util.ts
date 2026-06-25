@@ -17,6 +17,7 @@ export interface StoreAuthContext {
    */
   authContext: {
     userId: number
+    sessionId: string
     email?: string
     roles?: string[]
     // Extensible según tu modelo de autenticación
@@ -48,12 +49,16 @@ export interface StoreAuthContext {
 export async function buildStoreAuthContext(): Promise<StoreAuthContext> {
   const authContext = getAuthContext()
   if (!authContext) throw new Error('No se pudo recuperar el contexto de autenticación')
+  if (!authContext.sessionId) throw new CacheCredentialNotFoundException(authContext.userId)
 
-  const cached = await getCacheDatabaseCredentials(authContext.userId)
+  const cached = await getCacheDatabaseCredentials(authContext.userId, authContext.sessionId)
   if (!cached) throw new CacheCredentialNotFoundException(authContext.userId)
 
   return {
-    authContext,
+    authContext: {
+      ...authContext,
+      sessionId: authContext.sessionId,
+    },
     store: {
       credentials: { ...cached.credentials },
       type: cached.type,

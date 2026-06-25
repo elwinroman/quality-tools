@@ -39,13 +39,18 @@ export function sentryScopeError(err: unknown) {
 
     // Contexto del usuario
     scope.setUser({
-      id: context.user?.userId,
+      id: context.user?.userId?.toString(),
+      username: context.user?.username,
     })
 
     // Contexto con más detalle
     scope.setContext('Detalle Usuario', {
+      authStatus: context.auth.status,
+      authReason: context.auth.reason,
       id: context.user?.userId,
+      username: context.user?.username,
       rol: context.user?.role,
+      sessionId: context.session?.id,
       jti: context.session?.jti,
     })
 

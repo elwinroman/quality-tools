@@ -1,3 +1,4 @@
+import { buildAuthCredentialsCacheKey } from '@auth/utils/auth-credentials-cache-key.util'
 import cryptocodeUtil from '@core/utils/cryptocode.util'
 import { StoreUserSchema } from '@shared/domain/store'
 
@@ -64,8 +65,11 @@ export function getStaticDatabaseCredentials(name: DatabaseName): { credentials:
   return { credentials, type: UserTypeEnum.Internal }
 }
 
-export async function getCacheDatabaseCredentials(userId: number): Promise<{ credentials: StoreUserSchema; type: UserType } | null> {
-  const key = `auth:credentials:${userId}`
+export async function getCacheDatabaseCredentials(
+  userId: number,
+  sessionId: string,
+): Promise<{ credentials: StoreUserSchema; type: UserType } | null> {
+  const key = buildAuthCredentialsCacheKey(userId, sessionId)
 
   const cacheRepository = new ValkeyCacheRepository()
   const cachedCredentials = await cacheRepository.get(key)

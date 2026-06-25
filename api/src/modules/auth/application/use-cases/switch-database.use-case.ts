@@ -1,5 +1,6 @@
 import { ForStoreRepositoryPort } from '@auth/domain/ports/drivens'
 import { PermissionStore, StoreInfo } from '@auth/domain/schemas/store'
+import { buildAuthCredentialsCacheKey } from '@auth/utils/auth-credentials-cache-key.util'
 import { CacheCredentialNotFoundException } from '@core/exceptions/cache/cache-credential-not-found.exception'
 import cryptocodeUtil from '@core/utils/cryptocode.util'
 import { CacheRepository } from '@shared/domain/cache-repository'
@@ -16,11 +17,16 @@ export class SwitchDatabaseUseCase {
     private readonly logger: Logger,
   ) {}
 
-  async execute(userId: number, newDatabase: string, currentCredentials: StoreUserSchema): Promise<StoreInfo & PermissionStore> {
-    const cacheKey = `auth:credentials:${userId}`
+  async execute(
+    userId: number,
+    sessionId: string,
+    newDatabase: string,
+    currentCredentials: StoreUserSchema,
+  ): Promise<StoreInfo & PermissionStore> {
+    const sessionCacheKey = buildAuthCredentialsCacheKey(userId, sessionId)
 
     // conserva el TTL original de la sesión
-    const remainingTtl = await this.cacheRepository.ttl(cacheKey)
+    const remainingTtl = await this.cacheRepository.ttl(sessionCacheKey)
     if (remainingTtl <= 0) throw new CacheCredentialNotFoundException(userId)
 
     const newCredentials: StoreUserSchema = { ...currentCredentials, database: newDatabase }
@@ -35,7 +41,7 @@ export class SwitchDatabaseUseCase {
 
     // actualiza las credenciales en cache con la nueva BD, conservando el TTL restante
     await this.cacheRepository.set(
-      cacheKey,
+      sessionCacheKey,
       JSON.stringify({
         host: currentCredentials.host,
         database: details.name,
@@ -45,7 +51,12 @@ export class SwitchDatabaseUseCase {
       remainingTtl,
     )
 
-    this.logger.info(`[auth] Base de datos cambiada a '${details.name}'`)
+    this.logger.info(`[auth] Base de datos cambiada a '${details.name}'`, {
+      actionDetails: {
+        userId,
+        sessionId,
+      },
+    })
 
     return { ...details, ...permissionStore }
   }

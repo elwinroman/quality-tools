@@ -1,6 +1,7 @@
 export interface AccessTokenPayload {
   user_id: number
   username: string
+  session_id: string
   role: string
   type: string
   jti: string
@@ -11,6 +12,7 @@ export type AccessTokenDecoded = AccessTokenPayload & { expirationCountdown: num
 export interface RefreshTokenPayload {
   user_id: number
   username: string
+  session_id: string
   type: string
   jti: string
 }
@@ -30,8 +32,8 @@ export const TokenTypeEnum = {
 export type TokenType = keyof typeof TokenTypeEnum
 
 export interface ForTokenManagementPort {
-  createAccessToken(id: number, username: string): string
-  createRefreshToken(id: number, username: string): string
+  createAccessToken(id: number, username: string, sessionId: string): string
+  createRefreshToken(id: number, username: string, sessionId: string): string
   verifyAccessToken(accessToken: string): AccessTokenDecoded
   verifyRefreshToken(refreshToken: string): RefreshTokenDecoded
   checkIfUserIsAlreadyAuthenticated(accessToken: string): boolean

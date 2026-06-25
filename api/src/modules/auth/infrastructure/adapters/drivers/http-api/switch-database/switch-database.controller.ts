@@ -12,7 +12,7 @@ export class SwitchDatabaseController {
       const { database } = SwitchDatabaseSchema.parse(req.body)
       const { authContext, store } = await buildStoreAuthContext()
 
-      const result = await this.authenticatorService.switchDatabase(authContext.userId, database, store.credentials)
+      const result = await this.authenticatorService.switchDatabase(authContext.userId, authContext.sessionId, database, store.credentials)
 
       return res.status(200).json({ correlationId: req.correlationId, data: result })
     } catch (err) {

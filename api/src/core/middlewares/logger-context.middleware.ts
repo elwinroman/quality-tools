@@ -13,6 +13,7 @@ export function loggerContextMiddleware(req: Request, res: Response, next: NextF
   req.correlationId = correlationId
   res.set(CORRELATION_ID_HEADER, correlationId)
 
+  // Toda request inicia sin identidad; los middlewares/use-cases de auth promueven este estado al validar tokens.
   const context: LoggerRequestContext = {
     correlationId,
     source: {
@@ -20,6 +21,9 @@ export function loggerContextMiddleware(req: Request, res: Response, next: NextF
       url: req.originalUrl,
       userAgent: req.headers['user-agent'] ?? 'N/A',
       ip: req.ip ?? 'N/A',
+    },
+    auth: {
+      status: 'anonymous',
     },
     request: req,
   }

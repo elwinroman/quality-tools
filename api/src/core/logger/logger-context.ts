@@ -17,13 +17,19 @@ export interface LoggerRequestContext {
     userAgent: string // Navegador o cliente que hace la petición
     ip: string // Dirección IP del cliente
   }
+  auth: {
+    status: 'anonymous' | 'authenticated' | 'failed'
+    reason?: 'missing_token' | 'expired_token' | 'invalid_token' | 'revoked_token' | 'cache_credentials_not_found'
+  }
   user?: {
     // Contexto del usuario
     userId: number
+    username: string
     role: string
   }
   session?: {
     // contexto de la sesión
+    id: string
     jti: string
     type: string
     expirationCountdown: number
