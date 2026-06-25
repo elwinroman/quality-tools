@@ -11,7 +11,7 @@ import { DialogSearchProvider } from '@/components/search/context/dialogSearchCo
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup, Tabs, TabsContent } from '@/components/ui'
 import { cn } from '@/lib/utils'
 import { parseQualifiedSysObjectName } from '@/utilities/sysobject-route.util'
-import { useAuthStore } from '@/zustand'
+import { useAppStore, useAuthStore } from '@/zustand'
 
 import { Columns } from './components/Columns'
 import { DataTable } from './components/DataTable'
@@ -28,6 +28,7 @@ import { useUserTableStore } from './store/usertable.store'
 export function UsertablePage() {
   const { qualifiedName } = useParams()
   const database = useAuthStore((state) => state.authContext?.database)
+  const switchingDatabase = useAppStore((state) => state.switchingDatabase)
   const leftPanelRef = useRef<ImperativePanelHandle>(null)
   const [isCollapsed, setIsCollapsed] = useState(false)
   const loading = useUserTableStore((state) => state.loading)
@@ -37,6 +38,8 @@ export function UsertablePage() {
   const updateError = useUserTableStore((state) => state.updateUsertableError)
 
   useEffect(() => {
+    if (switchingDatabase) return
+
     const parsedName = parseQualifiedSysObjectName(qualifiedName)
     if (!parsedName) return
 
@@ -44,7 +47,7 @@ export function UsertablePage() {
     if (object?.schemaName === schemaName && object.name === objectName) return
 
     fetchUserTableByName(schemaName, objectName)
-  }, [fetchUserTableByName, object?.name, object?.schemaName, qualifiedName])
+  }, [fetchUserTableByName, object?.name, object?.schemaName, qualifiedName, switchingDatabase])
 
   useEffect(() => {
     if (!error) return

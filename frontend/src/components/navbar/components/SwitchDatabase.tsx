@@ -61,8 +61,8 @@ export function SwitchDatabase() {
     setOpen(false)
     try {
       await callSwitchDatabase(switchDatabaseService(db))
-      if (location.pathname.startsWith(AppRoutes.SQL_DEFINITION)) navigate(AppRoutes.SQL_DEFINITION)
-      if (location.pathname.startsWith(AppRoutes.USERTABLE)) navigate(AppRoutes.USERTABLE)
+      if (location.pathname.startsWith(AppRoutes.SQL_DEFINITION)) navigate(AppRoutes.SQL_DEFINITION, { replace: true })
+      if (location.pathname.startsWith(AppRoutes.USERTABLE)) navigate(AppRoutes.USERTABLE, { replace: true })
       clearSysObject(null)
       resetUserTable()
       updateDatabase(db)
@@ -70,7 +70,7 @@ export function SwitchDatabase() {
     } catch {
       toast.error('Error', { description: `Acceso denegado. No tienes permisos para acceder a '${db}'.` })
     } finally {
-      updateSwitchingDatabase(null)
+      window.setTimeout(() => updateSwitchingDatabase(null), 0)
     }
   }
 
@@ -107,7 +107,7 @@ export function SwitchDatabase() {
       </PopoverTrigger>
       <PopoverContent
         align="start"
-        className="mix-colored-background bg-background-paperchanel w-[clamp(180px,20vw,260px)] overflow-hidden border-none p-0 shadow-xl shadow-black/20 ring-1 ring-white/5"
+        className="mix-colored-background bg-background-paperchanel w-[clamp(180px,20vw,260px)] overflow-hidden border-none p-0 shadow-xl ring-1 shadow-black/20 ring-white/5"
       >
         <Command>
           <CommandInput placeholder={loadingDatabases ? 'Cargando bases...' : 'Buscar base de datos...'} />
@@ -132,7 +132,7 @@ export function SwitchDatabase() {
                     disabled={Boolean(switchingDatabase)}
                   >
                     {switchingDatabase === db ? (
-                      <span className="relative h-4 w-4 shrink-0 text-primary" aria-label="Cambiando base de datos">
+                      <span className="text-primary relative h-4 w-4 shrink-0" aria-label="Cambiando base de datos">
                         <CircleLoader visible size={14} color="currentColor" />
                       </span>
                     ) : (

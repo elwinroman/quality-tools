@@ -10,7 +10,7 @@ import { Navbar } from '@/components/navbar/Navbar'
 import { DialogSearchProvider } from '@/components/search/context/dialogSearchContext'
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup, Tabs, TabsContent } from '@/components/ui'
 import { parseQualifiedSysObjectName } from '@/utilities/sysobject-route.util'
-import { useAuthStore } from '@/zustand'
+import { useAppStore, useAuthStore } from '@/zustand'
 
 import { DependenciesContent, EditorCode, HeaderEditor, HeaderTabs, OverviewContent, PanelEditor } from './components'
 import { DiffScriptContent } from './components/diff-script-content/DiffScriptContent'
@@ -20,6 +20,7 @@ import { useSysObjectStore } from './store/sysobject.store'
 export function SQLDefinitionPage() {
   const { qualifiedName } = useParams()
   const database = useAuthStore((state) => state.authContext?.database)
+  const switchingDatabase = useAppStore((state) => state.switchingDatabase)
   const leftPanelRef = useRef<ImperativePanelHandle>(null)
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [activeTab, setActiveTab] = useState(TabOption.Script)
@@ -29,6 +30,8 @@ export function SQLDefinitionPage() {
   const updateError = useSysObjectStore((state) => state.updateErrorObject)
 
   useEffect(() => {
+    if (switchingDatabase) return
+
     const parsedName = parseQualifiedSysObjectName(qualifiedName)
     if (!parsedName) return
 
@@ -37,7 +40,7 @@ export function SQLDefinitionPage() {
     if (sysobject?.schemaName === schemaName && sysobject.name === objectName) return
 
     fetchSysObjectByName(schemaName, objectName)
-  }, [fetchSysObjectByName, qualifiedName, sysobject?.name, sysobject?.schemaName])
+  }, [fetchSysObjectByName, qualifiedName, switchingDatabase, sysobject?.name, sysobject?.schemaName])
 
   useEffect(() => {
     if (!error) return
