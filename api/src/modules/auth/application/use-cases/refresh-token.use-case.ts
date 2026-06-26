@@ -1,10 +1,10 @@
 import { ForTokenBlacklistPort, ForTokenManagementPort } from '@auth/domain/ports/drivens'
 import { CacheCredentialNotFoundException } from '@core/exceptions/cache/cache-credential-not-found.exception'
-import { setLoggerRequestContext } from '@core/logger/logger-context'
 import { getCacheDatabaseCredentials } from '@core/store'
 import { ForbiddenException } from '@shared/application/exceptions'
 import { CacheRepository } from '@shared/domain/cache-repository'
 import { Logger } from '@shared/domain/logger'
+import { LoggerContext } from '@shared/domain/logger-context'
 
 export class RefreshTokenUseCase {
   constructor(
@@ -12,6 +12,7 @@ export class RefreshTokenUseCase {
     private readonly cacheRepository: CacheRepository,
     private readonly blacklist: ForTokenBlacklistPort,
     private readonly logger: Logger,
+    private readonly loggerContext: LoggerContext,
   ) {}
 
   async execute(refreshToken: string): Promise<{ accessToken: string }> {
@@ -20,7 +21,7 @@ export class RefreshTokenUseCase {
     // comprobar que el refresh token no esté en la blacklist
     const isRevoked = await this.blacklist.isBlacklisted(decoded.jti)
     if (isRevoked) {
-      setLoggerRequestContext({
+      this.loggerContext.set({
         auth: { status: 'failed', reason: 'revoked_token' },
         user: {
           userId: decoded.user_id,
@@ -42,7 +43,7 @@ export class RefreshTokenUseCase {
     // si no existen, es probable que la caché haya sido limpiada (e.g., reinicio de infraestructura, eliminación accidental, etc.).
     const cacheCredentials = await getCacheDatabaseCredentials(decoded.user_id, decoded.session_id)
     if (!cacheCredentials) {
-      setLoggerRequestContext({
+      this.loggerContext.set({
         auth: { status: 'failed', reason: 'cache_credentials_not_found' },
         user: {
           userId: decoded.user_id,
@@ -70,7 +71,7 @@ export class RefreshTokenUseCase {
     const accessToken = this.tokenManager.createAccessToken(decoded.user_id, decoded.username, decoded.session_id)
 
     // Refresh no pasa por verifyTokenMiddleware; el propio use-case fija la identidad al validar el refresh token.
-    setLoggerRequestContext({
+    this.loggerContext.set({
       auth: { status: 'authenticated' },
       user: {
         userId: decoded.user_id,

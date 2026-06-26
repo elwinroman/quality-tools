@@ -1,10 +1,10 @@
 import { AccessTokenDecoded, ForTokenBlacklistPort, ForTokenManagementPort } from '@auth/domain/ports/drivens'
 import { CacheCredentialNotFoundException } from '@core/exceptions/cache/cache-credential-not-found.exception'
-import { setLoggerRequestContext } from '@core/logger/logger-context'
 import { getCacheDatabaseCredentials } from '@core/store'
 import { ForbiddenException } from '@shared/application/exceptions'
 import { CacheRepository } from '@shared/domain/cache-repository'
 import { Logger } from '@shared/domain/logger'
+import { LoggerContext } from '@shared/domain/logger-context'
 
 export class VerifyAccessTokenUseCase {
   constructor(
@@ -12,6 +12,7 @@ export class VerifyAccessTokenUseCase {
     private readonly cacheRepository: CacheRepository,
     private readonly blacklist: ForTokenBlacklistPort,
     private readonly logger: Logger,
+    private readonly loggerContext: LoggerContext,
   ) {}
 
   async execute(token: string): Promise<AccessTokenDecoded> {
@@ -20,7 +21,7 @@ export class VerifyAccessTokenUseCase {
     // comprobar que el access token no esté en la blacklist
     const isRevoked = await this.blacklist.isBlacklisted(decoded.jti)
     if (isRevoked) {
-      setLoggerRequestContext({
+      this.loggerContext.set({
         auth: { status: 'failed', reason: 'revoked_token' },
         user: {
           userId: decoded.user_id,
@@ -43,7 +44,7 @@ export class VerifyAccessTokenUseCase {
     const cacheCredentials = await getCacheDatabaseCredentials(decoded.user_id, decoded.session_id)
 
     if (!cacheCredentials) {
-      setLoggerRequestContext({
+      this.loggerContext.set({
         auth: { status: 'failed', reason: 'cache_credentials_not_found' },
         user: {
           userId: decoded.user_id,
@@ -69,7 +70,7 @@ export class VerifyAccessTokenUseCase {
     }
 
     // Este use-case emite logs antes de volver al middleware; por eso fija aquí el contexto autenticado.
-    setLoggerRequestContext({
+    this.loggerContext.set({
       auth: { status: 'authenticated' },
       user: {
         userId: decoded.user_id,

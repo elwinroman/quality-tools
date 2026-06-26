@@ -15,6 +15,7 @@ import {
   TokenBlacklistCacheAdapter,
 } from '@auth/infrastructure/adapters/drivens'
 import { ValkeyCacheRepository } from '@core/cache/valkey-cache-repository'
+import { loggerContext } from '@core/logger/async-local-storage-logger-context'
 import { logger } from '@core/logger/pino-instance'
 
 import { CheckSessionController } from './check-session/check-session.controller'
@@ -37,10 +38,10 @@ const compositionMock = () => {
 
   // USE CASES
   const loginUseCase = new LoginUseCase(userRepository, storeRepositoty, cacheRepository, jwtTokenManager, logger)
-  const logoutUseCase = new LogoutUseCase(cacheRepository, jwtTokenManager, logger)
-  const refreshTokenUseCase = new RefreshTokenUseCase(jwtTokenManager, cacheRepository, blacklist, logger)
+  const logoutUseCase = new LogoutUseCase(cacheRepository, jwtTokenManager, logger, loggerContext)
+  const refreshTokenUseCase = new RefreshTokenUseCase(jwtTokenManager, cacheRepository, blacklist, logger, loggerContext)
   const checkSessionUseCase = new CheckSessionUseCase(storeRepositoty, logger)
-  const verifyAccessTokenUseCase = new VerifyAccessTokenUseCase(jwtTokenManager, cacheRepository, blacklist, logger)
+  const verifyAccessTokenUseCase = new VerifyAccessTokenUseCase(jwtTokenManager, cacheRepository, blacklist, logger, loggerContext)
   const listDatabaseUseCase = new ListDatabasesUseCase(storeRepositoty, logger)
   const switchDatabaseUseCase = new SwitchDatabaseUseCase(cacheRepository, storeRepositoty, logger)
 

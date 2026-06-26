@@ -2,6 +2,7 @@ import { ProxyAuthenticatorService } from '@auth/application/proxy-authenticator
 import { VerifyAccessTokenUseCase } from '@auth/application/use-cases'
 import { JwtTokenManagerAdapter, TokenBlacklistCacheAdapter } from '@auth/infrastructure/adapters/drivens'
 import { ValkeyCacheRepository } from '@core/cache/valkey-cache-repository'
+import { loggerContext } from '@core/logger/async-local-storage-logger-context'
 import { logger } from '@core/logger/pino-instance'
 
 import { AuthenticatorProxyAdapter } from './authenticator-proxy-adapter'
@@ -16,7 +17,7 @@ const compositionMock = () => {
   const blacklist = new TokenBlacklistCacheAdapter(cacheRepository)
 
   // USE CASES
-  const verifyAccessTokenUC = new VerifyAccessTokenUseCase(tokenManager, cacheRepository, blacklist, logger)
+  const verifyAccessTokenUC = new VerifyAccessTokenUseCase(tokenManager, cacheRepository, blacklist, logger, loggerContext)
 
   // SERVICE ORCHESTRATOR
   const authenticatorService = new ProxyAuthenticatorService(verifyAccessTokenUC)

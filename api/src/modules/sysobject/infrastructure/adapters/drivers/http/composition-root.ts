@@ -36,7 +36,7 @@ const compositionMock = () => {
   const registerSearchLogUseCase = new RegisterSearchLogUseCase(logRepository, logger)
 
   const getSysObjectUseCase = new GetSysObjectUseCase(sysObjectRepository, registerSearchLogUseCase, registerBusquedaRecienteProxy, logger) // se pasa el contexto para el registro de LOGs de búsqueda
-  const searchSuggestionsUseCase = new SearchSuggestionsUseCase(sysObjectRepository)
+  const searchSuggestionsUseCase = new SearchSuggestionsUseCase(sysObjectRepository, logger)
   const getSysObjectDependentsUseCase = new GetSysObjectDependentsUseCase(sysObjectRepository, logger)
   const getSysObjectDependenciesUseCase = new GetSysObjectDependenciesUseCase(sysObjectRepository, logger)
   const getSysUsertableUseCase = new GetSysUsertableUseCase(
