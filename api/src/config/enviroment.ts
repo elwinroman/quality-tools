@@ -5,8 +5,7 @@ import { z } from 'zod'
 // Carga env vars desde el root del monorepo.
 // En Docker, las env vars ya están seteadas via env_file y dotenv no las sobreescribe (override: false por defecto).
 const rootDir = path.resolve(process.cwd(), '..')
-dotenv.config({ path: path.resolve(rootDir, '.env.development') })
-dotenv.config({ path: path.resolve(rootDir, '.env') })
+dotenv.config({ path: path.resolve(rootDir, '.env.local') })
 
 const envSchema = z
   .object({

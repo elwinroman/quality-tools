@@ -26,7 +26,7 @@ services:
       - NODE_ENV=production
       - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-${DOMAIN}:${CLIENT_PORT}}
     env_file:
-      - .env
+      - .env.backend
     depends_on:
       - valkey
     restart: unless-stopped

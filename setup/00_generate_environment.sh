@@ -1,7 +1,7 @@
 #!/bin/bash
-# Copia los .sample para generar los archivos de entorno
-cp -n .env.sample .env
-cp -n .env.docker.sample .env.docker
-cp -n .env.valkey.sample .env.valkey
-# cp -n .env.development.sample .env.development
-echo "Archivos .env, .env.valkey y .env.docker generados. Edita las credenciales antes de continuar."
+# Copia los .example para generar los archivos de entorno
+cp -n .env.local.example .env.local
+cp -n .env.backend.example .env.backend
+cp -n .env.compose.example .env.compose
+cp -n .env.valkey.example .env.valkey
+echo "Archivos .env.local, .env.backend, .env.compose y .env.valkey generados. Edita las credenciales antes de continuar."
