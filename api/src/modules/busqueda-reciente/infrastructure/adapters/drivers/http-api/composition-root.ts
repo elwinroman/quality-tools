@@ -2,6 +2,7 @@ import { BusquedaRecienteHttpManagerService } from '@busqueda-reciente/applicati
 import { DeleteBusquedaRecienteUseCase, GetAllBusquedasRecientesUseCase } from '@busqueda-reciente/application/use-cases'
 import { MssqlSysObjectRepositoryAdapter } from '@busqueda-reciente/infrastructure/adapters/drivens/mssql-sysobject-repository.adapter'
 import { ValkeyCacheBusquedaRecienteRepositoryAdapter } from '@busqueda-reciente/infrastructure/adapters/drivens/valkey-busqueda-reciente-repository.adapter'
+import { logger } from '@observability/infrastructure/logging/logger-instance'
 
 import { DeleteBusquedaRecienteController } from './delete-busqueda-reciente/delete-busqueda-reciente.controller'
 import { GetAllBusquedaRecienteController } from './get-all-busqueda-reciente/get-all-busqueda-reciente.controller'
@@ -15,8 +16,8 @@ const compositionRoot = () => {
   const sysobjectRepository = new MssqlSysObjectRepositoryAdapter()
 
   // USE CASES
-  const deleteBusquedaRecienteUC = new DeleteBusquedaRecienteUseCase(brRepository)
-  const getAllBusquedaRecienteUC = new GetAllBusquedasRecientesUseCase(brRepository, sysobjectRepository)
+  const deleteBusquedaRecienteUC = new DeleteBusquedaRecienteUseCase(brRepository, logger)
+  const getAllBusquedaRecienteUC = new GetAllBusquedasRecientesUseCase(brRepository, sysobjectRepository, logger)
 
   // SERVICE ORCHESTRATOR
   const service = new BusquedaRecienteHttpManagerService(getAllBusquedaRecienteUC, deleteBusquedaRecienteUC)
