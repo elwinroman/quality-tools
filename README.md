@@ -114,15 +114,22 @@ El backend local carga solo `.env.local`. No hay fallback silencioso a `.env.bac
 | `SENTRY_REPORTING_ENABLED` | Habilita/deshabilita el envio de errores (`true`/`false`) | **obligatorio** |
 | `SENTRY_DNS` | URL DSN proporcionada por Sentry | - |
 
-### Loki (logging centralizado)
+### Observabilidad
 
 | Variable | Descripcion | Default |
 |---|---|---|
-| `LOKI_REPORTING_ENABLED` | Habilita/deshabilita el envio de logs (`true`/`false`) | **obligatorio** |
-| `LOKI_HOST` | URL de la instancia de Loki (obligatorio si `LOKI_REPORTING_ENABLED=true`) | - |
-| `LOKI_USERNAME` | Usuario para autenticacion basica (nginx) | - |
-| `LOKI_PASSWORD` | Contrasena para autenticacion basica (nginx) | - |
-| `LOKI_LOG_LEVEL` | Nivel minimo de log (`debug`, `info`, `warn`, `error`, `fatal`) | `info` |
+| `LOG_LEVEL` | Nivel minimo de logs locales (`debug`, `info`, `warn`, `error`, `fatal`) | `info` |
+| `OTEL_DEPLOYMENT_ENV` | Ambiente real de despliegue para OpenTelemetry (`development`, `cert`, `production`) | **obligatorio** |
+| `OTEL_LOGS_ENABLED` | Habilita/deshabilita envio de logs por OTLP al Collector | `false` |
+| `OTEL_SERVICE_NAME` | Nombre del servicio para OpenTelemetry | `quality-tools-api` |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | Endpoint base OTLP HTTP del Collector | `http://otel-collector:4318` |
+| `OTEL_EXPORTER_OTLP_LOGS_ENDPOINT` | Endpoint especifico para logs. Si no se define, usa `${OTEL_EXPORTER_OTLP_ENDPOINT}/v1/logs` | - |
+| `OTEL_RESOURCE_ATTRIBUTES` | Atributos adicionales de recurso OpenTelemetry de baja cardinalidad. No definir aqui `deployment.environment`; se toma de `OTEL_DEPLOYMENT_ENV` | `project=quality-tools` |
+| `OTEL_LOG_EXPORT_INTERVAL` | Intervalo de exportacion batch de logs OTLP en ms | `5000` |
+| `OTEL_LOG_EXPORT_TIMEOUT` | Timeout de exportacion de logs OTLP en ms | `5000` |
+
+La API no envia logs directamente a Loki. Cuando `OTEL_LOGS_ENABLED=true`, envia logs al OpenTelemetry Collector y el Collector los reenvia a Loki.
+`OTEL_DEPLOYMENT_ENV` es obligatorio para evitar mezclar logs de `development`, `cert` y `production` en Grafana/Loki.
 
 ### Cache (Valkey/Redis)
 
