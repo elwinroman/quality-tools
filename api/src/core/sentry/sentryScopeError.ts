@@ -1,16 +1,16 @@
+import { getRequestLogContext } from '@observability/infrastructure/context/request-log-context.storage'
 import * as Sentry from '@sentry/node'
 
 import { SENTRY_REPORTING_ENABLED } from '@/config/enviroment'
 
 import { DatabaseError } from '../exceptions'
 import { InfrastructureError } from '../infrastructure-error.exception'
-import { getLoggerRequestContext } from '../logger/logger-context'
 
 export function sentryScopeError(err: unknown) {
   if (!SENTRY_REPORTING_ENABLED) return
 
   Sentry.withScope(scope => {
-    const context = getLoggerRequestContext()
+    const context = getRequestLogContext()
 
     if (!context) throw new Error('No hay contexto activo para logger. Usa el middleware inicial para crear uno.')
 

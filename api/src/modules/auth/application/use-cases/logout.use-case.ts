@@ -1,7 +1,7 @@
 import { ForTokenManagementPort, NewTokens } from '@auth/domain/ports/drivens'
+import { Logger } from '@observability/domain/logger'
+import { LoggerContext } from '@observability/domain/logger-context'
 import { CacheRepository } from '@shared/domain/cache-repository'
-import { Logger } from '@shared/domain/logger'
-import { LoggerContext } from '@shared/domain/logger-context'
 
 export class LogoutUseCase {
   constructor(

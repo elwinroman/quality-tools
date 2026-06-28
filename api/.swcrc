@@ -13,6 +13,7 @@
       "@/*": ["src/*"],
       "@core/*": ["src/core/*"],
       "@shared/*": ["src/modules/shared/*"],
+      "@observability/*": ["src/modules/observability/*"],
       "@auth/*": ["src/modules/auth/*"],
       "@finlog/*": ["src/modules/fin-log/*"],
       "@sysobject/*": ["src/modules/sysobject/*"],

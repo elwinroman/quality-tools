@@ -45,18 +45,27 @@ const envSchema = z
     SENTRY_DNS: z.string().url(),
     NODE_ENV: z.enum(['development', 'production', 'test']).optional().default('development'),
 
-    // Logging centralizado con Grafana Loki
-    LOKI_REPORTING_ENABLED: z.preprocess(val => val === 'true', z.boolean()),
-    LOKI_HOST: z.string().url().optional(),
-    LOKI_USERNAME: z.string().optional(),
-    LOKI_PASSWORD: z.string().optional(),
-    LOKI_LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error', 'fatal']).optional().default('info'),
-    // Porcentaje de logs INFO enviados a Loki (0 a 1). Ej: 0.15 = 15%. No afecta warn/error/fatal (siempre 100%)
-    LOKI_INFO_SAMPLE_RATE: z
+    // Observabilidad
+    LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error', 'fatal']).optional().default('info'),
+    OTEL_DEPLOYMENT_ENV: z.enum(['development', 'cert', 'production']),
+    OTEL_LOGS_ENABLED: z
+      .preprocess(val => val === 'true', z.boolean())
+      .optional()
+      .default(false),
+    OTEL_SERVICE_NAME: z.string().min(1).default('quality-tools-api'),
+    OTEL_EXPORTER_OTLP_ENDPOINT: z.string().url().default('http://otel-collector:4318'),
+    OTEL_EXPORTER_OTLP_LOGS_ENDPOINT: z.string().url().optional(),
+    OTEL_RESOURCE_ATTRIBUTES: z.string().default('project=quality-tools'),
+    OTEL_LOG_EXPORT_INTERVAL: z
       .string()
-      .default('0.15')
+      .default('5000')
       .transform(val => Number(val))
-      .pipe(z.number().min(0).max(1)),
+      .pipe(z.number().positive()),
+    OTEL_LOG_EXPORT_TIMEOUT: z
+      .string()
+      .default('5000')
+      .transform(val => Number(val))
+      .pipe(z.number().positive()),
 
     // Cache (Valkey, Redis, etc.)
     CACHE_HOST: z.string().min(1),
@@ -92,11 +101,11 @@ const envSchema = z
     TIMEZONE_DATABASE: z.string().default('America/Lima'),
   })
   .superRefine((data, ctx) => {
-    if (data.LOKI_REPORTING_ENABLED && !data.LOKI_HOST) {
+    if (data.OTEL_LOGS_ENABLED && !data.OTEL_EXPORTER_OTLP_ENDPOINT && !data.OTEL_EXPORTER_OTLP_LOGS_ENDPOINT) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'LOKI_HOST es obligatorio cuando LOKI_REPORTING_ENABLED=true',
-        path: ['LOKI_HOST'],
+        message: 'OTEL_EXPORTER_OTLP_ENDPOINT u OTEL_EXPORTER_OTLP_LOGS_ENDPOINT es obligatorio cuando OTEL_LOGS_ENABLED=true',
+        path: ['OTEL_EXPORTER_OTLP_ENDPOINT'],
       })
     }
   })
@@ -135,12 +144,15 @@ export const {
   SENTRY_DNS,
   NODE_ENV,
 
-  LOKI_REPORTING_ENABLED,
-  LOKI_HOST,
-  LOKI_USERNAME,
-  LOKI_PASSWORD,
-  LOKI_LOG_LEVEL,
-  LOKI_INFO_SAMPLE_RATE,
+  LOG_LEVEL,
+  OTEL_DEPLOYMENT_ENV,
+  OTEL_LOGS_ENABLED,
+  OTEL_SERVICE_NAME,
+  OTEL_EXPORTER_OTLP_ENDPOINT,
+  OTEL_EXPORTER_OTLP_LOGS_ENDPOINT,
+  OTEL_RESOURCE_ATTRIBUTES,
+  OTEL_LOG_EXPORT_INTERVAL,
+  OTEL_LOG_EXPORT_TIMEOUT,
 
   CACHE_HOST,
   CACHE_PORT,

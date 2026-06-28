@@ -1,10 +1,10 @@
 import { ForTokenBlacklistPort, ForTokenManagementPort } from '@auth/domain/ports/drivens'
 import { CacheCredentialNotFoundException } from '@core/exceptions/cache/cache-credential-not-found.exception'
 import { getCacheDatabaseCredentials } from '@core/store'
+import { Logger } from '@observability/domain/logger'
+import { LoggerContext } from '@observability/domain/logger-context'
 import { ForbiddenException } from '@shared/application/exceptions'
 import { CacheRepository } from '@shared/domain/cache-repository'
-import { Logger } from '@shared/domain/logger'
-import { LoggerContext } from '@shared/domain/logger-context'
 
 export class RefreshTokenUseCase {
   constructor(

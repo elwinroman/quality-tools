@@ -1,5 +1,5 @@
 import { authenticatorProxyAdapter } from '@auth/infrastructure/adapters/drivers/proxies/composition-root'
-import { logger } from '@core/logger/pino-instance'
+import { logger } from '@observability/infrastructure/logging/logger-instance'
 import { SysObjectService } from '@sysobject/application/sysobject.service'
 import { GetProdSysObjectUseCase } from '@sysobject/application/use-cases/get-prod-sysobject.use-case'
 import { GetSysObjectUseCase } from '@sysobject/application/use-cases/get-sysobject.use-case'

@@ -18,6 +18,13 @@ export interface LoggerSessionContext {
   expirationCountdown: number
 }
 
+export interface LoggerSourceContext {
+  method: string
+  url: string
+  userAgent: string
+  ip: string
+}
+
 export interface LoggerContextUpdate {
   auth?: LoggerAuthContext
   user?: LoggerUserContext

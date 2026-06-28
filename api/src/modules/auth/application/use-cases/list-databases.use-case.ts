@@ -1,5 +1,5 @@
 import { ForStoreRepositoryPort } from '@auth/domain/ports/drivens'
-import { Logger } from '@shared/domain/logger'
+import { Logger } from '@observability/domain/logger'
 import { StoreUserSchema } from '@shared/domain/store'
 
 export class ListDatabasesUseCase {

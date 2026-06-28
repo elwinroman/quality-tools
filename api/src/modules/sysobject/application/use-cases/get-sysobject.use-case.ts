@@ -1,4 +1,4 @@
-import { Logger } from '@shared/domain/logger'
+import { Logger } from '@observability/domain/logger'
 import { TIPO_ACCION } from '@sysobject/application/constants/action-type.constant'
 import { SysObjectNotFoundException } from '@sysobject/domain/exceptions/sysobject-not-found.exception'
 import { ForProxyBusquedaRecienteRegistrationPort } from '@sysobject/domain/ports/drivens/for-proxy-busqueda-reciente-registration.port'

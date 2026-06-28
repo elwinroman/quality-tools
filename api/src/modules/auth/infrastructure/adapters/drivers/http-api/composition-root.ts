@@ -15,8 +15,8 @@ import {
   TokenBlacklistCacheAdapter,
 } from '@auth/infrastructure/adapters/drivens'
 import { ValkeyCacheRepository } from '@core/cache/valkey-cache-repository'
-import { loggerContext } from '@core/logger/async-local-storage-logger-context'
-import { logger } from '@core/logger/pino-instance'
+import { loggerContext } from '@observability/infrastructure/context/logger-context.adapter'
+import { logger } from '@observability/infrastructure/logging/logger-instance'
 
 import { CheckSessionController } from './check-session/check-session.controller'
 import { ListDatabasesController } from './list-databases/list-databases.controller'

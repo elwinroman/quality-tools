@@ -1,4 +1,4 @@
-import { Logger } from '@shared/domain/logger'
+import { Logger } from '@observability/domain/logger'
 import { ForSysObjectRepositoryPort } from '@sysobject/domain/ports/drivens/for-sysobject-repository.port'
 import { SysObjectDependency, SysObjectRelationsResult } from '@sysobject/domain/schemas/sysobject'
 

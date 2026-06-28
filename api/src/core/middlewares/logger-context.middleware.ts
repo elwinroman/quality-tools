@@ -1,4 +1,4 @@
-import { LoggerRequestContext, loggerRequestContext } from '@core/logger/logger-context'
+import { LoggerRequestContext, runWithRequestLogContext } from '@observability/infrastructure/context/request-log-context.storage'
 import { randomUUID } from 'crypto'
 import { NextFunction, Request, Response } from 'express'
 
@@ -29,7 +29,7 @@ export function loggerContextMiddleware(req: Request, res: Response, next: NextF
   }
 
   // Al inicio de la petición en middleware se usa "run" para establecer un contexto global que persista incluso con asincronia
-  loggerRequestContext.run(context, () => {
+  runWithRequestLogContext(context, () => {
     next()
   })
 }

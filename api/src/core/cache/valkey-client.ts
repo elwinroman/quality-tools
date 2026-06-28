@@ -1,5 +1,5 @@
 import { CacheConnectionErrorException } from '@core/exceptions'
-import { logger } from '@core/logger/pino-instance'
+import { logger } from '@observability/infrastructure/logging/logger-instance'
 import Valkey from 'iovalkey'
 
 import { CACHE_HOST, CACHE_PASSWORD, CACHE_PORT } from '@/config/enviroment'

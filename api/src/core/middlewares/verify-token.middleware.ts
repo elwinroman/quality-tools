@@ -2,8 +2,8 @@ import { TokenExpiredException } from '@auth/application/exceptions'
 import { authenticatorProxyAdapter } from '@auth/infrastructure/adapters/drivers/proxies/composition-root'
 import { setAuthContext } from '@auth/infrastructure/auth-context'
 import { CacheCredentialNotFoundException } from '@core/exceptions/cache/cache-credential-not-found.exception'
-import { setLoggerRequestContext } from '@core/logger/logger-context'
 import { extractBearerToken } from '@core/utils'
+import { loggerContext } from '@observability/infrastructure/context/logger-context.adapter'
 import { ForbiddenException, UnauthorizedException } from '@shared/application/exceptions'
 import { NextFunction, Request, Response } from 'express'
 
@@ -13,7 +13,7 @@ export async function verifyTokenMiddleware(req: Request, _res: Response, next: 
   const accessToken = extractBearerToken(req.headers.authorization)
 
   if (!accessToken) {
-    setLoggerRequestContext({ auth: { status: 'failed', reason: 'missing_token' } })
+    loggerContext.set({ auth: { status: 'failed', reason: 'missing_token' } })
     return next(new UnauthorizedException())
   }
 
@@ -35,7 +35,7 @@ export async function verifyTokenMiddleware(req: Request, _res: Response, next: 
     }
 
     // A partir de este punto el token es válido y el resto de la request queda trazado como autenticado.
-    setLoggerRequestContext({ auth: { status: 'authenticated' }, user, session })
+    loggerContext.set({ auth: { status: 'authenticated' }, user, session })
     req.userId = decodedToken.user_id
 
     // agregar también en el contexto de auth (para la recuperación de las credenciales del usuario desde la cache)
@@ -45,13 +45,13 @@ export async function verifyTokenMiddleware(req: Request, _res: Response, next: 
   } catch (err) {
     // Si hay token pero falla la validación, la traza deja de ser anónima y queda marcada como fallo auth.
     if (err instanceof TokenExpiredException) {
-      setLoggerRequestContext({ auth: { status: 'failed', reason: 'expired_token' } })
+      loggerContext.set({ auth: { status: 'failed', reason: 'expired_token' } })
     } else if (err instanceof ForbiddenException) {
-      setLoggerRequestContext({ auth: { status: 'failed', reason: 'revoked_token' } })
+      loggerContext.set({ auth: { status: 'failed', reason: 'revoked_token' } })
     } else if (err instanceof CacheCredentialNotFoundException) {
-      setLoggerRequestContext({ auth: { status: 'failed', reason: 'cache_credentials_not_found' } })
+      loggerContext.set({ auth: { status: 'failed', reason: 'cache_credentials_not_found' } })
     } else {
-      setLoggerRequestContext({ auth: { status: 'failed', reason: 'invalid_token' } })
+      loggerContext.set({ auth: { status: 'failed', reason: 'invalid_token' } })
     }
 
     next(err)

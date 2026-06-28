@@ -1,4 +1,4 @@
-import { Logger } from '@shared/domain/logger'
+import { Logger } from '@observability/domain/logger'
 import { ForLogRepositoryPort, SearchLog } from '@sysobject/domain/ports/drivens/for-log-repository.port'
 import { RegisterSearchLogErrorException } from '@sysobject/infrastructure/exceptions/register-search-log-error.exception'
 
