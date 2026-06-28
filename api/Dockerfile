@@ -10,10 +10,10 @@ RUN npm install -g pnpm
 RUN apt-get update && \
     apt-get install -y dumb-init
 
-COPY package*.json /app
+COPY package.json pnpm-lock.yaml /app/
 
 # Instalar dependencias usando PNPM
-RUN pnpm install
+RUN pnpm install --frozen-lockfile
 
 # Copiar archivos de configuración
 COPY tsconfig*.json /app
