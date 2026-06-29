@@ -42,7 +42,6 @@ export class OpenTelemetryLogger implements Logger {
     })
 
     this.logger = this.provider.getLogger(OTEL_SERVICE_NAME)
-    void warnIfLogsEndpointIsUnreachable(logsEndpointUrl)
   }
 
   debug(message: Message, context?: Context): void {
@@ -95,30 +94,4 @@ function buildLogsEndpointUrl(): string {
 
   const baseEndpoint = OTEL_EXPORTER_OTLP_ENDPOINT.replace(/\/$/, '')
   return `${baseEndpoint}/v1/logs`
-}
-
-async function warnIfLogsEndpointIsUnreachable(url: string): Promise<void> {
-  try {
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: '{}',
-      signal: AbortSignal.timeout(2000),
-    })
-
-    // 400/415 indican que el Collector respondió pero rechazó el payload de prueba.
-    if (response.status === 400 || response.status === 415) return
-
-    if (response.status === 404 || response.status >= 500 || response.status === 401 || response.status === 403) {
-      console.warn('[observability] Endpoint OTLP logs respondió con estado inesperado.', {
-        endpoint: url,
-        status: response.status,
-      })
-    }
-  } catch (err) {
-    console.warn('[observability] No se pudo conectar al endpoint OTLP logs.', {
-      endpoint: url,
-      error: err instanceof Error ? err.message : String(err),
-    })
-  }
 }

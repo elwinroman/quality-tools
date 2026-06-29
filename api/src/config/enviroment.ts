@@ -55,7 +55,22 @@ const envSchema = z
     OTEL_SERVICE_NAME: z.string().min(1).default('quality-tools-api'),
     OTEL_EXPORTER_OTLP_ENDPOINT: z.string().url().default('http://otel-collector:4318'),
     OTEL_EXPORTER_OTLP_LOGS_ENDPOINT: z.string().url().optional(),
+    OTEL_EXPORTER_OTLP_METRICS_ENDPOINT: z.string().url().optional(),
     OTEL_RESOURCE_ATTRIBUTES: z.string().default('project=quality-tools'),
+    OTEL_METRICS_ENABLED: z
+      .preprocess(val => val === 'true', z.boolean())
+      .optional()
+      .default(false),
+    OTEL_METRIC_EXPORT_INTERVAL: z
+      .string()
+      .default('15000')
+      .transform(val => Number(val))
+      .pipe(z.number().positive()),
+    OTEL_METRIC_EXPORT_TIMEOUT: z
+      .string()
+      .default('5000')
+      .transform(val => Number(val))
+      .pipe(z.number().positive()),
     OTEL_LOG_EXPORT_INTERVAL: z
       .string()
       .default('5000')
@@ -108,6 +123,14 @@ const envSchema = z
         path: ['OTEL_EXPORTER_OTLP_ENDPOINT'],
       })
     }
+
+    if (data.OTEL_METRICS_ENABLED && !data.OTEL_EXPORTER_OTLP_ENDPOINT && !data.OTEL_EXPORTER_OTLP_METRICS_ENDPOINT) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'OTEL_EXPORTER_OTLP_ENDPOINT u OTEL_EXPORTER_OTLP_METRICS_ENDPOINT es obligatorio cuando OTEL_METRICS_ENABLED=true',
+        path: ['OTEL_EXPORTER_OTLP_ENDPOINT'],
+      })
+    }
   })
 
 const { data, error, success } = envSchema.safeParse(process.env)
@@ -150,7 +173,11 @@ export const {
   OTEL_SERVICE_NAME,
   OTEL_EXPORTER_OTLP_ENDPOINT,
   OTEL_EXPORTER_OTLP_LOGS_ENDPOINT,
+  OTEL_EXPORTER_OTLP_METRICS_ENDPOINT,
   OTEL_RESOURCE_ATTRIBUTES,
+  OTEL_METRICS_ENABLED,
+  OTEL_METRIC_EXPORT_INTERVAL,
+  OTEL_METRIC_EXPORT_TIMEOUT,
   OTEL_LOG_EXPORT_INTERVAL,
   OTEL_LOG_EXPORT_TIMEOUT,
 

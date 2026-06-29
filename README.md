@@ -121,10 +121,14 @@ El backend local carga solo `.env.local`. No hay fallback silencioso a `.env.bac
 | `LOG_LEVEL` | Nivel minimo de logs locales (`debug`, `info`, `warn`, `error`, `fatal`) | `info` |
 | `OTEL_DEPLOYMENT_ENV` | Ambiente real de despliegue para OpenTelemetry (`development`, `cert`, `production`) | **obligatorio** |
 | `OTEL_LOGS_ENABLED` | Habilita/deshabilita envio de logs por OTLP al Collector | `false` |
+| `OTEL_METRICS_ENABLED` | Habilita/deshabilita metricas HTTP/autoinstrumentadas por OTLP al Collector | `false` |
 | `OTEL_SERVICE_NAME` | Nombre del servicio para OpenTelemetry | `quality-tools-api` |
 | `OTEL_EXPORTER_OTLP_ENDPOINT` | Endpoint base OTLP HTTP del Collector | `http://otel-collector:4318` |
 | `OTEL_EXPORTER_OTLP_LOGS_ENDPOINT` | Endpoint especifico para logs. Si no se define, usa `${OTEL_EXPORTER_OTLP_ENDPOINT}/v1/logs` | - |
+| `OTEL_EXPORTER_OTLP_METRICS_ENDPOINT` | Endpoint especifico para metricas. Si no se define, usa `${OTEL_EXPORTER_OTLP_ENDPOINT}/v1/metrics` | - |
 | `OTEL_RESOURCE_ATTRIBUTES` | Atributos adicionales de recurso OpenTelemetry de baja cardinalidad. No definir aqui `deployment.environment`; se toma de `OTEL_DEPLOYMENT_ENV` | `project=quality-tools` |
+| `OTEL_METRIC_EXPORT_INTERVAL` | Intervalo de exportacion batch de metricas OTLP en ms | `15000` |
+| `OTEL_METRIC_EXPORT_TIMEOUT` | Timeout de exportacion de metricas OTLP en ms | `5000` |
 | `OTEL_LOG_EXPORT_INTERVAL` | Intervalo de exportacion batch de logs OTLP en ms | `5000` |
 | `OTEL_LOG_EXPORT_TIMEOUT` | Timeout de exportacion de logs OTLP en ms | `5000` |
 
