@@ -1,8 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
   "compilerOptions": {
-    "ignoreDeprecations": "5.0",
-    "baseUrl": ".",
     "module": "ESNext",
     "target": "ESNext",
     "moduleResolution": "Bundler",
@@ -16,15 +14,15 @@
     "declaration": false,
     "strictPropertyInitialization": false,
     "paths": {
-      "@/*": ["src/*"],
-      "@core/*": ["src/core/*"],
-      "@shared/*": ["src/modules/shared/*"],
-      "@observability/*": ["src/modules/observability/*"],
-      "@auth/*": ["src/modules/auth/*"],
-      "@finlog/*": ["src/modules/fin-log/*"],
-      "@sysobject/*": ["src/modules/sysobject/*"],
-      "@busqueda-reciente/*": ["src/modules/busqueda-reciente/*"],
-      "@favorito/*": ["src/modules/favorito/*"]
+      "@/*": ["./src/*"],
+      "@core/*": ["./src/core/*"],
+      "@shared/*": ["./src/modules/shared/*"],
+      "@observability/*": ["./src/modules/observability/*"],
+      "@auth/*": ["./src/modules/auth/*"],
+      "@finlog/*": ["./src/modules/fin-log/*"],
+      "@sysobject/*": ["./src/modules/sysobject/*"],
+      "@busqueda-reciente/*": ["./src/modules/busqueda-reciente/*"],
+      "@favorito/*": ["./src/modules/favorito/*"]
     },
     "typeRoots": ["./src/types", "./node_modules/@types"]
   },

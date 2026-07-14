@@ -4,13 +4,13 @@ WORKDIR /app
 
 FROM base AS build
 
-# Instalar PNPM
-RUN npm install -g pnpm
+# Instalar PNPM con version fija para que Docker/CI no cambie comportamiento entre builds.
+RUN npm install -g pnpm@11.13.0
 
 RUN apt-get update && \
     apt-get install -y dumb-init
 
-COPY package.json pnpm-lock.yaml /app/
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml /app/
 
 # Instalar dependencias usando PNPM
 RUN pnpm install --frozen-lockfile

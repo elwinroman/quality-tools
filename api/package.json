@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Api rest interna",
   "type": "module",
+  "packageManager": "pnpm@11.13.0",
   "scripts": {
     "build": "npm run validate-typescript && npm run build:clean && npm run generate-dist",
     "build:prod": "cross-env NODE_ENV=production npm run build",
