@@ -6,6 +6,7 @@ export const APP_NAME = 'Quality Tools'
 export const APP_SHORT_NAME = 'QT'
 export const ENABLE_NAVBAR_REPO_LINK = true
 export const GITHUB_REPOSITORIO_LINK = 'https://github.com/elwinroman/quality-tools'
+export const FILE_DATABASE_NAME_PREFIX = 'SI_BDFinFiles'
 
 // Basado en el tiempo promedio de reacción de un ser humano (en milisegundos)
 export const DEBOUNCE_DELAY = 400

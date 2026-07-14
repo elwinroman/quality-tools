@@ -16,6 +16,7 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
+  Switch,
 } from '@/components/ui'
 import { AppRoutes } from '@/constants'
 import useFetchAndLoad from '@/hooks/useFetchAndLoad'
@@ -23,6 +24,7 @@ import { cn } from '@/lib/utils'
 import { useSysObjectStore } from '@/pages/SQLDefinition/store/sysobject.store'
 import { useUserTableStore } from '@/pages/Usertable/store/usertable.store'
 import { listDatabasesAuthenticatedService, switchDatabaseService } from '@/services'
+import { filterFileDatabases } from '@/utilities'
 import { useAppStore, useAuthStore } from '@/zustand'
 
 export function SwitchDatabase() {
@@ -40,6 +42,7 @@ export function SwitchDatabase() {
 
   const [databases, setDatabases] = useState<string[]>([])
   const [open, setOpen] = useState(false)
+  const [showFileDatabases, setShowFileDatabases] = useState(false)
 
   if (!authContext) return null
 
@@ -74,7 +77,7 @@ export function SwitchDatabase() {
     }
   }
 
-  const availableDatabases = databases.length > 0 ? databases : [authContext.database]
+  const availableDatabases = databases.length > 0 ? filterFileDatabases(databases, showFileDatabases) : [authContext.database]
 
   return (
     <Popover
@@ -111,6 +114,17 @@ export function SwitchDatabase() {
       >
         <Command>
           <CommandInput placeholder={loadingDatabases ? 'Cargando bases...' : 'Buscar base de datos...'} />
+          {databases.length > 0 && (
+            <div className="border-border flex items-center justify-between gap-3 border-b px-3 py-2">
+              <span className="text-muted text-xs">Mostrar bases de archivos</span>
+              <Switch
+                checked={showFileDatabases}
+                onCheckedChange={setShowFileDatabases}
+                aria-label="Mostrar bases de archivos"
+                disabled={Boolean(switchingDatabase)}
+              />
+            </div>
+          )}
           <CommandList>
             <CommandEmpty>{loadingDatabases ? 'Cargando...' : 'No se encontraron bases de datos'}</CommandEmpty>
             <CommandGroup heading="Base de datos actual">
