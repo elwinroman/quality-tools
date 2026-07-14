@@ -32,7 +32,7 @@ export function InfoAligment() {
           <div className="bg-background-neutral rounded-lg px-3 py-3">
             <div className="mb-2 flex items-center gap-2">
               <span className="h-2 w-2 rounded-full bg-amber-500" />
-              <span className="text-secondary text-xs font-medium">Pre-producción</span>
+              <span className="text-secondary text-xs font-medium">Producción</span>
             </div>
             <div className="space-y-1 font-mono text-xs">
               <p className="text-primary">CREATE PROCEDURE CRE_Proc</p>

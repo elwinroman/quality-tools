@@ -30,6 +30,14 @@ function App() {
 
           {/* Página definiciones SQL */}
           <Route
+            path={AppRoutes.SQL_DEFINITION_DETAIL}
+            element={
+              <ProtectedLayout>
+                <SQLDefinitionPage />
+              </ProtectedLayout>
+            }
+          />
+          <Route
             path={AppRoutes.SQL_DEFINITION}
             element={
               <ProtectedLayout>
@@ -49,6 +57,14 @@ function App() {
           />
 
           {/* Página Usertable */}
+          <Route
+            path={AppRoutes.USERTABLE_DETAIL}
+            element={
+              <ProtectedLayout>
+                <UsertablePage />
+              </ProtectedLayout>
+            }
+          />
           <Route
             path={AppRoutes.USERTABLE}
             element={

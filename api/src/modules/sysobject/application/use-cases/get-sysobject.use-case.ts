@@ -1,4 +1,4 @@
-import { Logger } from '@shared/domain/logger'
+import { Logger } from '@observability/domain/logger'
 import { TIPO_ACCION } from '@sysobject/application/constants/action-type.constant'
 import { SysObjectNotFoundException } from '@sysobject/domain/exceptions/sysobject-not-found.exception'
 import { ForProxyBusquedaRecienteRegistrationPort } from '@sysobject/domain/ports/drivens/for-proxy-busqueda-reciente-registration.port'
@@ -17,11 +17,16 @@ export class GetSysObjectUseCase {
     private readonly logger: Logger,
   ) {}
 
-  async execute(id: number, log: LogObjectContext): Promise<SysObject & { permission: PermissionRol[] }> {
-    const sysObject = await this.sysObjectRepository.getById(id)
-    const roles = await this.sysObjectRepository.getRolesById(id)
+  async executeBySchemaAndName(schema: string, name: string, log: LogObjectContext): Promise<SysObject & { permission: PermissionRol[] }> {
+    const sysObject = await this.sysObjectRepository.getBySchemaAndName(schema, name)
+    if (!sysObject) throw new SysObjectNotFoundException(`${schema}.${name}`)
 
-    if (!sysObject) throw new SysObjectNotFoundException(id)
+    return this.buildResponse(sysObject, log)
+  }
+
+  private async buildResponse(sysObject: SysObject, log: LogObjectContext): Promise<SysObject & { permission: PermissionRol[] }> {
+    const id = sysObject.id
+    const roles = await this.sysObjectRepository.getRolesById(id)
 
     const currentDate = new Date()
 

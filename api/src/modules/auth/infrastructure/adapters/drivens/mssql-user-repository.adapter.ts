@@ -1,16 +1,16 @@
-import { ForUserRepositoryPort, LogAccessInput } from '@auth/domain/ports/drivens'
+import { ForUserRepositoryPort } from '@auth/domain/ports/drivens'
 import { PrimitiveUser, RepoUser, User } from '@auth/domain/schemas/user'
-import { logger } from '@core/logger/pino-instance'
 import { DatabaseName, MSSQLDatabaseConnection } from '@core/store'
 import { getStaticDatabaseCredentials } from '@core/store/get-store-credentials'
 import { wrapDatabaseError } from '@core/utils'
+import { logger } from '@observability/infrastructure/logging/logger-instance'
 import sql from 'mssql'
 
 export class MssqlUserRepositoryAdapter implements ForUserRepositoryPort {
   private connection = new MSSQLDatabaseConnection()
   private db = getStaticDatabaseCredentials(DatabaseName.APP)
 
-  async getOrCreate(user: PrimitiveUser, userDatabase: string): Promise<RepoUser | null> {
+  async getOrCreate(user: PrimitiveUser, _userDatabase: string): Promise<RepoUser | null> {
     let conn: sql.ConnectionPool | null = null
     let transaction: sql.Transaction | null = null
 
@@ -68,16 +68,6 @@ export class MssqlUserRepositoryAdapter implements ForUserRepositoryPort {
           isActive: userData.lVigente,
         }).toRepoUser()
 
-        // insertar el log de acceso
-        await this.insertAccessLog(
-          {
-            idUser: userRepository.id,
-            database: userDatabase,
-            createdAt: user.createdAt,
-          },
-          transaction,
-        )
-
         await transaction.commit()
 
         return userRepository
@@ -125,19 +115,5 @@ export class MssqlUserRepositoryAdapter implements ForUserRepositoryPort {
     } catch (err) {
       throw wrapDatabaseError(err)
     }
-  }
-
-  private async insertAccessLog(log: LogAccessInput, transaction: sql.Transaction): Promise<void> {
-    const request = new sql.Request(transaction)
-
-    const stmt = `
-        INSERT INTO dbo.LogAcceso (idUsuario, cDatabase, dFechaAcceso)
-        VALUES (@idUser, @database, @createdAt)
-      `
-    request.input('idUser', sql.Int, log.idUser)
-    request.input('database', sql.VarChar(64), log.database)
-    request.input('createdAt', sql.DateTime2, log.createdAt)
-
-    await request.query(stmt)
   }
 }

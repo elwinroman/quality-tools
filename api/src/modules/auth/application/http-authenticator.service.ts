@@ -51,8 +51,13 @@ export class HttpAuthenticatorService implements ForHttpAuthenticatingPort {
     return this.listDatabasesUC.execute(credentials)
   }
 
-  async switchDatabase(userId: number, newDatabase: string, currentCredentials: StoreUserSchema): Promise<StoreInfo & PermissionStore> {
-    return this.switchDatabaseUC.execute(userId, newDatabase, currentCredentials)
+  async switchDatabase(
+    userId: number,
+    sessionId: string,
+    newDatabase: string,
+    currentCredentials: StoreUserSchema,
+  ): Promise<StoreInfo & PermissionStore> {
+    return this.switchDatabaseUC.execute(userId, sessionId, newDatabase, currentCredentials)
   }
 
   async verifyAccessToken(token: string): Promise<AccessTokenDecoded> {

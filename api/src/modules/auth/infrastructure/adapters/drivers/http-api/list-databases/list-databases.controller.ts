@@ -27,7 +27,7 @@ export class ListDatabasesController {
     // Post-login: credenciales desde la cache del usuario autenticado
     if (accessToken) {
       const decoded = await this.authenticatorService.verifyAccessToken(accessToken)
-      setAuthContext({ userId: decoded.user_id })
+      setAuthContext({ userId: decoded.user_id, sessionId: decoded.session_id })
 
       const { store } = await buildStoreAuthContext()
       const { database: _database, ...credentials } = store.credentials

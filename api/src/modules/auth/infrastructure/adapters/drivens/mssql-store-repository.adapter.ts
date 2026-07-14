@@ -62,9 +62,7 @@ export class MssqlStoreRepositoryAdapter implements ForStoreRepositoryPort {
       `
       const res = await request.query(stmt)
 
-      const hasPermsViewDefinition: boolean = Boolean(
-        res.recordset[0].viewdefinition_permission
-      )
+      const hasPermsViewDefinition: boolean = Boolean(res.recordset[0].viewdefinition_permission)
 
       const data: PermissionStore = {
         viewdefinitionPermission: hasPermsViewDefinition,
@@ -80,7 +78,13 @@ export class MssqlStoreRepositoryAdapter implements ForStoreRepositoryPort {
       const conn = await this.connection.connect(credential, UserTypeEnum.External)
       const request = conn.request()
 
-      const stmt = 'SELECT name FROM sys.databases'
+      const stmt = `
+        SELECT name
+        FROM sys.databases
+        WHERE source_database_id IS NULL
+          AND name NOT IN ('tempdb', 'model', 'msdb')
+        ORDER BY name
+      `
       const res = await request.query(stmt)
 
       if (res && res.rowsAffected[0] === 0) return null

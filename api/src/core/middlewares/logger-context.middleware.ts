@@ -1,4 +1,4 @@
-import { LoggerRequestContext, loggerRequestContext } from '@core/logger/logger-context'
+import { LoggerRequestContext, runWithRequestLogContext } from '@observability/infrastructure/context/request-log-context.storage'
 import { randomUUID } from 'crypto'
 import { NextFunction, Request, Response } from 'express'
 
@@ -13,6 +13,7 @@ export function loggerContextMiddleware(req: Request, res: Response, next: NextF
   req.correlationId = correlationId
   res.set(CORRELATION_ID_HEADER, correlationId)
 
+  // Toda request inicia sin identidad; los middlewares/use-cases de auth promueven este estado al validar tokens.
   const context: LoggerRequestContext = {
     correlationId,
     source: {
@@ -21,11 +22,14 @@ export function loggerContextMiddleware(req: Request, res: Response, next: NextF
       userAgent: req.headers['user-agent'] ?? 'N/A',
       ip: req.ip ?? 'N/A',
     },
+    auth: {
+      status: 'anonymous',
+    },
     request: req,
   }
 
   // Al inicio de la petición en middleware se usa "run" para establecer un contexto global que persista incluso con asincronia
-  loggerRequestContext.run(context, () => {
+  runWithRequestLogContext(context, () => {
     next()
   })
 }

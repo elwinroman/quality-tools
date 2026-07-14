@@ -14,6 +14,11 @@ export interface ForHttpAuthenticatingPort {
   ): Promise<{ databaseConnection: string; viewdefinitionPermission: boolean; checkedAt: Date | string }>
   health(): void
   listDatabases(credentials: Omit<StoreUserSchema, 'database'>): Promise<string[]>
-  switchDatabase(userId: number, newDatabase: string, currentCredentials: StoreUserSchema): Promise<StoreInfo & PermissionStore>
+  switchDatabase(
+    userId: number,
+    sessionId: string,
+    newDatabase: string,
+    currentCredentials: StoreUserSchema,
+  ): Promise<StoreInfo & PermissionStore>
   verifyAccessToken(token: string): Promise<AccessTokenDecoded>
 }

@@ -6,8 +6,8 @@ export class SysObjectNotFoundException extends DomainError {
   readonly detail: string
   static readonly metadata = { status: 404, errorCode: 3000 }
 
-  constructor(id: number) {
-    super(`[sysobject] Objeto SQL no encontrado: ${id}`)
-    this.detail = `No se ha encontrado el objeto sql con id: ${id}.`
+  constructor(identifier: number | string) {
+    super(`[sysobject] Objeto SQL no encontrado: ${identifier}`)
+    this.detail = `No se ha encontrado el objeto sql: ${identifier}.`
   }
 }

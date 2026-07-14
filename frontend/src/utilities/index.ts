@@ -1,4 +1,5 @@
 export * from './copy-clipboard.util'
+export * from './database.util'
 export * from './format-permission-roles.util'
 // export * from './reset-all-stores.util'
 export * from './ensure-builtin-theme.util'

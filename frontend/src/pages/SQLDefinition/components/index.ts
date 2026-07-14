@@ -1,3 +1,4 @@
+export * from './DependenciesContent'
 export * from './EditorCode'
 export * from './HeaderEditor'
 export * from './HeaderTabs'

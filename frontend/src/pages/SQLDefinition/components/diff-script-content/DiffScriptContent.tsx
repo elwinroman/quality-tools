@@ -7,7 +7,7 @@ export function DiffScriptContent() {
   const sysobject = useSysObjectStore((state) => state.sysobject)
   const fetchProdSysObject = useSysObjectStore((state) => state.fetchProdSysObject)
 
-  // busca el objeto de pre-producción cuando cambia el sysobject
+  // busca el objeto de producción cuando cambia el sysobject
   // el store internamente evita llamadas duplicadas
   useEffect(() => {
     if (sysobject) fetchProdSysObject()

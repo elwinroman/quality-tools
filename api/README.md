@@ -13,7 +13,7 @@ pnpm install
 
 ## Variables de entorno
 
-Las variables de entorno se gestionan desde el **archivo `.env` en la raiz del monorepo**. Consulta [README.md](../README.md#variables-de-entorno) para la documentacion completa.
+Las variables de entorno se gestionan desde archivos en la raiz del monorepo. En desarrollo local la API carga `.env.local`; en Docker recibe `.env.backend` desde Docker Compose. Consulta [README.md](../README.md#variables-de-entorno) para la documentacion completa.
 
 ## Como empezar
 
@@ -76,8 +76,8 @@ mi-password-super-secreto
 ```
 
 ### Casos de uso
-1. **Encriptar credenciales para produccion**: ejecuta la CLI, encripta la contrasena real y copia el resultado al `.env`
-2. **Verificar credenciales encriptadas**: desencripta el valor del `.env` y verifica que coincida
+1. **Encriptar credenciales para produccion**: ejecuta la CLI, encripta la contrasena real y copia el resultado al `.env.backend`
+2. **Verificar credenciales encriptadas**: desencripta el valor del `.env.backend` y verifica que coincida
 
 ### Arquitectura de la CLI
 ```
@@ -92,7 +92,7 @@ src/modules/cli-crypto/
     └── cli.entrypoint.ts
 ```
 
-> La CLI usa la variable `PASS_PHRASE` del `.env` para encriptar/desencriptar.
+> La CLI usa la variable `PASS_PHRASE` cargada desde `.env.local` cuando se ejecuta localmente.
 
 ## Configuracion del editor
 

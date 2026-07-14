@@ -1,5 +1,6 @@
 import { Check, ChevronsUpDown, RefreshCw } from 'lucide-react'
 import { useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 
 import { CircleLoader } from '@/components/loader'
@@ -15,15 +16,20 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
+  Switch,
 } from '@/components/ui'
+import { AppRoutes } from '@/constants'
 import useFetchAndLoad from '@/hooks/useFetchAndLoad'
 import { cn } from '@/lib/utils'
 import { useSysObjectStore } from '@/pages/SQLDefinition/store/sysobject.store'
 import { useUserTableStore } from '@/pages/Usertable/store/usertable.store'
 import { listDatabasesAuthenticatedService, switchDatabaseService } from '@/services'
+import { filterFileDatabases } from '@/utilities'
 import { useAppStore, useAuthStore } from '@/zustand'
 
 export function SwitchDatabase() {
+  const location = useLocation()
+  const navigate = useNavigate()
   const authContext = useAuthStore((state) => state.authContext)
   const updateDatabase = useAuthStore((state) => state.updateDatabase)
   const switchingDatabase = useAppStore((state) => state.switchingDatabase)
@@ -36,6 +42,7 @@ export function SwitchDatabase() {
 
   const [databases, setDatabases] = useState<string[]>([])
   const [open, setOpen] = useState(false)
+  const [showFileDatabases, setShowFileDatabases] = useState(false)
 
   if (!authContext) return null
 
@@ -57,18 +64,20 @@ export function SwitchDatabase() {
     setOpen(false)
     try {
       await callSwitchDatabase(switchDatabaseService(db))
-      updateDatabase(db)
+      if (location.pathname.startsWith(AppRoutes.SQL_DEFINITION)) navigate(AppRoutes.SQL_DEFINITION, { replace: true })
+      if (location.pathname.startsWith(AppRoutes.USERTABLE)) navigate(AppRoutes.USERTABLE, { replace: true })
       clearSysObject(null)
       resetUserTable()
+      updateDatabase(db)
       toast.success('Success', { description: `Base de datos cambiada. Conectado a '${db}'.` })
     } catch {
       toast.error('Error', { description: `Acceso denegado. No tienes permisos para acceder a '${db}'.` })
     } finally {
-      updateSwitchingDatabase(null)
+      window.setTimeout(() => updateSwitchingDatabase(null), 0)
     }
   }
 
-  const availableDatabases = databases.length > 0 ? databases : [authContext.database]
+  const availableDatabases = databases.length > 0 ? filterFileDatabases(databases, showFileDatabases) : [authContext.database]
 
   return (
     <Popover
@@ -101,10 +110,21 @@ export function SwitchDatabase() {
       </PopoverTrigger>
       <PopoverContent
         align="start"
-        className="mix-colored-background bg-background-paperchanel w-[clamp(180px,20vw,260px)] overflow-hidden border-none p-0 shadow-xl shadow-black/20 ring-1 ring-white/5"
+        className="mix-colored-background bg-background-paperchanel w-[clamp(180px,20vw,260px)] overflow-hidden border-none p-0 shadow-xl ring-1 shadow-black/20 ring-white/5"
       >
         <Command>
           <CommandInput placeholder={loadingDatabases ? 'Cargando bases...' : 'Buscar base de datos...'} />
+          {databases.length > 0 && (
+            <div className="border-border flex items-center justify-between gap-3 border-b px-3 py-2">
+              <span className="text-muted text-xs">Mostrar bases de archivos</span>
+              <Switch
+                checked={showFileDatabases}
+                onCheckedChange={setShowFileDatabases}
+                aria-label="Mostrar bases de archivos"
+                disabled={Boolean(switchingDatabase)}
+              />
+            </div>
+          )}
           <CommandList>
             <CommandEmpty>{loadingDatabases ? 'Cargando...' : 'No se encontraron bases de datos'}</CommandEmpty>
             <CommandGroup heading="Base de datos actual">
@@ -126,7 +146,7 @@ export function SwitchDatabase() {
                     disabled={Boolean(switchingDatabase)}
                   >
                     {switchingDatabase === db ? (
-                      <span className="relative h-4 w-4 shrink-0 text-primary" aria-label="Cambiando base de datos">
+                      <span className="text-primary relative h-4 w-4 shrink-0" aria-label="Cambiando base de datos">
                         <CircleLoader visible size={14} color="currentColor" />
                       </span>
                     ) : (

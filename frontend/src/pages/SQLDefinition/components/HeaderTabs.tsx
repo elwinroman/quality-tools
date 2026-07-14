@@ -1,4 +1,4 @@
-import { FileCode, GitCompareArrows, Info } from 'lucide-react'
+import { FileCode, GitBranch, GitCompareArrows, Info } from 'lucide-react'
 
 import { TabsList, TabsTrigger } from '@/components/ui'
 import { cn } from '@/lib/utils'
@@ -40,6 +40,21 @@ export function HeaderTabs() {
           >
             <Info size={12} />
             <span>Overview</span>
+          </TabsTrigger>
+
+          {/* Tab Dependencias */}
+          <TabsTrigger
+            value={TabOption.Dependencies}
+            disabled={!sysobject}
+            className={cn(
+              // Base
+              'h-full gap-1.5 rounded-none border-b-2 border-transparent',
+              // Active
+              'data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none',
+            )}
+          >
+            <GitBranch size={12} />
+            <span>Relaciones</span>
           </TabsTrigger>
 
           {/* Tab Comparar */}

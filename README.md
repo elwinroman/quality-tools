@@ -16,9 +16,10 @@ Aplicacion web para gestionar tareas de Quality Assurance. Permite realizar cons
 ## Estructura del monorepo
 ```
 quality-tools/
-├── .env                  # Variables de entorno (produccion/Docker)
-├── .env.development      # Variables de entorno (desarrollo local)
-├── .env.sample           # Plantilla de referencia
+├── .env.local            # Desarrollo local
+├── .env.backend          # Backend en Docker/produccion
+├── .env.compose          # Variables de docker compose
+├── .env.valkey           # Variables del servicio Valkey
 ├── docker-compose.yml
 ├── api/                  # Backend (Node.js + Express)
 └── frontend/             # Frontend (React + Vite)
@@ -26,23 +27,30 @@ quality-tools/
 
 ## Variables de entorno
 
-El proyecto usa un **unico archivo `.env`** en la raiz del monorepo. Ambos proyectos (backend y frontend) leen de este archivo.
+El proyecto usa archivos de entorno separados por responsabilidad. Esto evita que desarrollo local herede valores de Docker/produccion por accidente.
 
-- **Produccion/Docker**: `.env` (credenciales encriptadas, `host.docker.internal`)
-- **Desarrollo local**: `.env.development` (credenciales planas, sobreescribe `.env`)
+| Archivo | Uso | Lo consume |
+|---|---|---|
+| `.env.local` | Desarrollo local. Credenciales planas y URLs locales. | Backend local y frontend local |
+| `.env.backend` | Backend en Docker/produccion. Credenciales encriptadas. | Servicio `backend` de Docker Compose |
+| `.env.compose` | Puertos, dominio y version de imagen. | Docker Compose y scripts de deploy |
+| `.env.valkey` | Puerto/password del servicio Valkey. | Servicio `valkey` de Docker Compose |
 
-Hay dos plantillas disponibles:
+Plantillas disponibles:
 
-- **`.env.sample`**: Configuracion completa con todas las variables y comentarios explicativos
-- **`.env.example`**: Configuracion minima con solo las variables obligatorias (sin defaults)
+| Plantilla | Genera |
+|---|---|
+| `.env.local.example` | `.env.local` |
+| `.env.backend.example` | `.env.backend` |
+| `.env.compose.example` | `.env.compose` |
+| `.env.valkey.example` | `.env.valkey` |
 
 ```bash
-# Configuracion completa
-cp .env.sample .env
-
-# O configuracion minima (desarrollo rapido)
-cp .env.example .env.development
+# Genera todos los archivos reales si no existen
+bash setup/00_generate_environment.sh
 ```
+
+El backend local carga solo `.env.local`. No hay fallback silencioso a `.env.backend`.
 
 ### Configuracion general (Docker Compose)
 
@@ -106,15 +114,26 @@ cp .env.example .env.development
 | `SENTRY_REPORTING_ENABLED` | Habilita/deshabilita el envio de errores (`true`/`false`) | **obligatorio** |
 | `SENTRY_DNS` | URL DSN proporcionada por Sentry | - |
 
-### Loki (logging centralizado)
+### Observabilidad
 
 | Variable | Descripcion | Default |
 |---|---|---|
-| `LOKI_REPORTING_ENABLED` | Habilita/deshabilita el envio de logs (`true`/`false`) | **obligatorio** |
-| `LOKI_HOST` | URL de la instancia de Loki (obligatorio si `LOKI_REPORTING_ENABLED=true`) | - |
-| `LOKI_USERNAME` | Usuario para autenticacion basica (nginx) | - |
-| `LOKI_PASSWORD` | Contrasena para autenticacion basica (nginx) | - |
-| `LOKI_LOG_LEVEL` | Nivel minimo de log (`debug`, `info`, `warn`, `error`, `fatal`) | `info` |
+| `LOG_LEVEL` | Nivel minimo de logs locales (`debug`, `info`, `warn`, `error`, `fatal`) | `info` |
+| `OTEL_DEPLOYMENT_ENV` | Ambiente real de despliegue para OpenTelemetry (`development`, `cert`, `production`) | **obligatorio** |
+| `OTEL_LOGS_ENABLED` | Habilita/deshabilita envio de logs por OTLP al Collector | `false` |
+| `OTEL_METRICS_ENABLED` | Habilita/deshabilita metricas HTTP/autoinstrumentadas por OTLP al Collector | `false` |
+| `OTEL_SERVICE_NAME` | Nombre del servicio para OpenTelemetry | `quality-tools-api` |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | Endpoint base OTLP HTTP del Collector | `http://otel-collector:4318` |
+| `OTEL_EXPORTER_OTLP_LOGS_ENDPOINT` | Endpoint especifico para logs. Si no se define, usa `${OTEL_EXPORTER_OTLP_ENDPOINT}/v1/logs` | - |
+| `OTEL_EXPORTER_OTLP_METRICS_ENDPOINT` | Endpoint especifico para metricas. Si no se define, usa `${OTEL_EXPORTER_OTLP_ENDPOINT}/v1/metrics` | - |
+| `OTEL_RESOURCE_ATTRIBUTES` | Atributos adicionales de recurso OpenTelemetry de baja cardinalidad. No definir aqui `deployment.environment`; se toma de `OTEL_DEPLOYMENT_ENV` | `project=quality-tools` |
+| `OTEL_METRIC_EXPORT_INTERVAL` | Intervalo de exportacion batch de metricas OTLP en ms | `15000` |
+| `OTEL_METRIC_EXPORT_TIMEOUT` | Timeout de exportacion de metricas OTLP en ms | `5000` |
+| `OTEL_LOG_EXPORT_INTERVAL` | Intervalo de exportacion batch de logs OTLP en ms | `5000` |
+| `OTEL_LOG_EXPORT_TIMEOUT` | Timeout de exportacion de logs OTLP en ms | `5000` |
+
+La API no envia logs directamente a Loki. Cuando `OTEL_LOGS_ENABLED=true`, envia logs al OpenTelemetry Collector y el Collector los reenvia a Loki.
+`OTEL_DEPLOYMENT_ENV` es obligatorio para evitar mezclar logs de `development`, `cert` y `production` en Grafana/Loki.
 
 ### Cache (Valkey/Redis)
 
@@ -131,7 +150,7 @@ cp .env.example .env.development
 |---|---|---|
 | `VITE_API_URL` | URL base de la API a la que el frontend envia solicitudes | `http://localhost:3000` |
 
-> **Nota:** Vite solo expone variables con prefijo `VITE_`. Las demas variables del `.env` son invisibles para el frontend.
+> **Nota:** Vite solo expone variables con prefijo `VITE_`. Las demas variables de `.env.local` son invisibles para el frontend.
 
 ## Como levantar
 
@@ -159,7 +178,7 @@ El directorio `setup/` contiene scripts numerados que representan el flujo compl
 bash setup/00_generate_environment.sh
 ```
 
-Copia los archivos `.sample` para generar `.env`, `.env.docker` y `.env.valkey`. Usa `cp -n`, asi que **no sobreescribe** archivos existentes. Despues de ejecutarlo, edita las credenciales en cada archivo antes de continuar.
+Copia los archivos `.example` para generar `.env.local`, `.env.backend`, `.env.compose` y `.env.valkey`. Usa `cp -n`, asi que **no sobreescribe** archivos existentes. Despues de ejecutarlo, edita las credenciales en cada archivo antes de continuar.
 
 #### Paso 1: Encriptar credenciales
 
@@ -172,7 +191,7 @@ Ejecuta el CLI de criptografia del backend (`pnpm run cli:crypto`). Esto genera 
 #### Paso 2: Build y deploy
 
 ```bash
-# Usa APP_VERSION definida en .env.docker
+# Usa APP_VERSION definida en .env.compose
 bash setup/02_build_and_deploy.sh
 
 # O especifica una version manualmente

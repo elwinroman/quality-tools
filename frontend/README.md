@@ -13,9 +13,9 @@ pnpm install
 
 ## Variables de entorno
 
-Las variables de entorno se gestionan desde el **archivo `.env` en la raiz del monorepo**. Consulta [README.md](../README.md#variables-de-entorno) para la documentacion completa.
+Las variables de entorno se gestionan desde archivos en la raiz del monorepo. En desarrollo local el frontend usa `.env.local` mediante `envDir: '../'` en Vite. Consulta [README.md](../README.md#variables-de-entorno) para la documentacion completa.
 
-La unica variable que el frontend consume es `VITE_API_URL`. Vite ignora todas las demas variables del `.env` que no tengan prefijo `VITE_`.
+La unica variable que el frontend consume es `VITE_API_URL`. Vite ignora todas las demas variables que no tengan prefijo `VITE_`.
 
 ## Como empezar
 

@@ -1,9 +1,14 @@
 import { LogObjectContext, LogProdObjectContext } from '@sysobject/domain/schemas/log-object-context'
 import { PermissionRol } from '@sysobject/domain/schemas/permission-rol'
-import { SysObject, TypeSysObject } from '@sysobject/domain/schemas/sysobject'
+import {
+  SysObject,
+  SysObjectDependency,
+  SysObjectDependent,
+  SysObjectRelationsResult,
+  SysObjectSummary,
+  TypeSysObject,
+} from '@sysobject/domain/schemas/sysobject'
 import { Usertable } from '@sysobject/domain/schemas/usertable'
-
-export type SearchSysObject = Pick<SysObject, 'id' | 'name' | 'schemaName' | 'typeDesc'>
 
 /**
  * Puerto de acceso (interface) de tipo driver (primary) para recuperar objetos del sistema (SysObject)
@@ -13,12 +18,13 @@ export type SearchSysObject = Pick<SysObject, 'id' | 'name' | 'schemaName' | 'ty
  */
 export interface ForSysObjectRetrievalPort {
   /**
-   * Recupera un objeto del sistema por su ID, incluyendo los roles con permisos sobre él.
+   * Recupera un objeto del sistema por esquema y nombre, incluyendo los roles con permisos sobre él.
    *
-   * @param id - Identificador único del objeto.
+   * @param schema - Nombre del esquema.
+   * @param name - Nombre del objeto.
    * @returns Una promesa que resuelve con el objeto y sus permisos asociados.
    */
-  getSysObject(id: number, log: LogObjectContext): Promise<SysObject & { permission: PermissionRol[] }>
+  getSysObjectBySchemaAndName(schema: string, name: string, log: LogObjectContext): Promise<SysObject & { permission: PermissionRol[] }>
 
   /**
    * Realiza una búsqueda de sugerencias de objetos del sistema, basada en el nombre parcial y tipo.
@@ -27,15 +33,16 @@ export interface ForSysObjectRetrievalPort {
    * @param type - Tipo de objeto (por ejemplo, 'P', 'FN', 'V', etc.).
    * @returns Una promesa que resuelve con una lista de objetos que coinciden con el criterio.
    */
-  searchSuggestions(name: string, type: TypeSysObject): Promise<SearchSysObject[]>
+  searchSuggestions(name: string, type: TypeSysObject): Promise<SysObjectSummary[]>
 
   /**
-   * Recupera una tabla de usuario por su ID.
+   * Recupera una tabla de usuario por esquema y nombre.
    *
-   * @param id - Identificador único de la tabla de usuario.
+   * @param schema - Nombre del esquema.
+   * @param name - Nombre de la tabla.
    * @returns Una promesa que resuelve con la tabla de usuario correspondiente.
    */
-  getSysUsertable(id: number, log: LogObjectContext): Promise<Usertable>
+  getSysUsertableBySchemaAndName(schema: string, name: string, log: LogObjectContext): Promise<Usertable>
 
   /**
    * Recupera un objeto del sistema desde el entorno de producción, incluyendo los roles con permisos sobre él.
@@ -52,4 +59,30 @@ export interface ForSysObjectRetrievalPort {
     actionType: number,
     log: LogProdObjectContext,
   ): Promise<SysObject & { permission: PermissionRol[] }>
+
+  /**
+   * Recupera los objetos que dependen del objeto indicado.
+   *
+   * En SQL Server este concepto corresponde a las entidades que referencian al objeto
+   * consultado (`sys.dm_sql_referencing_entities`). Es decir, responde la pregunta:
+   * "si cambio este objeto, que otros objetos podrian verse afectados?".
+   *
+   * @param name - Nombre del objeto consultado.
+   * @param schema - Nombre del esquema al que pertenece el objeto consultado.
+   * @returns Una promesa que resuelve con los objetos dependientes.
+   */
+  getSysObjectDependents(name: string, schema: string): Promise<SysObjectRelationsResult<SysObjectDependent>>
+
+  /**
+   * Recupera los objetos usados por el objeto indicado.
+   *
+   * En SQL Server este concepto corresponde a las entidades referenciadas por el objeto
+   * consultado (`sys.dm_sql_referenced_entities`). Es decir, responde la pregunta:
+   * "que objetos necesita este objeto para funcionar?".
+   *
+   * @param name - Nombre del objeto consultado.
+   * @param schema - Nombre del esquema al que pertenece el objeto consultado.
+   * @returns Una promesa que resuelve con las dependencias del objeto.
+   */
+  getSysObjectDependencies(name: string, schema: string): Promise<SysObjectRelationsResult<SysObjectDependency>>
 }

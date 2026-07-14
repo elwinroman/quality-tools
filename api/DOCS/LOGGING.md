@@ -19,32 +19,41 @@
 ### Ejemplos válidos
 
 ```typescript
-logger.info('[sysobject] Bbject retrieved', { objectId, objectName, type, schema })
-logger.info('[sysobject] Suggestions retrieved', { searchTerm, type, resultsCount })
-logger.info('[auth] User logged in', { userId, database })
-logger.info('[auth] Token refreshed', { userId })
-logger.info('[auth] Session closed', { userId })
+logger.info("[sysobject] Bbject retrieved", {
+  objectId,
+  objectName,
+  type,
+  schema,
+});
+logger.info("[sysobject] Suggestions retrieved", {
+  searchTerm,
+  type,
+  resultsCount,
+});
+logger.info("[auth] User logged in", { userId, database });
+logger.info("[auth] Token refreshed", { userId });
+logger.info("[auth] Session closed", { userId });
 ```
 
 ### Ejemplos inválidos
 
 ```typescript
 // MAL: sin módulo
-logger.info('object retrieved')
+logger.info("object retrieved");
 
 // MAL: acción en presente/futuro
-logger.info('[sysobject] retrieving object')
-logger.info('[sysobject] will retrieve object')
+logger.info("[sysobject] retrieving object");
+logger.info("[sysobject] will retrieve object");
 
 // MAL: concatenando strings en vez de contexto estructurado
-logger.info(`[sysobject] object ${name} retrieved`)
+logger.info(`[sysobject] object ${name} retrieved`);
 
 // MAL: log sin contexto
-logger.info('[sysobject] object retrieved')
+logger.info("[sysobject] object retrieved");
 
 // MAL: inconsistencia en casing del módulo
-logger.info('[SysObject] object retrieved')
-logger.info('[sysobject] object retrieved')
+logger.info("[SysObject] object retrieved");
+logger.info("[sysobject] object retrieved");
 ```
 
 ## Contexto estructurado
@@ -53,13 +62,13 @@ El segundo parámetro de `logger.info()` es un objeto con datos relevantes para 
 
 ### Campos recomendados por tipo de operación
 
-| Operación | Campos recomendados |
-|-----------|-------------------|
-| Lectura por ID | `objectId`, `objectName`, `type`, `schema`, `database` |
-| Búsqueda/listado | `searchTerm`, `type`, `resultsCount` |
-| Creación | `objectId`, `objectName` |
-| Autenticación | `userId`, `database` |
-| Logout/revocación | `userId` |
+| Operación         | Campos recomendados                                    |
+| ----------------- | ------------------------------------------------------ |
+| Lectura por ID    | `objectId`, `objectName`, `type`, `schema`, `database` |
+| Búsqueda/listado  | `searchTerm`, `type`, `resultsCount`                   |
+| Creación          | `objectId`, `objectName`                               |
+| Autenticación     | `userId`, `database`                                   |
+| Logout/revocación | `userId`                                               |
 
 ### Reglas del contexto
 
@@ -70,32 +79,36 @@ El segundo parámetro de `logger.info()` es un objeto con datos relevantes para 
 
 ## Niveles de log
 
-| Nivel | Cuándo usar | Ejemplo |
-|-------|------------|---------|
-| `debug` | Información detallada para desarrollo | Queries SQL, payloads internos |
-| `info` | Happy path completado | Operación exitosa con contexto |
-| `warn` | Situación inesperada pero recuperable | Token revocado en uso, cache miss |
-| `error` | Error que afecta la operación | Error de BD, servicio externo caído |
-| `fatal` | Error que detiene la aplicación | No se puede conectar a BD al inicio |
+| Nivel   | Cuándo usar                           | Ejemplo                             |
+| ------- | ------------------------------------- | ----------------------------------- |
+| `debug` | Información detallada para desarrollo | Queries SQL, payloads internos      |
+| `info`  | Happy path completado                 | Operación exitosa con contexto      |
+| `warn`  | Situación inesperada pero recuperable | Token revocado en uso, cache miss   |
+| `error` | Error que afecta la operación         | Error de BD, servicio externo caído |
+| `fatal` | Error que detiene la aplicación       | No se puede conectar a BD al inicio |
 
 ## Queries útiles en Grafana Loki (LogQL)
 
 ### Filtrar por módulo
+
 ```logql
 {app="quality-tools-api"} | json | message =~ `\[SYSOBJECT\].*`
 ```
 
 ### Filtrar por acción específica
+
 ```logql
 {app="quality-tools-api"} | json | message = "[SYSOBJECT] object retrieved"
 ```
 
 ### Buscar operaciones de un usuario
+
 ```logql
 {app="quality-tools-api"} | json | user_userId = "123"
 ```
 
 ### Ver búsquedas con más de 50 resultados
+
 ```logql
 {app="quality-tools-api"} | json | message = "[SYSOBJECT] suggestions retrieved" | resultsCount > 50
 ```
@@ -107,21 +120,28 @@ Los logs INFO automáticamente incluyen el contexto del request gracias a `Async
 - `correlationId` - ID único del request
 - `method` - Método HTTP
 - `url` - URL del request
+- `auth.status` - Estado de autenticación (`anonymous`, `authenticated` o `failed`)
+- `auth.reason` - Motivo del fallo cuando `auth.status` es `failed`
 - `user.userId` - ID del usuario autenticado
+- `user.username` - Nombre del usuario autenticado
+- `session.id` - ID de sesión/dispositivo (`session_id` del JWT)
 - `session.jti` - JWT ID del token
+- `session.type` - Tipo de token (`access` o `refresh`)
 
 Estos campos NO necesitan agregarse manualmente en el contexto del `logger.info()`. Ya están disponibles en cada log.
 
+Para trazabilidad de sesiones, ver [AUTH-SESSIONS.md](./AUTH-SESSIONS.md).
+
 ## Módulos existentes
 
-| Módulo | Prefijo | Ejemplo |
-|--------|---------|---------|
-| Sysobject | `[SYSOBJECT]` | `[SYSOBJECT] object retrieved` |
-| Auth | `[AUTH]` | `[AUTH] user logged in` |
+| Módulo            | Prefijo               | Ejemplo                                 |
+| ----------------- | --------------------- | --------------------------------------- |
+| Sysobject         | `[SYSOBJECT]`         | `[SYSOBJECT] object retrieved`          |
+| Auth              | `[AUTH]`              | `[AUTH] user logged in`                 |
 | Búsqueda reciente | `[BUSQUEDA-RECIENTE]` | `[BUSQUEDA-RECIENTE] search registered` |
 
 Al agregar un nuevo módulo, registrarlo en esta tabla.
 
 ---
 
-**Última actualización:** 2026-02-01
+**Última actualización:** 2026-06-25

@@ -37,6 +37,59 @@ export interface SysObject {
 }
 
 /**
+ * Vista reducida de un objeto SQL.
+ *
+ * Se usa para listados, sugerencias y relaciones entre objetos donde no hace falta
+ * cargar la definición SQL completa ni permisos asociados.
+ */
+export type SysObjectSummary = Pick<SysObject, 'id' | 'name' | 'schemaName' | 'typeDesc'>
+
+/**
+ * Vista reducida de una relación entre objetos SQL.
+ *
+ * SQL Server puede devolver relaciones cuyo objeto no logra resolver en `sys.objects`;
+ * en esos casos el identificador puede ser `null`, aunque el schema y el nombre se
+ * conserven desde las funciones `sys.dm_sql_*`.
+ */
+export type SysObjectRelationSummary = Omit<SysObjectSummary, 'id' | 'schemaName'> & {
+  /** Identificador del objeto relacionado. Puede ser null si SQL Server no logra resolverlo. */
+  id: number | null
+
+  /** Nombre del esquema relacionado. Puede ser null si SQL Server no logra resolverlo. */
+  schemaName: string | null
+}
+
+/**
+ * Objeto del que depende el objeto consultado.
+ *
+ * Ejemplo: si una vista `dbo.vwOrders` consulta la tabla `dbo.Orders`,
+ * entonces `dbo.Orders` es una dependencia de `dbo.vwOrders`.
+ */
+export type SysObjectDependency = SysObjectRelationSummary
+
+/**
+ * Objeto que depende del objeto consultado.
+ *
+ * Ejemplo: si el procedimiento `dbo.GetOrders` consulta la vista `dbo.vwOrders`,
+ * entonces `dbo.GetOrders` es un dependiente de `dbo.vwOrders`.
+ */
+export type SysObjectDependent = SysObjectRelationSummary
+
+export interface SysObjectRelationsWarning {
+  type: 'DependencyMetadataFallback'
+  detail: string
+  source: 'sys.dm_sql_referenced_entities' | 'sys.dm_sql_referencing_entities'
+  fallbackSource: 'sys.sql_expression_dependencies'
+}
+
+export interface SysObjectRelationsResult<T extends SysObjectRelationSummary> {
+  data: T[]
+  meta?: {
+    warning?: SysObjectRelationsWarning
+  }
+}
+
+/**
  * Enum de tipos de objetos SQL utilizados en el sistema.
  *
  * Las claves representan el tipo semántico, mientras que los valores son los identificadores cortos
@@ -47,6 +100,7 @@ export interface SysObject {
  * - 'FN' → Función escalar (`SQL_SCALAR_FUNCTION`)
  * - 'TR' → Trigger (`SQL_TRIGGER`)
  * - 'TF' → Función con valor de tabla (`SQL_TABLE_VALUED_FUNCTION`)
+ * - 'IF' → Función tabular inline (`SQL_INLINE_TABLE_VALUED_FUNCTION`)
  * - 'V'  → Vista (`VIEW`)
  * - 'U'  → Tabla de usuario (`USER_TABLE`)
  * - 'ALL' → Todos los tipos de objeto.
@@ -57,6 +111,7 @@ export const TypeSysObjectEnum = {
   SQL_SCALAR_FUNCTION: 'FN',
   SQL_TRIGGER: 'TR',
   SQL_TABLE_VALUED_FUNCTION: 'TF',
+  SQL_INLINE_TABLE_VALUED_FUNCTION: 'IF',
   VIEW: 'V',
   USER_TABLE: 'U',
   ALL: 'ALL',
@@ -65,9 +120,22 @@ export const TypeSysObjectEnum = {
 
 export type TypeSysObject = (typeof TypeSysObjectEnum)[keyof typeof TypeSysObjectEnum]
 
-// obtiene solo los valores válidos (sin 'ALL' ni 'ALL_EXCEPT_USERTABLE')
-export const ValidTypeSysObjectValues: TypeSysObject[] = Object.values(TypeSysObjectEnum).filter(
-  v => v !== 'ALL' && v !== 'ALL_EXCEPT_USERTABLE',
-) as TypeSysObject[]
-
 export type ValidTypeSysObject = Exclude<TypeSysObject, 'ALL' | 'ALL_EXCEPT_USERTABLE'>
+
+const AggregateTypeSysObjectValues = [TypeSysObjectEnum.ALL, TypeSysObjectEnum.ALL_EXCEPT_USERTABLE] as const
+
+// obtiene solo los valores válidos (sin 'ALL' ni 'ALL_EXCEPT_USERTABLE')
+export const ValidTypeSysObjectValues: ValidTypeSysObject[] = Object.values(TypeSysObjectEnum).filter(
+  (v): v is ValidTypeSysObject => !AggregateTypeSysObjectValues.includes(v as (typeof AggregateTypeSysObjectValues)[number]),
+)
+
+export function resolveTypeSysObjectValues(type: TypeSysObject): ValidTypeSysObject[] {
+  switch (type) {
+    case TypeSysObjectEnum.ALL:
+      return ValidTypeSysObjectValues
+    case TypeSysObjectEnum.ALL_EXCEPT_USERTABLE:
+      return ValidTypeSysObjectValues.filter(v => v !== TypeSysObjectEnum.USER_TABLE)
+    default:
+      return [type as ValidTypeSysObject]
+  }
+}

@@ -48,7 +48,7 @@ export function MenuSidebar({ className = '' }: Props) {
 
             <p className="text-secondary text-sm text-pretty">
               <span>Recupera los objetos alineados a </span>
-              <strong>pre-producción </strong>
+              <strong>producción </strong>
               <span>y dí adios a observaciones por desvío de ambientes </span>
               <span className="text-primary">(Actualizado al día de ayer)</span>
             </p>

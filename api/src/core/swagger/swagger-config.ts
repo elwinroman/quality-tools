@@ -15,6 +15,7 @@ import '@auth/infrastructure/adapters/drivers/http-api/auth.swagger'
 import '@busqueda-reciente/infrastructure/adapters/drivers/http-api/busqueda-reciente.swagger'
 import '@favorito/infrastructure/adapters/drivers/http-api/favorito.swagger'
 import '@sysobject/infrastructure/adapters/drivers/http/sysobject.swagger'
+import '@/modules/health/infrastructure/adapters/drivers/http/health.swagger'
 
 export function generateOpenAPIDocument() {
   const generator = new OpenApiGeneratorV3(registry.definitions)

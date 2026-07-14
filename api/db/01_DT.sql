@@ -3,7 +3,7 @@ USE SI_BDSqlSnapMonitor
 --================================================================
 -- TABLA Usuario
 --================================================================
-IF EXISTS (SELECT * FROM sys.sysobjects WHERE name = 'Usuario' AND xtype = 'U')
+IF EXISTS (SELECT 1 FROM sys.sysobjects WHERE name = 'Usuario' AND xtype = 'U')
 BEGIN
 	DROP TABLE Usuario
 END
@@ -79,7 +79,7 @@ EXEC sp_addextendedproperty
 --================================================================
 -- TABLA TipoAccion
 --================================================================
-IF EXISTS (SELECT * FROM sys.sysobjects WHERE name = 'TipoAccion' AND xtype = 'U')
+IF EXISTS (SELECT 1 FROM sys.sysobjects WHERE name = 'TipoAccion' AND xtype = 'U')
 BEGIN
 	DROP TABLE TipoAccion
 END
@@ -128,60 +128,9 @@ EXEC sp_addextendedproperty
 	@level2type = N'COLUMN', @level2name = N'lVigente'
 
 --================================================================
--- TABLA LogAcceso
---================================================================
-IF EXISTS (SELECT * FROM sys.sysobjects WHERE name = 'LogAcceso' AND xtype = 'U')
-BEGIN
-	DROP TABLE LogAcceso
-END
-
-CREATE TABLE LogAcceso (
-	idLogAcceso INT PRIMARY KEY IDENTITY(1,1),
-	idUsuario INT NOT NULL,
-	cDatabase VARCHAR(64) NOT NULL,
-	dFechaAcceso DATETIME NOT NULL
-)
-
--- Agregar propiedades extendidas a la tabla
-EXEC sp_addextendedproperty
-	@name = N'Description',
-	@value = N'Registra los accesos de usuarios a las distintas bases de datos del sistema.',
-	@level0type = N'SCHEMA', @level0name = N'dbo',
-	@level1type = N'TABLE',  @level1name = N'LogAcceso'
-
--- Agregar propiedades extendidas a las columnas
-EXEC sp_addextendedproperty 
-	@name = N'Description', 
-	@value = N'Identificador único de la tabla LogAcceso.', 
-	@level0type = N'SCHEMA', @level0name = N'dbo', 
-	@level1type = N'TABLE',  @level1name = N'LogAcceso',
-	@level2type = N'COLUMN', @level2name = N'idLogAcceso'
-
-EXEC sp_addextendedproperty 
-	@name = N'Description', 
-	@value = N'Identificador único de usuario - Referencia (Usuario).', 
-	@level0type = N'SCHEMA', @level0name = N'dbo', 
-	@level1type = N'TABLE',  @level1name = N'LogAcceso',
-	@level2type = N'COLUMN', @level2name = N'idUsuario'
-
-EXEC sp_addextendedproperty 
-	@name = N'Description', 
-	@value = N'Nombre de la base de datos accedida.', 
-	@level0type = N'SCHEMA', @level0name = N'dbo', 
-	@level1type = N'TABLE',  @level1name = N'LogAcceso',
-	@level2type = N'COLUMN', @level2name = N'cDatabase'
-
-EXEC sp_addextendedproperty 
-	@name = N'Description', 
-	@value = N'Fecha y hora en la que se accedió.', 
-	@level0type = N'SCHEMA', @level0name = N'dbo', 
-	@level1type = N'TABLE',  @level1name = N'LogAcceso',
-	@level2type = N'COLUMN', @level2name = N'dFechaAcceso'
-
---================================================================
 -- TABLA LogBusqueda
 --================================================================
-IF EXISTS (SELECT * FROM sysobjects WHERE name = 'LogBusqueda' AND xtype = 'U')
+IF EXISTS (SELECT 1 FROM sysobjects WHERE name = 'LogBusqueda' AND xtype = 'U')
 BEGIN
 	DROP TABLE LogBusqueda
 END
@@ -272,7 +221,7 @@ EXEC sp_addextendedproperty
 --================================================================
 -- TABLA Favorito
 --================================================================
-IF EXISTS (SELECT * FROM sysobjects WHERE name = 'Favorito' AND xtype = 'U')
+IF EXISTS (SELECT 1 FROM sysobjects WHERE name = 'Favorito' AND xtype = 'U')
 BEGIN
 	DROP TABLE Favorito
 END

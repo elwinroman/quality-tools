@@ -2,8 +2,9 @@ import { Search } from 'lucide-react'
 import { useState } from 'react'
 import { safeParse } from 'valibot'
 
-import { Button, Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput, ComboboxItem, ComboboxList } from '@/components/ui'
+import { Button, Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput, ComboboxItem, ComboboxList, Switch } from '@/components/ui'
 import { AlertCircle as AlertCircleIcon } from '@/icons/alert-circle'
+import { filterFileDatabases, isFileDatabaseName } from '@/utilities'
 
 import { useLoginContext } from '../hooks/useLoginContext'
 import { loginSchema } from '../schemas/login-schema'
@@ -13,6 +14,7 @@ export function Form() {
   const { login, loading, error, databases, databasesLoading, databasesError, fetchDatabases } = useLoginContext()
   const [formErrors, setFormErrors] = useState<Record<string, string> | null>(null)
   const [selectedDb, setSelectedDb] = useState('')
+  const [showFileDatabases, setShowFileDatabases] = useState(false)
 
   const onFetchDatabases = async (form: HTMLFormElement) => {
     const data = new FormData(form)
@@ -75,7 +77,8 @@ export function Form() {
     }
   }
 
-  const hasDatabases = databases.length > 0
+  const visibleDatabases = filterFileDatabases(databases, showFileDatabases)
+  const hasDatabases = visibleDatabases.length > 0
 
   const onSelectDatabase = (database: string | null) => {
     setSelectedDb(database ?? '')
@@ -114,7 +117,7 @@ export function Form() {
 
         <div className="flex flex-col gap-0.5">
           <Label text="Database" />
-          <Combobox items={databases} value={selectedDb} onValueChange={onSelectDatabase}>
+          <Combobox items={visibleDatabases} value={selectedDb} onValueChange={onSelectDatabase}>
             <ComboboxInput
               disabled={!hasDatabases}
               placeholder={hasDatabases ? 'Selecciona una base de datos' : 'Primero busca las bases de datos'}
@@ -130,8 +133,23 @@ export function Form() {
               </ComboboxList>
             </ComboboxContent>
           </Combobox>
-          {hasDatabases && (
-            <p className="text-muted mt-0.5 text-xs">{databases.length} bases de datos encontradas. Selecciona una para iniciar sesión.</p>
+          {databases.length > 0 && (
+            <div className="mt-2 flex items-center justify-between gap-3">
+              <span className="text-muted text-xs">Mostrar bases de archivos</span>
+              <Switch
+                checked={showFileDatabases}
+                onCheckedChange={(checked) => {
+                  setShowFileDatabases(checked)
+                  if (!checked && isFileDatabaseName(selectedDb)) setSelectedDb('')
+                }}
+                aria-label="Mostrar bases de archivos"
+              />
+            </div>
+          )}
+          {databases.length > 0 && (
+            <p className="text-muted mt-0.5 text-xs">
+              {visibleDatabases.length} bases de datos encontradas. Selecciona una para iniciar sesión.
+            </p>
           )}
           {formErrors?.dbname && <p className="mt-0.5 text-xs text-red-500">{formErrors.dbname}</p>}
         </div>

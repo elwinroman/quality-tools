@@ -12,6 +12,7 @@ interface IndexRow {
   isUnique: boolean
   isFiltered: boolean
   filterDefinition: string | null
+  isDisabled: boolean
   columns: UserTableIndexColumn[]
 }
 
@@ -100,6 +101,18 @@ export const IndexColumns: ColumnDef<IndexRow>[] = [
     size: 80,
     header: 'Unique',
     cell: ({ row }) => <>{row.original.isUnique && <Check size={16} strokeWidth={3} className="text-emerald-500" />}</>,
+  },
+  {
+    accessorKey: 'isDisabled',
+    size: 130,
+    enableSorting: true,
+    header: 'Estado',
+    cell: ({ row }) =>
+      row.original.isDisabled ? (
+        <span className="border-border text-muted inline-flex w-fit items-center rounded-sm border px-1.5 py-0.5 text-xs font-medium">
+          Deshabilitado
+        </span>
+      ) : null,
   },
   {
     accessorKey: 'filterDefinition',

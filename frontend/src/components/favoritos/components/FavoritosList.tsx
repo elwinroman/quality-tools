@@ -8,7 +8,7 @@ import { CollapsibleSection } from './CollapsibleSection'
 interface Props {
   favoritos: Favorito[]
   onDelete(id: number): void
-  onSelect(objectId: number): void
+  onSelect(schema: string, name: string): void
   activeObjectName?: string
   activeSchema?: string
 }
@@ -16,9 +16,9 @@ interface Props {
 export function FavoritosList({ favoritos, onDelete, onSelect, activeObjectName, activeSchema }: Props) {
   const isActive = (fav: Favorito) => activeObjectName === fav.objectName && activeSchema === fav.schema
 
-  const handleClick = (objectId: number | null) => {
+  const handleClick = (objectId: number | null, schema: string, name: string) => {
     if (objectId === null) return
-    onSelect(objectId)
+    onSelect(schema, name)
   }
 
   const handleDelete = (e: React.MouseEvent<HTMLButtonElement>, id: number) => {
@@ -48,7 +48,7 @@ export function FavoritosList({ favoritos, onDelete, onSelect, activeObjectName,
                 'flex w-full items-center gap-2 rounded-sm px-4 py-1.5 text-left text-[13px]',
                 inactive ? 'cursor-not-allowed' : 'hover:bg-action-hover cursor-pointer',
               )}
-              onClick={() => handleClick(fav.objectId)}
+              onClick={() => handleClick(fav.objectId, fav.schema, fav.objectName)}
             >
               {inactive ? (
                 <CircleOff size={14} className="text-destructive shrink-0" />

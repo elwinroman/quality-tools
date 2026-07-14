@@ -2,6 +2,9 @@ import { useRef } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 
 import { AppRoutes } from '@/constants'
+import { useSysObjectStore } from '@/pages/SQLDefinition/store/sysobject.store'
+import { useUserTableStore } from '@/pages/Usertable/store/usertable.store'
+import { buildQualifiedSysObjectPath } from '@/utilities/sysobject-route.util'
 
 interface Props {
   className?: string
@@ -9,6 +12,8 @@ interface Props {
 
 export function NavbarMenu({ className }: Props) {
   const currentLocation = useLocation()
+  const sysobject = useSysObjectStore((state) => state.sysobject)
+  const userTableObject = useUserTableStore((state) => state.userTableObject)
 
   const menuBackdrop = useRef<HTMLDivElement>(null)
 
@@ -16,19 +21,30 @@ export function NavbarMenu({ className }: Props) {
     {
       id: 1,
       title: 'Definición SQL',
-      href: AppRoutes.SQL_DEFINITION,
+      href: sysobject
+        ? buildQualifiedSysObjectPath(AppRoutes.SQL_DEFINITION, sysobject.schemaName, sysobject.name)
+        : AppRoutes.SQL_DEFINITION,
+      activePath: AppRoutes.SQL_DEFINITION,
     },
     {
       id: 2,
       title: 'Tabla de usuario',
-      href: AppRoutes.USERTABLE,
+      href: userTableObject
+        ? buildQualifiedSysObjectPath(AppRoutes.USERTABLE, userTableObject.schemaName, userTableObject.name)
+        : AppRoutes.USERTABLE,
+      activePath: AppRoutes.USERTABLE,
     },
     {
       id: 3,
       title: 'Aligment',
       href: AppRoutes.Aligment,
+      activePath: AppRoutes.Aligment,
     },
   ]
+
+  const isActiveMenu = (activePath: string) => {
+    return currentLocation.pathname === activePath || currentLocation.pathname.startsWith(`${activePath}/`)
+  }
 
   /**
    * Ajusta la posición y el tamaño del fondo dinámico en función de la posición del elemento sobre el que se hace hover.
@@ -73,7 +89,7 @@ export function NavbarMenu({ className }: Props) {
               onMouseLeave={handleMouseLeave}
             >
               <span
-                className={`text-sm font-semibold text-nowrap transition-colors ${currentLocation.pathname === menu.href ? 'text-primary/90' : 'text-primary/50 group-hover:text-primary/90'} `}
+                className={`text-sm font-semibold text-nowrap transition-colors ${isActiveMenu(menu.activePath) ? 'text-primary/90' : 'text-primary/50 group-hover:text-primary/90'} `}
               >
                 {menu.title}
               </span>

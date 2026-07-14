@@ -32,8 +32,8 @@ BEGIN
 END
 
 GO
---GRANT EXECUTE ON [SYS_ObtenerDefinicionSQL_SP] TO [Rol_Fin]
---GO
+GRANT EXECUTE ON [SYS_ObtenerDefinicionSQL_SP] TO [Rol_QAConsulta]
+GO
 
 IF EXISTS (
 	SELECT 1 FROM sys.objects 
@@ -61,5 +61,5 @@ BEGIN
 END
 
 GO
---GRANT EXECUTE ON [SYS_ObtenerRoles_SP] TO [Rol_Fin]
---GO
+GRANT EXECUTE ON [SYS_ObtenerRoles_SP] TO [Rol_QAConsulta]
+GO

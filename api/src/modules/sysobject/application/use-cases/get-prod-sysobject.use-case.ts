@@ -1,4 +1,4 @@
-import { Logger } from '@shared/domain/logger'
+import { Logger } from '@observability/domain/logger'
 import { ProdSysObjectNotFoundException } from '@sysobject/domain/exceptions/prod-sysobject-not-found.exception'
 import { ForProdSysObjectRepositoryPort } from '@sysobject/domain/ports/drivens/for-prod-sysobject-repository.port'
 import { LogProdObjectContext } from '@sysobject/domain/schemas/log-object-context'

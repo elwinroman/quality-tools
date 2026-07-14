@@ -1,15 +1,15 @@
-FROM node:22.11.0-slim AS build
+FROM node:22.13.1-slim AS build
 
 ARG VITE_API_URL=PRODUCTION_API_URL
 
 WORKDIR /app
 
-RUN npm install -g pnpm
+RUN npm install -g pnpm@11.13.0
 
 RUN apt-get update && \
     apt-get install -y dos2unix
 
-COPY package.json pnpm-lock.yaml /app/
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml /app/
 
 RUN pnpm install --frozen-lockfile
 

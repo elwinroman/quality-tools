@@ -26,7 +26,7 @@ export function Recents({ recents, updateOpen, onDelete }: Props) {
     <CardWrapper title={`Búsquedas recientes para '${authContext?.database}'`}>
       {limitedRecents.map((data) => (
         <div key={data.objectId} className="group/recent relative">
-          <Item objectId={data.objectId} updateOpen={updateOpen}>
+          <Item objectId={data.objectId} schema={data.schema} objectName={data.objectName} updateOpen={updateOpen}>
             <History size={14} className="text-primary/90 mt-0.5" />
             <div className="text-primary/90 flex w-full items-center justify-between gap-1 transition-colors">
               <span className="overflow-hidden">{data.objectName}</span>

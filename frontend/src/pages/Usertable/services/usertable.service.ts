@@ -4,11 +4,12 @@ import { loadAbort } from '@/utilities'
 
 import type { UserTableApiResponse } from '../models/usertable.model'
 
-/** Obtiene la información de un usertable por su ID */
-export const getUserTableByIdService = (id: number): AxiosCall<UserTableApiResponse> => {
+/** Obtiene la información de un usertable por esquema y nombre */
+export const getUserTableByNameService = (schema: string, name: string): AxiosCall<UserTableApiResponse> => {
   const controller = loadAbort()
 
-  const call = api.get<UserTableApiResponse>(`/sysobject/usertable/${id}`, {
+  const call = api.get<UserTableApiResponse>('/sysobject/usertable/by-name', {
+    params: { schema, name },
     signal: controller.signal,
   })
 

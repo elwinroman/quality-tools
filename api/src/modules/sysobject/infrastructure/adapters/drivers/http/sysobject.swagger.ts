@@ -4,8 +4,10 @@ import { errorResponses, SuccessResponseSchema } from '@core/swagger/schemas'
 import { z } from 'zod'
 
 import { GetProdSysObjectParamsSchema } from './get-prod-sysobject/get-prod-sysobject.http-dto'
-import { GetSysObjectParamsSchema } from './get-sysobject/get-sysobject.http-dto'
-import { GetSysUsertableParamsSchema } from './get-sysusertable/get-sysusertable.http-dto'
+import { GetSysObjectQuerySchema } from './get-sysobject/get-sysobject.http-dto'
+import { GetSysObjectDependenciesQuerySchema } from './get-sysobject-dependencies/get-sysobject-dependencies.http-dto'
+import { GetSysObjectReferencesQuerySchema } from './get-sysobject-references/get-sysobject-references.http-dto'
+import { GetSysUsertableQuerySchema } from './get-sysusertable/get-sysusertable.http-dto'
 import { SearchSuggestionQuerySchema } from './search-suggestions/search-suggestion.http-dto'
 
 extendZodWithOpenApi(z)
@@ -49,16 +51,16 @@ registry.registerPath({
   },
 })
 
-// GET /api/v1/sysobject/:id
+// GET /api/v1/sysobject/by-name
 registry.registerPath({
   method: 'get',
-  path: '/api/v1/sysobject/{id}',
+  path: '/api/v1/sysobject/by-name',
   tags: ['SysObject'],
-  summary: 'Obtener objeto SQL por ID',
-  description: 'Obtiene la definición completa de un objeto SQL por su ID. Requiere autenticación.',
+  summary: 'Obtener objeto SQL por esquema y nombre',
+  description: 'Obtiene la definición completa de un objeto SQL por esquema y nombre. Requiere autenticación.',
   security: [{ BearerAuth: [] }],
   request: {
-    params: GetSysObjectParamsSchema,
+    query: GetSysObjectQuerySchema,
   },
   responses: {
     200: {
@@ -69,16 +71,56 @@ registry.registerPath({
   },
 })
 
-// GET /api/v1/sysobject/usertable/:id
+// GET /api/v1/sysobject/references
 registry.registerPath({
   method: 'get',
-  path: '/api/v1/sysobject/usertable/{id}',
+  path: '/api/v1/sysobject/references',
   tags: ['SysObject'],
-  summary: 'Obtener tabla de usuario por ID',
-  description: 'Obtiene la estructura de una tabla de usuario (USER_TABLE) por su ID. Requiere autenticación.',
+  summary: 'Obtener referencias de un objeto SQL',
+  description: 'Obtiene los objetos que referencian al objeto SQL indicado por esquema y nombre. Requiere autenticación.',
   security: [{ BearerAuth: [] }],
   request: {
-    params: GetSysUsertableParamsSchema,
+    query: GetSysObjectReferencesQuerySchema,
+  },
+  responses: {
+    200: {
+      description: 'Lista de objetos que referencian al objeto SQL',
+      content: { 'application/json': { schema: SuccessResponseSchema } },
+    },
+    ...errorResponses('UnauthorizedException', 'ValidationException'),
+  },
+})
+
+// GET /api/v1/sysobject/dependencies
+registry.registerPath({
+  method: 'get',
+  path: '/api/v1/sysobject/dependencies',
+  tags: ['SysObject'],
+  summary: 'Obtener dependencias de un objeto SQL',
+  description: 'Obtiene los objetos usados por el objeto SQL indicado por esquema y nombre. Requiere autenticación.',
+  security: [{ BearerAuth: [] }],
+  request: {
+    query: GetSysObjectDependenciesQuerySchema,
+  },
+  responses: {
+    200: {
+      description: 'Lista de dependencias del objeto SQL',
+      content: { 'application/json': { schema: SuccessResponseSchema } },
+    },
+    ...errorResponses('UnauthorizedException', 'ValidationException'),
+  },
+})
+
+// GET /api/v1/sysobject/usertable/by-name
+registry.registerPath({
+  method: 'get',
+  path: '/api/v1/sysobject/usertable/by-name',
+  tags: ['SysObject'],
+  summary: 'Obtener tabla de usuario por esquema y nombre',
+  description: 'Obtiene la estructura de una tabla de usuario (USER_TABLE) por esquema y nombre. Requiere autenticación.',
+  security: [{ BearerAuth: [] }],
+  request: {
+    query: GetSysUsertableQuerySchema,
   },
   responses: {
     200: {

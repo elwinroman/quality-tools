@@ -1,6 +1,7 @@
 import { ArrowLeftToLine, ArrowRightToLine } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { ImperativePanelHandle } from 'react-resizable-panels'
+import { useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 
 import { FavoritoProvider } from '@/components/favoritos'
@@ -9,7 +10,8 @@ import { Navbar } from '@/components/navbar/Navbar'
 import { DialogSearchProvider } from '@/components/search/context/dialogSearchContext'
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup, Tabs, TabsContent } from '@/components/ui'
 import { cn } from '@/lib/utils'
-import { useAuthStore } from '@/zustand'
+import { parseQualifiedSysObjectName } from '@/utilities/sysobject-route.util'
+import { useAppStore, useAuthStore } from '@/zustand'
 
 import { Columns } from './components/Columns'
 import { DataTable } from './components/DataTable'
@@ -24,13 +26,28 @@ import { TabOption } from './constants/tab-options'
 import { useUserTableStore } from './store/usertable.store'
 
 export function UsertablePage() {
+  const { qualifiedName } = useParams()
   const database = useAuthStore((state) => state.authContext?.database)
+  const switchingDatabase = useAppStore((state) => state.switchingDatabase)
   const leftPanelRef = useRef<ImperativePanelHandle>(null)
   const [isCollapsed, setIsCollapsed] = useState(false)
   const loading = useUserTableStore((state) => state.loading)
   const object = useUserTableStore((state) => state.userTableObject)
+  const fetchUserTableByName = useUserTableStore((state) => state.fetchUserTableByName)
   const error = useUserTableStore((state) => state.userTableError)
   const updateError = useUserTableStore((state) => state.updateUsertableError)
+
+  useEffect(() => {
+    if (switchingDatabase) return
+
+    const parsedName = parseQualifiedSysObjectName(qualifiedName)
+    if (!parsedName) return
+
+    const { schemaName, objectName } = parsedName
+    if (object?.schemaName === schemaName && object.name === objectName) return
+
+    fetchUserTableByName(schemaName, objectName)
+  }, [fetchUserTableByName, object?.name, object?.schemaName, qualifiedName, switchingDatabase])
 
   useEffect(() => {
     if (!error) return
@@ -82,14 +99,9 @@ export function UsertablePage() {
 
               {/* Panel derecho: headers + tabs content */}
               <ResizablePanel>
-                <Tabs key={database} defaultValue={TabOption.Overview} className="flex h-full flex-col">
+                <Tabs key={database} defaultValue={TabOption.Structure} className="flex h-full flex-col">
                   <HeaderUsertable />
                   <HeaderTabsUsertable />
-
-                  {/* Tab Overview */}
-                  <TabsContent value={TabOption.Overview} className="flex-1 overflow-auto">
-                    {!object ? <UsertableEmptyState /> : <UsertableOverviewContent />}
-                  </TabsContent>
 
                   {/* Tab Estructura */}
                   <TabsContent value={TabOption.Structure} className={cn('flex-1 overflow-auto', object && !loading && 'px-4 py-4')}>
@@ -98,6 +110,11 @@ export function UsertablePage() {
                     ) : (
                       <DataTable columns={Columns} />
                     )}
+                  </TabsContent>
+
+                  {/* Tab Overview */}
+                  <TabsContent value={TabOption.Overview} className="flex-1 overflow-auto">
+                    {!object ? <UsertableEmptyState /> : <UsertableOverviewContent />}
                   </TabsContent>
 
                   {/* Tab Índices */}

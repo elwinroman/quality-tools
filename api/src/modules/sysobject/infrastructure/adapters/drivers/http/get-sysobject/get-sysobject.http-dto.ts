@@ -1,10 +1,8 @@
 import { z } from 'zod'
 
-export const GetSysObjectParamsSchema = z.object({
-  id: z.coerce
-    .number()
-    .int()
-    .refine(n => n > 0),
+export const GetSysObjectQuerySchema = z.object({
+  schema: z.string().trim().min(1),
+  name: z.string().trim().min(1),
 })
 
-export type GetSysObjectHttpDto = z.infer<typeof GetSysObjectParamsSchema>
+export type GetSysObjectHttpDto = z.infer<typeof GetSysObjectQuerySchema>

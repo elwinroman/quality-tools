@@ -27,7 +27,7 @@ describe('CryptoCode', () => {
     })
   })
 
-  it.skip('debería devolver un string encriptado con separadores "*"', () => {
+  it('debería devolver un string encriptado con separadores "*"', () => {
     messages.forEach(content => {
       if (content === '') expect(true).toBe(true) // si el message es vacío se podrá cifrar y descifrar pero no cumplirá la separación en 4 partes
 

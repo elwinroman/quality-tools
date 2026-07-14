@@ -1,7 +1,7 @@
 import { BaseError } from '@core/exceptions/base-error'
 import { InfrastructureError } from '@core/infrastructure-error.exception'
-import { logger } from '@core/logger/pino-instance'
 import { mapMSSQLError } from '@core/store/map-mssql-error'
+import { logger } from '@observability/infrastructure/logging/logger-instance'
 import { ApplicationError } from '@shared/application/application-error'
 import { SafeInternalServerErrorException, ValidationException } from '@shared/application/exceptions'
 import { DomainError } from '@shared/domain/domain-error'

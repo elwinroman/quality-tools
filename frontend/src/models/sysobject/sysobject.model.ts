@@ -38,3 +38,10 @@ export interface SysObject {
 export type FullSysObject = SysObject & {
   permission: Permission[]
 }
+
+export interface SysObjectRelation {
+  id: number | null
+  name: string
+  schemaName: string | null
+  typeDesc: string
+}

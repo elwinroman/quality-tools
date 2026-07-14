@@ -7,6 +7,26 @@ interface RetryAxiosRequestConfig extends AxiosRequestConfig {
   _retry?: boolean
 }
 
+let refreshAccessTokenPromise: Promise<string> | null = null
+
+async function refreshAccessToken(): Promise<string> {
+  if (!refreshAccessTokenPromise) {
+    refreshAccessTokenPromise = axios
+      .post(`${API_URL}/api/v1/auth/refresh-token`, {}, { withCredentials: true })
+      .then((response) => {
+        const newToken = response.data.data.accessToken
+        setAccessToken(newToken)
+
+        return newToken
+      })
+      .finally(() => {
+        refreshAccessTokenPromise = null
+      })
+  }
+
+  return refreshAccessTokenPromise
+}
+
 /**
  * Crea una instancia de Axios configurada para manejar peticiones HTTP
  * tanto para endpoints públicos como privados.
@@ -34,12 +54,7 @@ api.interceptors.response.use(
       originalRequest._retry = true
 
       try {
-        const response = await axios.post(`${API_URL}/api/v1/auth/refresh-token`, {}, { withCredentials: true })
-
-        const newToken = response.data.data.accessToken
-
-        // setea el nuevo token
-        setAccessToken(newToken)
+        const newToken = await refreshAccessToken()
 
         // asegurarse que headers esté definido
         if (!originalRequest.headers) originalRequest.headers = {}

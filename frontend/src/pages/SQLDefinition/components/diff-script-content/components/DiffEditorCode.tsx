@@ -38,7 +38,7 @@ export function DiffEditorCode() {
     if (normalizeWhitespace) modifiedCode = normalizeCode(modifiedCode)
   }
 
-  // código del editor original (objeto pre-producción)
+  // código del editor original (objeto producción)
   let originalCode = ''
   if (prodSysobject) {
     originalCode = getFormattedCodeForViewMode(prodSysobject, viewMode)

@@ -1,6 +1,7 @@
 import { ArrowLeftToLine, ArrowRightToLine } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { ImperativePanelHandle } from 'react-resizable-panels'
+import { useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 
 import { FavoritoProvider } from '@/components/favoritos'
@@ -8,21 +9,38 @@ import { DatabaseSwitchOverlay } from '@/components/loader'
 import { Navbar } from '@/components/navbar/Navbar'
 import { DialogSearchProvider } from '@/components/search/context/dialogSearchContext'
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup, Tabs, TabsContent } from '@/components/ui'
-import { useAuthStore } from '@/zustand'
+import { parseQualifiedSysObjectName } from '@/utilities/sysobject-route.util'
+import { useAppStore, useAuthStore } from '@/zustand'
 
-import { EditorCode, HeaderEditor, HeaderTabs, OverviewContent, PanelEditor } from './components'
+import { DependenciesContent, EditorCode, HeaderEditor, HeaderTabs, OverviewContent, PanelEditor } from './components'
 import { DiffScriptContent } from './components/diff-script-content/DiffScriptContent'
 import { TabOption } from './constants/tabs-options'
 import { useSysObjectStore } from './store/sysobject.store'
 
 export function SQLDefinitionPage() {
+  const { qualifiedName } = useParams()
   const database = useAuthStore((state) => state.authContext?.database)
+  const switchingDatabase = useAppStore((state) => state.switchingDatabase)
   const leftPanelRef = useRef<ImperativePanelHandle>(null)
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [activeTab, setActiveTab] = useState(TabOption.Script)
   const sysobject = useSysObjectStore((state) => state.sysobject)
+  const fetchSysObjectByName = useSysObjectStore((state) => state.fetchSysObjectByName)
   const error = useSysObjectStore((state) => state.errorObject)
   const updateError = useSysObjectStore((state) => state.updateErrorObject)
+
+  useEffect(() => {
+    if (switchingDatabase) return
+
+    const parsedName = parseQualifiedSysObjectName(qualifiedName)
+    if (!parsedName) return
+
+    const { schemaName, objectName } = parsedName
+    setActiveTab(TabOption.Script)
+    if (sysobject?.schemaName === schemaName && sysobject.name === objectName) return
+
+    fetchSysObjectByName(schemaName, objectName)
+  }, [fetchSysObjectByName, qualifiedName, switchingDatabase, sysobject?.name, sysobject?.schemaName])
 
   useEffect(() => {
     if (!error) return
@@ -93,6 +111,10 @@ export function SQLDefinitionPage() {
 
                   <TabsContent value={TabOption.Script} className="flex-1 overflow-hidden">
                     <EditorCode />
+                  </TabsContent>
+
+                  <TabsContent value={TabOption.Dependencies} className="flex-1 overflow-hidden">
+                    <DependenciesContent />
                   </TabsContent>
 
                   <TabsContent value={TabOption.Compare} className="flex-1 overflow-hidden">
