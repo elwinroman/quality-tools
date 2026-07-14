@@ -3,7 +3,8 @@ import { ForSysObjectRepositoryPort } from '@sysobject/domain/ports/drivens/for-
 import { SysObjectDependent, SysObjectRelationsResult } from '@sysobject/domain/schemas/sysobject'
 
 /**
- * Recupera los objetos que dependen del objeto consultado.
+ * Recupera los procedimientos, funciones, vistas y demás objetos
+ * que referencian el objeto consultado.
  */
 export class GetSysObjectDependentsUseCase {
   constructor(
@@ -15,7 +16,7 @@ export class GetSysObjectDependentsUseCase {
     const result = await this.sysObjectRepository.findDependentsBySchemaAndName(name, schema)
 
     if (result.meta?.warning) {
-      this.logger.warn('[sysobject] Fallback aplicado al recuperar dependientes', {
+      this.logger.warn('[sysobject] Fallback aplicado al recuperar referenciados', {
         actionDetails: {
           objectName: name,
           schema,
@@ -24,7 +25,7 @@ export class GetSysObjectDependentsUseCase {
       })
     }
 
-    this.logger.info('[sysobject] Dependientes de objeto recuperados', {
+    this.logger.info('[sysobject] Referencias al objeto recuperadas', {
       actionDetails: {
         objectName: name,
         schema,
