@@ -2,6 +2,7 @@ import { GetAllBusquedasRecientesUseCase } from '@busqueda-reciente/application/
 import { ForBusquedaRecienteRepositoryPort } from '@busqueda-reciente/domain/ports/drivens/for-busqueda-reciente-repository.port'
 import { ForSysObjectRepositoryPort, SysObject } from '@busqueda-reciente/domain/ports/drivens/for-sysobject-repository.port'
 import { BusquedaRecienteFilter, BusquedaRecienteRepoResponse } from '@busqueda-reciente/domain/schemas/busqueda-reciente'
+import { SysobjectIdsInconsistencyException } from '@core/exceptions/store/sysobject-ids-inconsistency.exception'
 import { Logger } from '@observability/domain/logger'
 import { Meta } from '@shared/domain/schemas/meta'
 import { TypeSysObjectEnum } from '@sysobject/domain/schemas/sysobject'
@@ -111,6 +112,23 @@ describe('GetAllBusquedasRecientesUseCase', () => {
       expect(requestedObjects).toEqual([rows.map(row => ({ schema: row.schema, name: row.objectName }))])
       expect(result.data).toEqual(rows.map((row, index) => ({ ...row, objectId: objectIds[index] })))
       expect(result.meta).toEqual(meta)
+    })
+  })
+
+  describe('inconsistencia de longitudes', () => {
+    it('debería lanzar un error cuando la cantidad de IDs no coincide con la de objetos', async () => {
+      const rows = [buildRow({ id: 'hash-1' }), buildRow({ id: 'hash-2', objectName: 'fn_total' })]
+      const meta: Meta = { total: rows.length, limit: LIMIT }
+      const repository = createFakeBusquedaRepository({ findMany: async () => ({ data: rows, meta }) })
+      const sysObjectRepository = createFakeSysObjectRepository({
+        findIDsByNameAndSchema: async () => [1001],
+      })
+      const useCase = new GetAllBusquedasRecientesUseCase(repository, sysObjectRepository, createFakeLogger().logger)
+
+      const execution = useCase.execute(FILTER, LIMIT)
+
+      await expect(execution).rejects.toThrowError(SysobjectIdsInconsistencyException)
+      await expect(execution).rejects.toThrow('[store] Inconsistencia en la recuperación de IDs: se esperaban 2 IDs y se recibieron 1')
     })
   })
 })

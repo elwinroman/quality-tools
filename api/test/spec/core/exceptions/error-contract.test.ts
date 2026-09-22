@@ -12,6 +12,7 @@ import { DatabaseConnectionErrorException } from '@core/exceptions/store/databas
 import { DatabasePreparedStatementErrorException } from '@core/exceptions/store/database-prepared-statement-error.exception'
 import { DatabaseRequestErrorException } from '@core/exceptions/store/database-request-error.exception'
 import { DatabaseTransactionErrorException } from '@core/exceptions/store/database-transaction-error.exception'
+import { SysobjectIdsInconsistencyException } from '@core/exceptions/store/sysobject-ids-inconsistency.exception'
 import { InfrastructureError } from '@core/infrastructure-error.exception'
 import { FavoritoAlreadyExistsException } from '@favorito/domain/exceptions/favorito-already-exists.exception'
 import { FavoritoNotFoundException } from '@favorito/domain/exceptions/favorito-not-found.exception'
@@ -155,6 +156,17 @@ const errorContractCases: ErrorContractCase[] = [
     type: 'DatabaseTransactionErrorException',
     detail: 'Hubo un error relacionado con la creación, confirmación y anulación de transacciones. ETRAN - Invalid transaction',
     message: '[db] Error en transacción: ETRAN - Invalid transaction',
+  },
+  {
+    name: 'SysobjectIdsInconsistencyException',
+    layer: 'infrastructure',
+    create: () => new SysobjectIdsInconsistencyException(2, 1),
+    status: 500,
+    errorCode: 5300,
+    title: 'Inconsistencia en los IDs de objetos',
+    type: 'SysobjectIdsInconsistencyException',
+    detail: 'El repositorio de objetos devolvió una cantidad de IDs distinta a la esperada. Se esperaban 2 IDs y se recibieron 1.',
+    message: '[store] Inconsistencia en la recuperación de IDs: se esperaban 2 IDs y se recibieron 1',
   },
   {
     name: 'RegisterSearchLogErrorException',
