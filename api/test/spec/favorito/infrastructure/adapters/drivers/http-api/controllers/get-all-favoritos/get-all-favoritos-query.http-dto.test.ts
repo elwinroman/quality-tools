@@ -56,4 +56,22 @@ describe('GetAllFavoritosQuerySchema', () => {
       expect(GetAllFavoritosQuerySchema.safeParse({ type: TypeSysObjectEnum.VIEW, limit: 'abc' }).success).toBe(false)
     })
   })
+
+  describe('rechazo de coerción laxa en limit', () => {
+    const base = { type: TypeSysObjectEnum.VIEW }
+
+    it('debería rechazar un booleano', () => {
+      expect(GetAllFavoritosQuerySchema.safeParse({ ...base, limit: true }).success).toBe(false)
+    })
+
+    it('debería rechazar un arreglo', () => {
+      expect(GetAllFavoritosQuerySchema.safeParse({ ...base, limit: ['5'] }).success).toBe(false)
+    })
+
+    it('debería rechazar cadenas hexadecimales, exponenciales y con espacios', () => {
+      expect(GetAllFavoritosQuerySchema.safeParse({ ...base, limit: '0x10' }).success).toBe(false)
+      expect(GetAllFavoritosQuerySchema.safeParse({ ...base, limit: '1e2' }).success).toBe(false)
+      expect(GetAllFavoritosQuerySchema.safeParse({ ...base, limit: ' 5 ' }).success).toBe(false)
+    })
+  })
 })

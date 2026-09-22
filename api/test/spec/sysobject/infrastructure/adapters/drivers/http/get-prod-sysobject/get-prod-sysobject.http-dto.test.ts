@@ -67,6 +67,22 @@ describe('GetProdSysObjectParamsSchema', () => {
     })
   })
 
+  describe('rechazo de coerción laxa en actionType', () => {
+    it('debería rechazar un booleano', () => {
+      expect(GetProdSysObjectParamsSchema.safeParse({ ...validParams, actionType: true }).success).toBe(false)
+    })
+
+    it('debería rechazar un arreglo', () => {
+      expect(GetProdSysObjectParamsSchema.safeParse({ ...validParams, actionType: ['2'] }).success).toBe(false)
+    })
+
+    it('debería rechazar cadenas hexadecimales, exponenciales y con espacios', () => {
+      expect(GetProdSysObjectParamsSchema.safeParse({ ...validParams, actionType: '0x2' }).success).toBe(false)
+      expect(GetProdSysObjectParamsSchema.safeParse({ ...validParams, actionType: '1e0' }).success).toBe(false)
+      expect(GetProdSysObjectParamsSchema.safeParse({ ...validParams, actionType: ' 2 ' }).success).toBe(false)
+    })
+  })
+
   describe('campos requeridos', () => {
     it('debería rechazar la ausencia de name, schema o actionType', () => {
       expect(GetProdSysObjectParamsSchema.safeParse({ schema: 'dbo', actionType: TIPO_ACCION.BusquedaRegular }).success).toBe(false)

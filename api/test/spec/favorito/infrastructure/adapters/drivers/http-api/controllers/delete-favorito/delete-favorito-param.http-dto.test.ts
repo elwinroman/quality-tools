@@ -23,4 +23,20 @@ describe('DeleteFavoritoParamsSchema', () => {
       expect(DeleteFavoritoParamsSchema.safeParse({ id: 'abc' }).success).toBe(false)
     })
   })
+
+  describe('rechazo de coerción laxa en id', () => {
+    it('debería rechazar un booleano', () => {
+      expect(DeleteFavoritoParamsSchema.safeParse({ id: true }).success).toBe(false)
+    })
+
+    it('debería rechazar un arreglo', () => {
+      expect(DeleteFavoritoParamsSchema.safeParse({ id: ['5'] }).success).toBe(false)
+    })
+
+    it('debería rechazar cadenas hexadecimales, exponenciales y con espacios', () => {
+      expect(DeleteFavoritoParamsSchema.safeParse({ id: '0x10' }).success).toBe(false)
+      expect(DeleteFavoritoParamsSchema.safeParse({ id: '1e2' }).success).toBe(false)
+      expect(DeleteFavoritoParamsSchema.safeParse({ id: ' 5 ' }).success).toBe(false)
+    })
+  })
 })

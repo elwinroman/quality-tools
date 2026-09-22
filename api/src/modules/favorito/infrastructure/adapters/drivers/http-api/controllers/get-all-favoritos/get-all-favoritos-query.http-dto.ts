@@ -1,3 +1,4 @@
+import { strictIntegerSchema } from '@shared/infrastructure/schemas/strict-integer'
 import { TypeSysObject, TypeSysObjectEnum } from '@sysobject/domain/schemas/sysobject'
 import { z } from 'zod'
 
@@ -8,7 +9,7 @@ export const GetAllFavoritosQuerySchema = z.object({
     .refine(val => Object.values(TypeSysObjectEnum).includes(val as TypeSysObject), {
       message: `Type must be one of: ${Object.values(TypeSysObjectEnum).join(', ')}`,
     }),
-  limit: z.coerce.number().int().min(1).max(100),
+  limit: strictIntegerSchema.pipe(z.number().int().min(1).max(100)),
 })
 
 export type GetAllFavoritosQuery = z.infer<typeof GetAllFavoritosQuerySchema>
