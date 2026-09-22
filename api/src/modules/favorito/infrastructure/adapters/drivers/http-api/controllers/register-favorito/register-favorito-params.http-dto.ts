@@ -2,8 +2,8 @@ import { ValidTypeSysObject, ValidTypeSysObjectValues } from '@sysobject/domain/
 import { z } from 'zod'
 
 export const RegisterFavoritoParamsSchema = z.object({
-  schema: z.string(),
-  objectName: z.string(),
+  schema: z.string().trim().min(1),
+  objectName: z.string().trim().min(1),
   type: z
     .string()
     .transform(val => val.toUpperCase())

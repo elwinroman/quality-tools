@@ -54,4 +54,34 @@ describe('RegisterFavoritoParamsSchema', () => {
       expect(resultado.success).toBe(false)
     })
   })
+
+  describe('schema y objectName', () => {
+    it('debería rechazar un schema vacío', () => {
+      const resultado = RegisterFavoritoParamsSchema.safeParse({ schema: '', objectName: 'fn_total', type: TypeSysObjectEnum.VIEW })
+
+      expect(resultado.success).toBe(false)
+    })
+
+    it('debería rechazar un objectName vacío', () => {
+      const resultado = RegisterFavoritoParamsSchema.safeParse({ schema: 'dbo', objectName: '', type: TypeSysObjectEnum.VIEW })
+
+      expect(resultado.success).toBe(false)
+    })
+
+    it('debería rechazar valores que son solo espacios', () => {
+      const schemaEnBlanco = RegisterFavoritoParamsSchema.safeParse({ schema: '   ', objectName: 'fn_total', type: TypeSysObjectEnum.VIEW })
+      const objectNameEnBlanco = RegisterFavoritoParamsSchema.safeParse({ schema: 'dbo', objectName: '   ', type: TypeSysObjectEnum.VIEW })
+
+      expect(schemaEnBlanco.success).toBe(false)
+      expect(objectNameEnBlanco.success).toBe(false)
+    })
+
+    it('debería recortar los espacios sobrantes', () => {
+      expect(RegisterFavoritoParamsSchema.parse({ schema: ' dbo ', objectName: ' fn_total ', type: TypeSysObjectEnum.VIEW })).toEqual({
+        schema: 'dbo',
+        objectName: 'fn_total',
+        type: TypeSysObjectEnum.VIEW,
+      })
+    })
+  })
 })
