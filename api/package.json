@@ -39,7 +39,7 @@
     "inquirer": "^12.11.1",
     "iovalkey": "^0.3.1",
     "jsonwebtoken": "9.0.2",
-    "mssql": "11.0.1",
+    "mssql": "11.0.2",
     "picocolors": "1.0.1",
     "pino": "^9.6.0",
     "swagger-ui-express": "^5.0.1",
