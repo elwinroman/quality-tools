@@ -1,7 +1,7 @@
 import { Context, Logger, Message } from '@observability/domain/logger'
 import pino, { TransportTargetOptions } from 'pino'
 
-import { LOG_LEVEL, NODE_ENV } from '@/config/enviroment'
+import { CONSOLE_LOG_LEVEL, NODE_ENV } from '@/config/enviroment'
 import { MODE } from '@/constants/commons'
 
 import { buildLogContext } from '../log-attributes.mapper'
@@ -12,9 +12,9 @@ export interface PinoLoggerDependencies {
 
 function buildStdoutTransport(): TransportTargetOptions {
   if (NODE_ENV !== MODE.production) {
-    return { target: 'pino-pretty', options: { messageKey: 'message', colorize: true }, level: LOG_LEVEL }
+    return { target: 'pino-pretty', options: { messageKey: 'message', colorize: true }, level: CONSOLE_LOG_LEVEL }
   }
-  return { target: 'pino/file', options: { destination: 1 }, level: LOG_LEVEL }
+  return { target: 'pino/file', options: { destination: 1 }, level: CONSOLE_LOG_LEVEL }
 }
 
 /**
@@ -28,7 +28,7 @@ export class PinoLogger implements Logger {
     const enabled = dependencies.isEnabled ?? true
 
     this.stdoutLogger = pino({
-      level: 'debug',
+      level: CONSOLE_LOG_LEVEL,
       enabled,
       transport: { targets: [buildStdoutTransport()] },
       messageKey: 'message',
@@ -56,6 +56,8 @@ export class PinoLogger implements Logger {
   }
 
   private call(level: pino.Level, message: Message, context?: Context) {
+    if (!this.stdoutLogger.isLevelEnabled(level)) return
+
     const loggerMessage = {
       message,
       ...buildLogContext(context),

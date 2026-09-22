@@ -1,6 +1,6 @@
 import { Logger } from '@observability/domain/logger'
 
-import { OTEL_LOGS_ENABLED } from '@/config/enviroment'
+import { CONSOLE_LOGS_ENABLED, OTEL_LOGS_ENABLED } from '@/config/enviroment'
 
 import { CompositeLogger } from './composite-logger'
 import { OpenTelemetryLogger } from './opentelemetry/opentelemetry-logger'
@@ -16,8 +16,12 @@ export interface LoggerComposition {
  * Aqui se decide que adapters concretos participan: consola, OTLP, u otros en el futuro.
  */
 export function createLoggerComposition(): LoggerComposition {
-  const loggers: Logger[] = [new PinoLogger()]
+  const loggers: Logger[] = []
   let otelLogger: OpenTelemetryLogger | null = null
+
+  if (CONSOLE_LOGS_ENABLED) {
+    loggers.push(new PinoLogger())
+  }
 
   if (OTEL_LOGS_ENABLED) {
     otelLogger = new OpenTelemetryLogger()

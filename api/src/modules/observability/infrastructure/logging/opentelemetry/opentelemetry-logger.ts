@@ -9,6 +9,7 @@ import {
   OTEL_EXPORTER_OTLP_LOGS_ENDPOINT,
   OTEL_LOG_EXPORT_INTERVAL,
   OTEL_LOG_EXPORT_TIMEOUT,
+  LOG_EXPORT_LEVEL,
   OTEL_RESOURCE_ATTRIBUTES,
   OTEL_SERVICE_NAME,
 } from '@/config/enviroment'
@@ -69,6 +70,8 @@ export class OpenTelemetryLogger implements Logger {
   }
 
   private emit(level: LoggerLevel, message: Message, context?: Context): void {
+    if (severityNumberByLevel[level] < severityNumberByLevel[LOG_EXPORT_LEVEL]) return
+
     const logContext = buildLogContext(context)
 
     this.logger.emit({

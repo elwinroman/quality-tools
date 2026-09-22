@@ -45,13 +45,17 @@ const envSchema = z
     SENTRY_DNS: z.string().url(),
     NODE_ENV: z.enum(['development', 'production', 'test']).optional().default('development'),
 
-    // Observabilidad
-    LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error', 'fatal']).optional().default('info'),
+    // Logging de aplicación
+    CONSOLE_LOGS_ENABLED: z.preprocess(val => val === undefined || val === 'true', z.boolean()),
+    CONSOLE_LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error', 'fatal']).optional().default('warn'),
+
+    // Observabilidad OpenTelemetry
     OTEL_DEPLOYMENT_ENV: z.enum(['development', 'cert', 'production']),
     OTEL_LOGS_ENABLED: z
       .preprocess(val => val === 'true', z.boolean())
       .optional()
       .default(false),
+    LOG_EXPORT_LEVEL: z.enum(['debug', 'info', 'warn', 'error', 'fatal']).optional().default('info'),
     OTEL_SERVICE_NAME: z.string().min(1).default('quality-tools-api'),
     OTEL_EXPORTER_OTLP_ENDPOINT: z.string().url().default('http://otel-collector:4318'),
     OTEL_EXPORTER_OTLP_LOGS_ENDPOINT: z.string().url().optional(),
@@ -167,9 +171,11 @@ export const {
   SENTRY_DNS,
   NODE_ENV,
 
-  LOG_LEVEL,
+  CONSOLE_LOGS_ENABLED,
+  CONSOLE_LOG_LEVEL,
   OTEL_DEPLOYMENT_ENV,
   OTEL_LOGS_ENABLED,
+  LOG_EXPORT_LEVEL,
   OTEL_SERVICE_NAME,
   OTEL_EXPORTER_OTLP_ENDPOINT,
   OTEL_EXPORTER_OTLP_LOGS_ENDPOINT,
