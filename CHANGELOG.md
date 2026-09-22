@@ -71,7 +71,7 @@ También incorpora cambios operativos relevantes: reorganización de archivos de
 - Se migró el logging de una integración directa `pino-loki` a una arquitectura basada en OpenTelemetry.
 - Se reorganizó el logger bajo el módulo `observability`, conservando logging local con `pino` y agregando exportación OTLP cuando está habilitada.
 - Se desacopló el contexto de logger de los casos de uso mediante adaptadores de observabilidad.
-- Se reemplazaron variables `LOKI_*` por configuración `LOG_LEVEL` y `OTEL_*`.
+- Se reemplazaron variables `LOKI_*` por configuración explícita `CONSOLE_LOG_LEVEL`, `LOG_EXPORT_LEVEL` y `OTEL_*`.
 
 #### Configuración y despliegue
 

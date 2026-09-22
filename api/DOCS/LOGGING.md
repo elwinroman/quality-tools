@@ -87,6 +87,34 @@ El segundo parámetro de `logger.info()` es un objeto con datos relevantes para 
 | `error` | Error que afecta la operación         | Error de BD, servicio externo caído |
 | `fatal` | Error que detiene la aplicación       | No se puede conectar a BD al inicio |
 
+## Configuración recomendada para producción
+
+```env
+# Logging de la aplicación
+CONSOLE_LOGS_ENABLED=true
+CONSOLE_LOG_LEVEL=warn
+
+# Observabilidad OpenTelemetry
+OTEL_DEPLOYMENT_ENV=production
+OTEL_LOGS_ENABLED=true
+LOG_EXPORT_LEVEL=info
+
+# Error tracking
+SENTRY_REPORTING_ENABLED=true
+```
+
+| Destino | Nivel recomendado | Propósito |
+| ------- | ----------------- | --------- |
+| Consola | `warn` | Diagnóstico inmediato sin escribir cada operación exitosa en `stdout` |
+| OTLP/Loki | `info` | Operación, correlación y análisis histórico mediante exportación por lotes |
+| Sentry | Errores capturados | Agrupación, stack traces y alertas de errores accionables |
+
+`CONSOLE_LOG_LEVEL` y `LOG_EXPORT_LEVEL` son umbrales explícitos e independientes. Sus defaults son `warn` e `info`, respectivamente. Los eventos descartados se filtran antes de construir y serializar el contexto del request.
+
+No usar `OTEL_LOG_LEVEL` para este propósito: OpenTelemetry reserva esa variable para controlar sus diagnósticos internos y puede imprimir payloads del exportador en la consola.
+
+Si las pruebas de carga muestran latencia por `stdout`, establecer `CONSOLE_LOGS_ENABLED=false`. Esto no desactiva OTLP/Loki ni Sentry, y se conservan los mensajes directos de emergencia cuando falla la propia infraestructura de observabilidad.
+
 ## Queries útiles en Grafana Loki (LogQL)
 
 ### Filtrar por módulo

@@ -114,13 +114,20 @@ El backend local carga solo `.env.local`. No hay fallback silencioso a `.env.bac
 | `SENTRY_REPORTING_ENABLED` | Habilita/deshabilita el envio de errores (`true`/`false`) | **obligatorio** |
 | `SENTRY_DNS` | URL DSN proporcionada por Sentry | - |
 
-### Observabilidad
+### Logging de la aplicacion
 
 | Variable | Descripcion | Default |
 |---|---|---|
-| `LOG_LEVEL` | Nivel minimo de logs locales (`debug`, `info`, `warn`, `error`, `fatal`) | `info` |
+| `CONSOLE_LOGS_ENABLED` | Habilita/deshabilita el adaptador de consola | `true` |
+| `CONSOLE_LOG_LEVEL` | Nivel minimo exclusivo de consola (`debug`, `info`, `warn`, `error`, `fatal`) | `warn` |
+
+### Observabilidad OpenTelemetry
+
+| Variable | Descripcion | Default |
+|---|---|---|
 | `OTEL_DEPLOYMENT_ENV` | Ambiente real de despliegue para OpenTelemetry (`development`, `cert`, `production`) | **obligatorio** |
 | `OTEL_LOGS_ENABLED` | Habilita/deshabilita envio de logs por OTLP al Collector | `false` |
+| `LOG_EXPORT_LEVEL` | Nivel minimo de logs exportados al Collector/Loki | `info` |
 | `OTEL_METRICS_ENABLED` | Habilita/deshabilita metricas HTTP/autoinstrumentadas por OTLP al Collector | `false` |
 | `OTEL_SERVICE_NAME` | Nombre del servicio para OpenTelemetry | `quality-tools-api` |
 | `OTEL_EXPORTER_OTLP_ENDPOINT` | Endpoint base OTLP HTTP del Collector | `http://otel-collector:4318` |
@@ -134,6 +141,24 @@ El backend local carga solo `.env.local`. No hay fallback silencioso a `.env.bac
 
 La API no envia logs directamente a Loki. Cuando `OTEL_LOGS_ENABLED=true`, envia logs al OpenTelemetry Collector y el Collector los reenvia a Loki.
 `OTEL_DEPLOYMENT_ENV` es obligatorio para evitar mezclar logs de `development`, `cert` y `production` en Grafana/Loki.
+
+### Perfil recomendado para produccion
+
+```env
+# Logging de la aplicacion
+CONSOLE_LOGS_ENABLED=true
+CONSOLE_LOG_LEVEL=warn
+
+# Observabilidad OpenTelemetry
+OTEL_DEPLOYMENT_ENV=production
+OTEL_LOGS_ENABLED=true
+LOG_EXPORT_LEVEL=info
+
+# Error tracking
+SENTRY_REPORTING_ENABLED=true
+```
+
+Este perfil limita la consola a eventos recuperables o graves, conserva en Loki los eventos operativos desde `info` y mantiene Sentry para errores accionables. Si la salida estandar vuelve a afectar la latencia bajo carga, usar `CONSOLE_LOGS_ENABLED=false`; los diagnosticos de emergencia del sistema de observabilidad permanecen activos.
 
 ### Cache (Valkey/Redis)
 
