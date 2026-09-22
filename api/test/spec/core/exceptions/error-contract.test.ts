@@ -9,6 +9,7 @@ import { CacheConnectionErrorException } from '@core/exceptions/cache/cache-conn
 import { CacheCredentialNotFoundException } from '@core/exceptions/cache/cache-credential-not-found.exception'
 import { DecryptionException } from '@core/exceptions/decryption.exception'
 import { DatabaseConnectionErrorException } from '@core/exceptions/store/database-connection-error.exception'
+import { DatabaseErrorMappingException } from '@core/exceptions/store/database-error-mapping.exception'
 import { DatabasePreparedStatementErrorException } from '@core/exceptions/store/database-prepared-statement-error.exception'
 import { DatabaseRequestErrorException } from '@core/exceptions/store/database-request-error.exception'
 import { DatabaseTransactionErrorException } from '@core/exceptions/store/database-transaction-error.exception'
@@ -156,6 +157,17 @@ const errorContractCases: ErrorContractCase[] = [
     type: 'DatabaseTransactionErrorException',
     detail: 'Hubo un error relacionado con la creación, confirmación y anulación de transacciones. ETRAN - Invalid transaction',
     message: '[db] Error en transacción: ETRAN - Invalid transaction',
+  },
+  {
+    name: 'DatabaseErrorMappingException',
+    layer: 'infrastructure',
+    create: () => new DatabaseErrorMappingException('EMAP', 'Unmapped error'),
+    status: 500,
+    errorCode: 5005,
+    title: 'Error de base de datos no clasificado',
+    type: 'DatabaseErrorMappingException',
+    detail: 'No se pudo clasificar el error de base de datos. EMAP - Unmapped error',
+    message: '[db] Error de base de datos no clasificado: EMAP - Unmapped error',
   },
   {
     name: 'SysobjectIdsInconsistencyException',

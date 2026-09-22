@@ -1,5 +1,6 @@
 import {
   DatabaseConnectionErrorException,
+  DatabaseErrorMappingException,
   DatabasePreparedStatementErrorException,
   DatabaseRequestErrorException,
   DatabaseTransactionErrorException,
@@ -10,19 +11,24 @@ import sql from 'mssql'
 /**
  * Mapea un error de MSSQL a un error de dominio específico.
  *
- * @param err - Instancia del error de MSSQL (RequestError, PreparedStatementError o TransactionError).
+ * La clasificación usa `instanceof`, de modo que una subclase de cualquiera de
+ * los errores conocidos sigue coincidiendo y el mapeo no depende del nombre de
+ * la clase (frágil ante renombres o minificación).
+ *
+ * @param err - Instancia del error de MSSQL (RequestError, PreparedStatementError, TransactionError o ConnectionError).
  * @returns Una instancia de un error de dominio correspondiente.
  */
 export function mapMSSQLError(
   err: sql.RequestError | sql.PreparedStatementError | sql.TransactionError | sql.ConnectionError,
 ): InfrastructureError {
-  const errorMap: { [key: string]: new (code: string, message: string) => InfrastructureError } = {
-    ConnectionError: DatabaseConnectionErrorException,
-    RequestError: DatabaseRequestErrorException,
-    PreparedStatementError: DatabasePreparedStatementErrorException,
-    TransactionError: DatabaseTransactionErrorException,
-  }
+  // Se leen antes de estrechar el tipo: en el fallback TypeScript reduce la
+  // unión a `never` y ya no permitiría acceder a `code`/`message`.
+  const { code, message } = err
 
-  const errorClass = errorMap[err.constructor.name] || InfrastructureError
-  return new errorClass(err.code, err.message)
+  if (err instanceof sql.ConnectionError) return new DatabaseConnectionErrorException(code, message)
+  if (err instanceof sql.RequestError) return new DatabaseRequestErrorException(code, message)
+  if (err instanceof sql.PreparedStatementError) return new DatabasePreparedStatementErrorException(code, message)
+  if (err instanceof sql.TransactionError) return new DatabaseTransactionErrorException(code, message)
+
+  return new DatabaseErrorMappingException(code, message, err)
 }
