@@ -1,0 +1,68 @@
+name: API tests
+
+on:
+  push:
+    branches: [develop, main]
+    paths:
+      - 'api/**'
+      - '.github/workflows/api-tests.yml'
+  pull_request:
+    branches: [develop, main]
+    paths:
+      - 'api/**'
+      - '.github/workflows/api-tests.yml'
+
+# Cancel the previous run when a newer push arrives.
+concurrency:
+  group: api-tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: api
+
+    # Tests are hermetic, but `src/config/enviroment.ts` validates the environment
+    # with zod and calls `process.exit(1)` when something is missing. These dummy
+    # values are enough: nothing connects to a database or to the cache.
+    env:
+      NODE_ENV: test
+      OTEL_DEPLOYMENT_ENV: development
+      PREPROD_DBSERVER: ci
+      PREPROD_DBNAME: ci
+      PREPROD_DBUSERNAME: ci
+      PREPROD_DBPASSWORD: ci
+      DBSERVER: ci
+      DBNAME: ci
+      DBUSERNAME: ci
+      DBPASSWORD: ci
+      SENTRY_DNS: https://example.ingest.sentry.io/1
+      CACHE_HOST: localhost
+      CACHE_PASSWORD: ci
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.13.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: api/pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm run validate-typescript
+
+      - name: Lint
+        run: pnpm run lint
+
+      - name: Unit tests
+        run: pnpm exec vitest run
