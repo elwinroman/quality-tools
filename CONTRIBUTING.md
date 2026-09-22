@@ -2,7 +2,11 @@
 
 ## Reglas para el código
 Para garantizar la consistencia en todo el código fuente, ten en cuenta estas reglas mientras trabajas:
-- Todas las funcionalidades o bug fixes deben ser testeados uno o más specs (unit-test)
+- **El suite de tests debe seguir en verde.** No se mergea un PR con tests rojos.
+- **Toda funcionalidad nueva o corrección de bug necesita un test unitario** que falle sin el cambio y pase con él. Un test que pasa antes y después no prueba nada.
+- **No hace falta test cuando el cambio no altera comportamiento**: documentación, configuración, renombres o formato.
+- Los tests viven en `api/test/spec/` y se ejecutan con `pnpm exec vitest run` desde `api/`.
+- **Los tests importan el archivo concreto, nunca un barrel** como `@core/utils` o `@core/store`. Esos barrels alcanzan `valkey-client.ts`, que abre una conexión real a la caché al importarse, y `@/config/enviroment` puede terminar el proceso. Un test que importa un barrel deja de ser hermético.
 - Todos los métodos de la API deben ser documentados
 - Se recomienda seguir [Guia de Estilo de Javascript de Google](https://google.github.io/styleguide/jsguide.html)
 
@@ -50,6 +54,8 @@ Debe ser uno de los siguientes
 * **refactor**: Un cambio de código que no arregla un bug ni agrega una característica.
 * **perf**: Un cambio de código que mejora el rendimiento.
 * **test**: Añadir pruebas faltantes o corregir pruebas existentes.
+* **build**: Cambios en el sistema de build o en dependencias externas (swc, tsconfig, vite, lockfiles).
+* **ci**: Cambios en la configuración de integración continua (workflows, pipelines).
 * **chore**: Cambios a la configuración del build o herramientas auxiliares y librerías como documentación de generación.
 
 ### Scope
@@ -58,6 +64,8 @@ El scope o ámbito debe ser el nombre del módulo afectado (tal y como lo percib
 La siguiente es la lista de scope admitidos:
 - frontend
 - api
+
+Se puede omitir el scope cuando el cambio no pertenece a un módulo, por ejemplo archivos de raíz como `README.md`, `CHANGELOG.md`, `CONTRIBUTING.md` o `.github/`. En ese caso el encabezado queda como `docs: <subject>` o `ci: <subject>`.
 
 ### Referencia para contribuciones
 Mas información: 
