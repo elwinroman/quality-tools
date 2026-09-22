@@ -4,12 +4,12 @@ import { OTLPLogExporter } from '@opentelemetry/exporter-logs-otlp-http'
 import { BatchLogRecordProcessor, LoggerProvider } from '@opentelemetry/sdk-logs'
 
 import {
+  LOG_EXPORT_LEVEL,
   OTEL_DEPLOYMENT_ENV,
   OTEL_EXPORTER_OTLP_ENDPOINT,
   OTEL_EXPORTER_OTLP_LOGS_ENDPOINT,
   OTEL_LOG_EXPORT_INTERVAL,
   OTEL_LOG_EXPORT_TIMEOUT,
-  LOG_EXPORT_LEVEL,
   OTEL_RESOURCE_ATTRIBUTES,
   OTEL_SERVICE_NAME,
 } from '@/config/enviroment'
