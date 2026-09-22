@@ -13,12 +13,13 @@ import { BaseError } from '@core/exceptions/base-error'
  * ```typescript
  * export class InvalidCredentialsException extends DomainError {
  *   readonly type = 'InvalidCredentialsException'
- *   readonly title = 'Credenciales inválidas'
- *   readonly detail = 'Usuario o contraseña incorrectos'
- *   readonly metadata = { status: 401, errorCode: 2000 }
+ *   static readonly title = 'Autenticación fallida'
+ *   readonly detail: string
+ *   static readonly metadata = { status: 401, errorCode: 2000 }
  *
- *   constructor() {
+ *   constructor(msgReason: string) {
  *     super('[auth] Credenciales inválidas')
+ *     this.detail = `No se pudo establecer conexión con el servidor. ${msgReason}`
  *   }
  * }
  * ```

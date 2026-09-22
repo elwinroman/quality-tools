@@ -13,13 +13,13 @@ import { BaseError } from '@core/exceptions/base-error'
  * ```typescript
  * export class ValidationException extends ApplicationError {
  *   readonly type = 'ValidationException'
- *   readonly title = 'Error de validación'
+ *   static readonly title = 'Parámetros inválidos'
  *   readonly detail: string
- *   readonly metadata = { status: 422, errorCode: 1000 }
+ *   static readonly metadata = { status: 422, errorCode: 1000 }
  *
- *   constructor(detail: string) {
- *     super('[validation] Parámetros inválidos')
- *     this.detail = detail
+ *   constructor(errors: string[]) {
+ *     super(`[validation] Parámetros inválidos en el payload: ${errors.join('; ')}`)
+ *     this.detail = 'Algunos campos no cumplen con el formato esperado. Por favor, revise los campos y vuelva a intentarlo.'
  *   }
  * }
  * ```
