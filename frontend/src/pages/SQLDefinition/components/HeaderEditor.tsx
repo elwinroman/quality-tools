@@ -29,9 +29,9 @@ export function HeaderEditor({ activeTab }: Props) {
     if (!sysobject) return
 
     if (currentFavorito) {
-      deleteFavorito(currentFavorito.id)
+      deleteFavorito(currentFavorito.schema, currentFavorito.objectName, currentFavorito.type)
     } else {
-      upsertFavorito(sysobject.schemaName, sysobject.name, sysobject.type)
+      upsertFavorito(sysobject.schemaName, sysobject.name, sysobject.type, true)
     }
   }
 

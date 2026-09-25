@@ -7,7 +7,7 @@ import { CollapsibleSection } from './CollapsibleSection'
 
 interface Props {
   favoritos: Favorito[]
-  onDelete(id: number): void
+  onDelete(schema: string, objectName: string, type: string): void
   onSelect(schema: string, name: string): void
   activeObjectName?: string
   activeSchema?: string
@@ -21,9 +21,9 @@ export function FavoritosList({ favoritos, onDelete, onSelect, activeObjectName,
     onSelect(schema, name)
   }
 
-  const handleDelete = (e: React.MouseEvent<HTMLButtonElement>, id: number) => {
+  const handleDelete = (e: React.MouseEvent<HTMLButtonElement>, fav: Favorito) => {
     e.stopPropagation()
-    onDelete(id)
+    onDelete(fav.schema, fav.objectName, fav.type)
   }
 
   if (favoritos.length === 0) {
@@ -81,7 +81,7 @@ export function FavoritosList({ favoritos, onDelete, onSelect, activeObjectName,
               type="button"
               title="Quitar de favoritos"
               className="text-primary absolute top-1/2 right-2 -translate-y-1/2 cursor-pointer opacity-0 transition-opacity group-hover/fav:opacity-100"
-              onClick={(e) => handleDelete(e, fav.id)}
+              onClick={(e) => handleDelete(e, fav)}
             >
               <X size={14} />
             </button>

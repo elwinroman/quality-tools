@@ -1,17 +1,17 @@
 import { useState } from 'react'
 import { toast } from 'sonner'
 
+import { NEUTRAL_TOAST_CLASS } from '@/components/ui/sonner'
 import useFetchAndLoad from '@/hooks/useFetchAndLoad'
 import type { ApiSysObjectType } from '@/models/sysobject'
 
-import type { Favorito } from '../models/favorito.model'
-import { deleteFavoritoService, getFavoritosService, upsertFavoritoService } from '../services/favorito.service'
+import type { Favorito, UpsertFavoritoResponse } from '../models/favorito.model'
+import { getFavoritosService, upsertFavoritoService } from '../services/favorito.service'
 
 export const useFavoritos = (type: ApiSysObjectType) => {
   const [favoritos, setFavoritos] = useState<Favorito[]>([])
   const { callEndpoint, loading } = useFetchAndLoad<Favorito[]>()
-  const { callEndpoint: callUpsertEndpoint } = useFetchAndLoad<{ message: string }>()
-  const { callEndpoint: callDeleteEndpoint } = useFetchAndLoad<{ data: { msg: string } }>()
+  const { callEndpoint: callUpsertEndpoint } = useFetchAndLoad<UpsertFavoritoResponse>()
 
   const getFavoritos = async () => {
     try {
@@ -22,26 +22,30 @@ export const useFavoritos = (type: ApiSysObjectType) => {
     }
   }
 
-  const upsertFavorito = async (schema: string, objectName: string, objectType: string) => {
+  const upsertFavorito = async (schema: string, objectName: string, objectType: string, isActive: boolean) => {
     try {
-      await callUpsertEndpoint(upsertFavoritoService({ schema, objectName, type: objectType }))
+      const response = await callUpsertEndpoint(upsertFavoritoService({ schema, objectName, type: objectType, isActive }))
+      const favorito = response.data.data
       await getFavoritos()
-      toast.success('Success', { description: `${objectName} agregado a favoritos` })
+
+      if (!favorito) {
+        // El backend no escribió nada: ya estaba en el estado pedido. No es un error.
+        toast(`${objectName} ya no estaba en favoritos`, { className: NEUTRAL_TOAST_CLASS })
+      } else if (favorito.isActive) {
+        toast.success(`${objectName} agregado a favoritos`)
+      } else {
+        // Neutro a propósito: quitar un favorito no es una advertencia.
+        toast(`${objectName} eliminado de favoritos`, { className: NEUTRAL_TOAST_CLASS })
+      }
     } catch (err) {
       console.error('Error al registrar favorito: ', err)
+      toast.error(`No se pudo actualizar ${objectName} en favoritos`)
     }
   }
 
-  const deleteFavorito = async (id: number) => {
-    try {
-      const favorito = favoritos.find((f) => f.id === id)
-      await callDeleteEndpoint(deleteFavoritoService(id))
-      setFavoritos((prev) => prev.filter((f) => f.id !== id))
-      toast.warning('Warning', { description: `${favorito?.objectName ?? 'Elemento'} eliminado de favoritos` })
-    } catch (err) {
-      console.error('Error al eliminar favorito: ', err)
-    }
-  }
+  /** Quitar de favoritos es el mismo upsert con isActive en false. */
+  const deleteFavorito = async (schema: string, objectName: string, objectType: string) =>
+    upsertFavorito(schema, objectName, objectType, false)
 
   const isFavorito = (objectName: string, schema: string): Favorito | undefined => {
     return favoritos.find((f) => f.objectName === objectName && f.schema === schema)

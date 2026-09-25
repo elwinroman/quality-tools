@@ -9,8 +9,8 @@ import type { Favorito } from '../models/favorito.model'
 interface FavoritoContextType {
   favoritos: Favorito[]
   getFavoritos(): Promise<void>
-  upsertFavorito(schema: string, objectName: string, type: string): Promise<void>
-  deleteFavorito(id: number): Promise<void>
+  upsertFavorito(schema: string, objectName: string, type: string, isActive: boolean): Promise<void>
+  deleteFavorito(schema: string, objectName: string, type: string): Promise<void>
   isFavorito(objectName: string, schema: string): Favorito | undefined
   loading: boolean
 }

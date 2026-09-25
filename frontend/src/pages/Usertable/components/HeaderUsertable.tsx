@@ -18,9 +18,9 @@ export function HeaderUsertable() {
     if (!hasObject) return
 
     if (currentFavorito) {
-      deleteFavorito(currentFavorito.id)
+      deleteFavorito(currentFavorito.schema, currentFavorito.objectName, currentFavorito.type)
     } else {
-      upsertFavorito(object.schemaName, object.name, object.type)
+      upsertFavorito(object.schemaName, object.name, object.type, true)
     }
   }
 
