@@ -32,8 +32,6 @@ function createFakeLogger() {
 function createFakeRepository(overrides: Partial<ForFavoritoRepositoryPort> = {}): ForFavoritoRepositoryPort {
   return {
     createOrUpdate: async () => null,
-    deleteById: async () => false,
-    existsByCriteria: async () => false,
     findMany: async () => ({ data: [], meta: { limit: 0, total: 0 } }),
     getById: async () => null,
     ...overrides,
@@ -61,6 +59,7 @@ function buildRow(overrides: Partial<FavoritoRepoResponse> = {}): FavoritoRepoRe
     objectName: 'vw_orders',
     type: TypeSysObjectEnum.VIEW,
     date: new Date('2026-01-01T00:00:00.000Z'),
+    isActive: false,
     ...overrides,
   }
 }

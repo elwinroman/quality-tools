@@ -31,9 +31,9 @@ export interface Favorito {
 
 /**
  * Datos requeridos para registrar un nuevo favorito.
- * Excluye el identificador interno (`id`) y el `objectId`, que puede inferirse.
+ * Excluye el identificador interno `id` y `date`.
  */
-export type FavoritoInput = Omit<Favorito, 'id' | 'date' | 'isActive'>
+export type FavoritoInput = Omit<Favorito, 'id' | 'date'>
 
 export type FavoritoRepoInput = Omit<Favorito, 'id'>
 
@@ -47,14 +47,14 @@ export type FavoritoFilter = Pick<Favorito, 'idUser'> & {
 
 /**
  * Filtro de recuperación utilizado a nivel de repositorio,
- * incluyendo usuario, base de datos y tipo de objeto.
+ * incluyendo usuario y tipo de objeto.
  */
 export type FavoritoFilterRepo = Pick<Favorito, 'idUser' | 'type'>
 
 /**
  * Representa una entrada de favorito devuelta por el repositorio
  */
-export type FavoritoRepoResponse = Pick<Favorito, 'id' | 'schema' | 'objectName' | 'date' | 'type'>
+export type FavoritoRepoResponse = Pick<Favorito, 'id' | 'schema' | 'objectName' | 'date' | 'type' | 'isActive'>
 
 /**
  * Respuesta extendida para recuperación de favoritos,
@@ -64,16 +64,3 @@ export type FavoritoResponse = FavoritoRepoResponse & {
   /** Identificador del objeto */
   objectId: number
 }
-
-/**
- * Contexto de ejecución para operaciones relacionadas con búsquedas recientes.
- * Contiene información mínima necesaria para identificar al usuario y la base de datos donde se ejecuta la operación.
- */
-export type Context = Pick<Favorito, 'idUser'>
-
-/**
- * Criterios mínimos para verificar la existencia de un favorito.
- * Se basa en los atributos clave que definen la unicidad de un favorito:
- * usuario, base de datos, esquema y nombre del objeto.
- */
-export type Criteria = Pick<Favorito, 'idUser' | 'schema' | 'objectName'>

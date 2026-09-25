@@ -1,47 +1,65 @@
 import { DatabaseName, getStaticDatabaseCredentials, MSSQLDatabaseConnection } from '@core/store'
 import { wrapDatabaseError } from '@core/utils'
 import { ForFavoritoRepositoryPort } from '@favorito/domain/ports/drivens/for-favorito-repository.port'
-import { Criteria, Favorito, FavoritoFilterRepo, FavoritoRepoInput, FavoritoRepoResponse } from '@favorito/domain/schemas/favorito'
+import { Favorito, FavoritoFilterRepo, FavoritoRepoInput, FavoritoRepoResponse } from '@favorito/domain/schemas/favorito'
 import { Meta } from '@shared/domain/schemas/meta'
 import sql from 'mssql'
+
+import {
+  decodeRow,
+  decodeRows,
+  FavoritoListRow,
+  FavoritoListRowSchema,
+  FavoritoRow,
+  favoritoRowMapper,
+  FavoritoRowSchema,
+} from './favorito.mapper'
 
 export class MSSQLFavoritoRepositoryAdapter implements ForFavoritoRepositoryPort {
   private connection = new MSSQLDatabaseConnection()
   private db = getStaticDatabaseCredentials(DatabaseName.APP)
 
-  async createOrUpdate(favoritoRepoInput: FavoritoRepoInput): Promise<{ data: FavoritoRepoResponse; action: 'INSERT' | 'UPDATE' } | null> {
+  async createOrUpdate(favoritoRepoInput: FavoritoRepoInput): Promise<{ data: FavoritoRepoResponse } | null> {
     try {
       const conn = await this.connection.connect(this.db.credentials, this.db.type)
       const request = conn.request()
 
       const stmt = `
-        MERGE INTO dbo.Favorito AS target
-        USING (
-          SELECT 
-            @idUser     AS idUsuario      , @schema     AS schemaName,
-            @objectName AS objectName     , @type       AS type,
-            @date AS fecha                , @isActive   AS vigente
-        ) AS source
-        ON target.idUsuario         = source.idUsuario
-          AND target.cSchema        = source.schemaName 
-          AND target.cNombreObjeto  = source.objectName
-        WHEN MATCHED THEN
-          --============================================================
-          -- Si el existe un favorito registrado, updatea la fecha y
-          -- reactiva si está deshabilitado (lVigente = 0)
-          --============================================================
-          UPDATE SET 
-            target.dFecha   = source.fecha,
-            target.lVigente = source.vigente
-        WHEN NOT MATCHED THEN
-          --============================================================
-          -- Si no existe la búsqueda reciente, realiza la inserción
-          --============================================================
-          INSERT (idUsuario, cSchema, cNombreObjeto, cType, dFecha, lVigente)
-          VALUES (source.idUsuario, source.schemaName, source.objectName, source.type, source.fecha, source.vigente)
-        OUTPUT  INSERTED.idUsuario, INSERTED.cSchema, INSERTED.cNombreObjeto, 
-                INSERTED.dFecha, INSERTED.lVigente,
-                $action AS accion;
+        SET NOCOUNT ON;
+
+        /********************************************************************
+          UPDLOCK + HOLDLOCK: HOLDLOCK (SERIALIZABLE) toma un lock de
+          rango sobre la clave, así que el request perdedor espera en
+          lugar de insertar un duplicado. UPDLOCK evita el deadlock de
+          conversión clásico. Necesita el índice único para que el lock
+          sea por rango y no a nivel tabla.
+        *********************************************************************/
+
+        UPDATE dbo.Favorito WITH (UPDLOCK, HOLDLOCK)
+           SET cType    = @type,
+               dFecha   = @date,
+               lVigente = @isActive
+         WHERE idUsuario     = @idUser
+           AND cSchema       = @schema
+           AND cNombreObjeto = @objectName;
+
+        -- Inserta cuando no exista el registro y sea válido su activación
+        IF @@ROWCOUNT = 0 AND @isActive = 1
+          INSERT INTO dbo.Favorito (idUsuario, cSchema, cNombreObjeto, cType, dFecha, lVigente)
+          VALUES (@idUser, @schema, @objectName, @type, @date, @isActive);
+
+        -- Devuelve la fila tal como quedó persistida
+        SELECT
+          idFavorito,
+          cSchema,
+          cNombreObjeto,
+          cType,
+          dFecha,
+          lVigente
+        FROM dbo.Favorito
+        WHERE idUsuario     = @idUser
+          AND cSchema       = @schema
+          AND cNombreObjeto = @objectName;
       `
       request.input('idUser', sql.Int, favoritoRepoInput.idUser)
       request.input('schema', sql.VarChar(64), favoritoRepoInput.schema)
@@ -50,22 +68,14 @@ export class MSSQLFavoritoRepositoryAdapter implements ForFavoritoRepositoryPort
       request.input('date', sql.DateTime, favoritoRepoInput.date)
       request.input('isActive', sql.Bit, favoritoRepoInput.isActive)
 
-      const res = await request.query(stmt)
+      const res = await request.query<FavoritoRow>(stmt)
 
-      if (res && res.rowsAffected[0] === 0) return null
+      // sin fila no hay nada que desactivar: es o-op legítimo
+      const favoritoRow = decodeRow(res.recordset, FavoritoRowSchema)
 
-      // adapter
-      const data: FavoritoRepoResponse = {
-        id: res.recordset[0].idFavorito,
-        schema: res.recordset[0].cSchema,
-        objectName: res.recordset[0].cNombreObjeto,
-        type: res.recordset[0].cType,
-        date: res.recordset[0].dFecha,
-      }
+      if (!favoritoRow) return null
 
-      const action = res.recordset[0].accion
-
-      return { data, action }
+      return { data: favoritoRowMapper(favoritoRow) }
     } catch (err) {
       throw wrapDatabaseError(err)
     }
@@ -83,7 +93,8 @@ export class MSSQLFavoritoRepositoryAdapter implements ForFavoritoRepositoryPort
             cSchema,
             cNombreObjeto,
             cType,
-            dFecha
+            dFecha,
+            lVigente
           FROM dbo.Favorito
           WHERE idUsuario = @idUser
             AND cType     IN (${filter.type})
@@ -98,6 +109,7 @@ export class MSSQLFavoritoRepositoryAdapter implements ForFavoritoRepositoryPort
           A.cNombreObjeto,
           A.cType,
           A.dFecha,
+          A.lVigente,
           C.nTotal
         FROM FavoritosCTE A
         CROSS JOIN TotalRegistrosCTE C
@@ -106,45 +118,15 @@ export class MSSQLFavoritoRepositoryAdapter implements ForFavoritoRepositoryPort
       request.input('idUser', sql.Int, filter.idUser)
       request.input('limit', sql.Int, limit)
 
-      const res = await request.query(stmt)
-
-      const data =
-        res.recordset.map((row): FavoritoRepoResponse => {
-          return {
-            id: row.idFavorito,
-            schema: row.cSchema,
-            objectName: row.cNombreObjeto,
-            type: row.cType,
-            date: row.dFecha,
-          }
-        }) ?? []
+      const res = await request.query<FavoritoListRow>(stmt)
+      const rows = decodeRows(res.recordset, FavoritoListRowSchema)
+      const data = rows.map(row => favoritoRowMapper(row))
 
       const meta = {
-        total: res.recordset[0]?.nTotal ?? 0,
+        total: rows[0]?.nTotal ?? 0,
         limit,
       }
       return { data, meta }
-    } catch (err) {
-      throw wrapDatabaseError(err)
-    }
-  }
-
-  async deleteById(id: number): Promise<boolean> {
-    try {
-      const conn = await this.connection.connect(this.db.credentials, this.db.type)
-      const request = conn.request()
-
-      const stmt = `
-        UPDATE Favorito SET lVigente = 0 
-        WHERE idFavorito = @id AND lVigente = 1
-      `
-      request.input('id', sql.Int, id)
-
-      const res = await request.query(stmt)
-
-      if (res && res.rowsAffected[0] === 1) return true // deshabilitado correctamente
-
-      return false // no se ha encontrado el ID de búsqueda reciente para deshabilitar
     } catch (err) {
       throw wrapDatabaseError(err)
     }
@@ -178,35 +160,6 @@ export class MSSQLFavoritoRepositoryAdapter implements ForFavoritoRepositoryPort
       }
 
       return data
-    } catch (err) {
-      throw wrapDatabaseError(err)
-    }
-  }
-
-  async existsByCriteria(criteria: Criteria): Promise<boolean> {
-    try {
-      const conn = await this.connection.connect(this.db.credentials, this.db.type)
-      const request = conn.request()
-
-      const stmt = `
-        SELECT TOP 1 idFavorito 
-        FROM dbo.Favorito 
-        WHERE idUsuario     = @idUser
-          AND cSchema       = @schema
-          AND cNombreObjeto = @objectName
-          AND lVigente      = 1
-      `
-      request.input('idUser', sql.Int, criteria.idUser)
-      request.input('schema', sql.VarChar(64), criteria.schema)
-      request.input('objectName', sql.VarChar(128), criteria.objectName)
-
-      const res = await request.query(stmt)
-
-      // no existe el favorito
-      if (res && res.rowsAffected[0] === 0) return false
-
-      // existe el favorito
-      return true
     } catch (err) {
       throw wrapDatabaseError(err)
     }

@@ -7,19 +7,18 @@ import { Meta } from '@shared/domain/schemas/meta'
  */
 export interface ForFavoritoManagingPort {
   /**
-   * Crea o actualiza un objeto marcado como favorito para un usuario.
-   * Si ya existe un favorito con la misma combinación de usuario, base de datos, esquema y objeto,
-   * se actualiza la fecha y se reactiva si estaba inactivo.
-   * En caso contrario, se registra un nuevo favorito.
+   * Fija el estado de un objeto como favorito del usuario.
    *
-   * @param favoritoInput - Datos necesarios para registrar o actualizar un favorito
-   *                        (usuario, base de datos, esquema, nombre del objeto, tipo, etc.).
+   * Con `isActive` en `true` lo marca, o lo reactiva si estaba desmarcado; con `false` lo
+   * desmarca. Es idempotente: si el estado pedido ya era el actual, no escribe nada.
+   *
+   * @param favoritoInput - Datos necesarios para fijar el estado del favorito
+   *                        (usuario, esquema, nombre del objeto, tipo y estado deseado).
    * @returns Una promesa que resuelve con un objeto que indica:
-   *          - `data`: el favorito registrado o actualizado
-   *          - `action`: la acción realizada ('INSERT' o 'UPDATE')
-   *          - `message`: mensaje contextual según la acción realizada
+   *          - `data`: el favorito persistido, o `null` si no había nada que escribir
+   *          - `message`: mensaje contextual según el estado resultante
    */
-  registerFavorito(favoritoInput: FavoritoInput): Promise<{ data: FavoritoRepoResponse; action: 'INSERT' | 'UPDATE'; message: string }>
+  registerFavorito(favoritoInput: FavoritoInput): Promise<{ data: FavoritoRepoResponse | null; message: string }>
 
   /**
    * Recupera la lista de objetos SQL marcados como favoritos,
@@ -32,13 +31,4 @@ export interface ForFavoritoManagingPort {
    *          - `meta`: metainformación útil para paginación o totales.
    */
   getAllFavoritos(filter: FavoritoFilterRepo, limit: number): Promise<{ data: FavoritoResponse[]; meta: Meta }>
-
-  /**
-   * Elimina un favorito registrado por su identificador único.
-   *
-   * @param id - ID del favorito a eliminar.
-   * @param idUser - ID del usuario del que se quiere eliminar.
-   * @returns Mensaje de confirmación o estado de la operación.
-   */
-  deleteFavorito(id: number, idUser: number): Promise<string>
 }

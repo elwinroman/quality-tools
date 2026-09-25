@@ -15,8 +15,6 @@ import { DatabaseRequestErrorException } from '@core/exceptions/store/database-r
 import { DatabaseTransactionErrorException } from '@core/exceptions/store/database-transaction-error.exception'
 import { SysobjectIdsInconsistencyException } from '@core/exceptions/store/sysobject-ids-inconsistency.exception'
 import { InfrastructureError } from '@core/infrastructure-error.exception'
-import { FavoritoAlreadyExistsException } from '@favorito/domain/exceptions/favorito-already-exists.exception'
-import { FavoritoNotFoundException } from '@favorito/domain/exceptions/favorito-not-found.exception'
 import { ApplicationError } from '@shared/application/application-error'
 import { ForbiddenException } from '@shared/application/exceptions/forbidden.exception'
 import { RouteNotFoundException } from '@shared/application/exceptions/route-not-found.exception'
@@ -225,28 +223,6 @@ const errorContractCases: ErrorContractCase[] = [
     type: 'ProdSysObjectNotFoundException',
     detail: 'No se ha encontrado el objeto `[dbo].[vwOrders]` en producción.',
     message: '[sysobject] Objeto no encontrado en preprod: [dbo].[vwOrders]',
-  },
-  {
-    name: 'FavoritoNotFoundException',
-    layer: 'domain',
-    create: () => new FavoritoNotFoundException(7),
-    status: 404,
-    errorCode: 4001,
-    title: 'Favorito no encontrado',
-    type: 'FavoritoNotFoundException',
-    detail: "El favorito con id '7' no fue encontrado.",
-    message: '[favorito] Favorito no encontrado: 7',
-  },
-  {
-    name: 'FavoritoAlreadyExistsException',
-    layer: 'domain',
-    create: () => new FavoritoAlreadyExistsException({ idUser: 9, schema: 'dbo', objectName: 'vwOrders' }),
-    status: 409,
-    errorCode: 4002,
-    title: 'Favorito ya existe',
-    type: 'FavoritoAlreadyExistsException',
-    detail: "El favorito 'dbo.vwOrders' ya existe para el usuario '9'.",
-    message: '[favorito] Favorito ya existe: dbo.vwOrders',
   },
   {
     name: 'BusquedaRecienteNotFoundException',

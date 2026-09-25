@@ -1,4 +1,3 @@
-import { FavoritoAlreadyExistsException } from '@favorito/domain/exceptions/favorito-already-exists.exception'
 import { ForFavoritoRepositoryPort } from '@favorito/domain/ports/drivens/for-favorito-repository.port'
 import { FavoritoInput, FavoritoRepoResponse } from '@favorito/domain/schemas/favorito'
 import { Logger } from '@observability/domain/logger'
@@ -9,38 +8,37 @@ export class RegisterFavoritoUseCase {
     private readonly logger: Logger,
   ) {}
 
-  async execute(favoritoInput: FavoritoInput): Promise<{ data: FavoritoRepoResponse; action: 'INSERT' | 'UPDATE'; message: string }> {
-    const criteria = {
-      idUser: favoritoInput.idUser,
-      schema: favoritoInput.schema,
-      objectName: favoritoInput.objectName,
-    }
-
-    const existFavorito = await this.repository.existsByCriteria(criteria)
-
-    if (existFavorito) throw new FavoritoAlreadyExistsException(criteria)
+  async execute(favoritoInput: FavoritoInput): Promise<{ data: FavoritoRepoResponse | null; message: string }> {
+    const objectRef = `${favoritoInput.schema}.${favoritoInput.objectName}`
 
     const newFavorito = await this.repository.createOrUpdate({
       ...favoritoInput,
       date: new Date(), // fecha actual
-      isActive: true, // al crear, vigente = 1
     })
 
-    if (!newFavorito) throw new Error('Error al insertar o updatear un favorito')
+    if (!newFavorito) {
+      if (favoritoInput.isActive) throw new Error('Error al insertar o updatear un favorito')
 
-    const message = newFavorito.action === 'INSERT' ? 'Favorito creado correctamente' : 'Favorito updateado correctamente'
+      this.logger.warn('[favorito] Se pidió desactivar un favorito inexistente', {
+        actionDetails: { userId: favoritoInput.idUser, schema: favoritoInput.schema, objectName: favoritoInput.objectName },
+      })
+
+      return { data: null, message: `El favorito '${objectRef}' ya estaba quitado.` }
+    }
+
+    const message = newFavorito.data.isActive ? `Favorito '${objectRef}' agregado.` : `Favorito '${objectRef}' quitado.`
 
     this.logger.info('[favorito] Favorito registrado', {
       actionDetails: {
-        action: newFavorito.action,
         favoritoId: newFavorito.data.id,
         userId: favoritoInput.idUser,
         schema: favoritoInput.schema,
         objectName: favoritoInput.objectName,
         type: favoritoInput.type,
+        isActive: favoritoInput.isActive,
       },
     })
 
-    return { data: newFavorito.data, action: newFavorito.action, message }
+    return { data: newFavorito.data, message }
   }
 }

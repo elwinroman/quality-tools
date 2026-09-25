@@ -10,6 +10,7 @@ export const RegisterFavoritoParamsSchema = z.object({
     .refine(val => ValidTypeSysObjectValues.includes(val as ValidTypeSysObject), {
       message: `Type must be one of: ${ValidTypeSysObjectValues.join(', ')}`,
     }),
+  isActive: z.boolean(),
 })
 
 export type RegisterFavoritoParams = z.infer<typeof RegisterFavoritoParamsSchema>

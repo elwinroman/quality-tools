@@ -10,10 +10,10 @@ export class RegisterFavoritoController {
   constructor(private readonly service: ForFavoritoManagingPort) {}
 
   async run(req: Request, res: Response, next: NextFunction) {
-    const { schema, objectName, type } = req.body
+    const { schema, objectName, type, isActive } = req.body
 
     try {
-      const dto: RegisterFavoritoParams = RegisterFavoritoParamsSchema.parse({ schema, objectName, type })
+      const dto: RegisterFavoritoParams = RegisterFavoritoParamsSchema.parse({ schema, objectName, type, isActive })
 
       // credenciales de usuario e idUser
       const { authContext } = await buildStoreAuthContext()
@@ -23,13 +23,12 @@ export class RegisterFavoritoController {
         schema: dto.schema,
         objectName: dto.objectName,
         type: dto.type as ValidTypeSysObject,
+        isActive: dto.isActive,
       }
 
       const result = await this.service.registerFavorito(input)
 
-      const status = result.action === 'INSERT' ? 201 : 200
-
-      return res.status(status).json({ correlationId: req.correlationId, message: result.message, data: result.data })
+      return res.status(200).json({ correlationId: req.correlationId, message: result.message, data: result.data })
     } catch (err) {
       next(err)
     }
