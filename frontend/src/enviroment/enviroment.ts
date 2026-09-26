@@ -4,7 +4,7 @@ export const MODE = import.meta.env.MODE ?? 'enviroment'
 // Aplicación
 export const APP_NAME = 'Quality Tools'
 export const APP_SHORT_NAME = 'QT'
-export const ENABLE_NAVBAR_REPO_LINK = true
+export const ENABLE_REPO_LINK = true
 export const GITHUB_REPOSITORIO_LINK = 'https://github.com/elwinroman/quality-tools'
 export const FILE_DATABASE_NAME_PREFIX = 'SI_BDFinFiles'
 

@@ -2,11 +2,11 @@ import { PanelLeft } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
 import { FavoritosList, useFavoritoContext } from '@/components/favoritos'
-import { AplicationLogo, LoginUsername, SwitchDatabase } from '@/components/navbar/components'
 import { SearchTrigger } from '@/components/search/components/SearchTrigger'
 import { SearchProvider } from '@/components/search/context/searchContext'
 import { Search } from '@/components/search/Search'
-import { SidebarNav } from '@/components/sidebar-nav'
+import { AplicationLogo, LoginUsername, SwitchDatabase } from '@/components/shared'
+import { SidebarNav } from '@/components/sidebar'
 import { AppRoutes } from '@/constants'
 import { buildQualifiedSysObjectPath } from '@/utilities/sysobject-route.util'
 

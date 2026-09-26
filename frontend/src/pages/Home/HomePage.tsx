@@ -1,7 +1,8 @@
+import { Github } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 import { AppRoutes } from '@/constants'
-import { APP_NAME } from '@/enviroment/enviroment'
+import { APP_NAME, ENABLE_REPO_LINK, GITHUB_REPOSITORIO_LINK } from '@/enviroment/enviroment'
 
 import { InfoAligment } from './components/InfoAligment'
 import { InfoSqlDefinition } from './components/InfoSqlDefinition'
@@ -43,6 +44,18 @@ export function HomePage() {
               Ver herramientas ↓
             </a>
           </div>
+
+          {ENABLE_REPO_LINK && (
+            <a
+              href={GITHUB_REPOSITORIO_LINK}
+              target="_blank"
+              rel="noreferrer"
+              className="text-secondary hover:text-primary inline-flex items-center gap-2 text-sm font-medium transition-colors"
+            >
+              <Github size={16} />
+              <span>Repositorio</span>
+            </a>
+          )}
         </div>
 
         <div className="main-background" />

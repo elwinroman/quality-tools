@@ -1,4 +1,4 @@
-import { Github, User } from 'lucide-react'
+import { User } from 'lucide-react'
 
 import {
   Avatar,
@@ -11,7 +11,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui'
-import { ENABLE_NAVBAR_REPO_LINK, GITHUB_REPOSITORIO_LINK } from '@/enviroment/enviroment'
 import useFetchAndLoad from '@/hooks/useFetchAndLoad'
 import { cn } from '@/lib/utils'
 import { useSysObjectStore } from '@/pages/SQLDefinition/store/sysobject.store'
@@ -55,11 +54,6 @@ export function LoginUsername({ className = '' }: Props) {
     }
   }
 
-  const handleOpenRepo = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault()
-    window.open(GITHUB_REPOSITORIO_LINK)
-  }
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
@@ -84,17 +78,7 @@ export function LoginUsername({ className = '' }: Props) {
           <ThemeToggle />
         </DropdownMenuItem>
 
-        {ENABLE_NAVBAR_REPO_LINK && (
-          <>
-            <DropdownMenuItem asChild>
-              <button type="button" onClick={handleOpenRepo} className="w-full justify-between gap-2">
-                <span>Repositorio</span>
-                <Github size={14} />
-              </button>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-          </>
-        )}
+        <DropdownMenuSeparator />
 
         <DropdownMenuItem asChild>
           <button type="button" onClick={closeSession} className="w-full justify-between gap-2">

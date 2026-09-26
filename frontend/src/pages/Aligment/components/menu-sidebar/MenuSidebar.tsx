@@ -3,7 +3,7 @@ import { LayoutGrid, User } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
 import { CircleLoader } from '@/components/loader'
-import { LoginUsername, ThemeToggle } from '@/components/navbar/components'
+import { LoginUsername, ThemeToggle } from '@/components/shared'
 import { Button, Checkbox } from '@/components/ui'
 import { AppRoutes } from '@/constants'
 import { APP_SHORT_NAME } from '@/enviroment/enviroment'
