@@ -93,8 +93,8 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
 
-  --width-sidebar: 350px;
-  --width-content-area: calc(100% - 350px);
+    --width-sidebar: 300px;
+    --width-content-area: calc(100% - var(--width-sidebar));
 
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;

@@ -1,9 +1,9 @@
-import { PanelLeft, RefreshCw } from 'lucide-react'
-
+import { HeaderSidebarToggle, ObjectName, RefreshObjectButton } from '@/components/editor-header'
 import { ToggleFavoritoButton, useFavoritoContext } from '@/components/favoritos'
-import { Button, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui'
+import { SearchTrigger } from '@/components/search/components/SearchTrigger'
 
 import { useUserTableStore } from '../store/usertable.store'
+import { HeaderTabsUsertable } from './HeaderTabsUsertable'
 
 interface Props {
   onOpenSidebar?: () => void
@@ -38,46 +38,26 @@ export function HeaderUsertable({ onOpenSidebar }: Props) {
     <header className="bg-background flex items-center justify-between px-4 pt-2 pb-3">
       {/* Breadcrumb */}
       <div className="flex min-w-0 items-center gap-2">
-        {onOpenSidebar && (
-          <button
-            type="button"
-            className="hover:bg-background-neutral shrink-0 rounded-sm px-1 py-1"
-            onClick={onOpenSidebar}
-            aria-label="Mostrar panel lateral"
-          >
-            <PanelLeft size={16} />
-          </button>
-        )}
+        {onOpenSidebar && <HeaderSidebarToggle onClick={onOpenSidebar} />}
 
         {hasObject ? (
           <div className="flex min-w-0 items-center gap-1">
             <ToggleFavoritoButton isFavorite={!!currentFavorito} onClick={handleToggleFavorito} />
 
-            <span className="flex min-w-0 items-center gap-1 text-sm">
-              <span className="text-secondary shrink-0">{object.schemaName}</span>
-              <span className="text-primary min-w-0 truncate font-semibold">{object.name}</span>
-            </span>
+            <ObjectName schemaName={object.schemaName} name={object.name} />
           </div>
         ) : (
           <div className="SY flex h-11 items-center text-[13px]"></div>
         )}
+
+        {/* Tabs del editor, a la derecha del nombre del objeto */}
+        <HeaderTabsUsertable />
       </div>
 
       <div className="flex items-center gap-1">
-        <TooltipProvider>
-          <Tooltip delayDuration={100}>
-            <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-7 w-7" disabled={!object || loading} onClick={handleRefresh}>
-                <RefreshCw size={14} className="text-primary" />
-              </Button>
-            </TooltipTrigger>
-            {object && (
-              <TooltipContent side="bottom">
-                <p>Refrescar tabla</p>
-              </TooltipContent>
-            )}
-          </Tooltip>
-        </TooltipProvider>
+        <SearchTrigger />
+
+        <RefreshObjectButton onClick={handleRefresh} disabled={!object || loading} label="Refrescar tabla" />
       </div>
     </header>
   )

@@ -6,6 +6,7 @@ import { toast } from 'sonner'
 import { FavoritoProvider } from '@/components/favoritos'
 import { DatabaseSwitchOverlay } from '@/components/loader'
 import { DialogSearchProvider } from '@/components/search/context/dialogSearchContext'
+import { ObjectSidebar } from '@/components/sidebar'
 import {
   ResizableHandle,
   ResizablePanel,
@@ -18,11 +19,12 @@ import {
   Tabs,
   TabsContent,
 } from '@/components/ui'
+import { AppRoutes } from '@/constants'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { parseQualifiedSysObjectName } from '@/utilities/sysobject-route.util'
 import { useAppStore, useAuthStore } from '@/zustand'
 
-import { DependenciesContent, EditorCode, HeaderEditor, HeaderTabs, OverviewContent, PanelEditor } from './components'
+import { DependenciesContent, EditorCode, HeaderEditor, OverviewContent } from './components'
 import { DiffScriptContent } from './components/diff-script-content/DiffScriptContent'
 import { TabOption } from './constants/tabs-options'
 import { useSysObjectStore } from './store/sysobject.store'
@@ -96,75 +98,91 @@ export function SQLDefinitionPage() {
       <main className="relative h-full w-full overflow-hidden">
         <section className="bg-background-paperchanel relative h-full w-full overflow-hidden">
           <FavoritoProvider type="ALL_EXCEPT_USERTABLE">
-            <ResizablePanelGroup
-              key={isDesktop ? 'desktop' : 'mobile'}
-              direction="horizontal"
-              onLayout={(sizes) => {
-                const [leftSize] = sizes
-                setIsCollapsed(leftSize === 0)
-              }}
-            >
-              {/* Sidebar izquierdo - full height */}
-              <ResizablePanel
-                minSize={isCollapsed ? 0 : 10}
-                defaultSize={isDesktop ? 15 : 0}
-                maxSize={15}
-                className="transition-all"
-                collapsible={true}
-                collapsedSize={0}
-                ref={leftPanelRef}
+            {/* El provider envuelve el panel y el drawer para que el header del editor también lo vea */}
+            <DialogSearchProvider>
+              <ResizablePanelGroup
+                key={isDesktop ? 'desktop' : 'mobile'}
+                direction="horizontal"
+                onLayout={(sizes) => {
+                  const [leftSize] = sizes
+                  setIsCollapsed(leftSize === 0)
+                }}
               >
-                {isDesktop && (
-                  <DialogSearchProvider>
-                    <PanelEditor onToggleSidebar={handleHidePanel} isCollapsed={isCollapsed} />
-                  </DialogSearchProvider>
-                )}
-              </ResizablePanel>
+                {/* Sidebar izquierdo - full height */}
+                <ResizablePanel
+                  minSize={isCollapsed ? 0 : 10}
+                  defaultSize={isDesktop ? 15 : 0}
+                  maxSize={15}
+                  className="max-w-[var(--width-sidebar)] transition-all"
+                  collapsible={true}
+                  collapsedSize={0}
+                  ref={leftPanelRef}
+                >
+                  {isDesktop && (
+                    <ObjectSidebar
+                      onToggleSidebar={handleHidePanel}
+                      isCollapsed={isCollapsed}
+                      scope={{
+                        searchType: 'ALL_EXCEPT_USERTABLE',
+                        route: AppRoutes.SQL_DEFINITION,
+                        activeObject: sysobject,
+                        refetch: fetchSysObjectByName,
+                      }}
+                    />
+                  )}
+                </ResizablePanel>
 
-              <ResizableHandle className={!isDesktop || !isCollapsed ? 'pointer-events-none' : ''} withHandle={false} />
+                <ResizableHandle className={!isDesktop || !isCollapsed ? 'pointer-events-none' : ''} withHandle={false} />
 
-              {/* Panel derecho: headers + editor */}
-              <ResizablePanel>
-                {/* Contenedor flex: las Tabs necesitan un padre de altura definida para resolver su flex-1 */}
-                <div className="flex h-full flex-col">
-                  <Tabs key={database} value={activeTab} onValueChange={setActiveTab} className="flex min-h-0 flex-1 flex-col">
-                    <HeaderEditor activeTab={activeTab} onOpenSidebar={sidebarHidden ? handleRevealSidebar : undefined} />
-                    <HeaderTabs />
+                {/* Panel derecho: headers + editor */}
+                <ResizablePanel>
+                  {/* Contenedor flex: las Tabs necesitan un padre de altura definida para resolver su flex-1 */}
+                  <div className="flex h-full flex-col">
+                    <Tabs key={database} value={activeTab} onValueChange={setActiveTab} className="flex min-h-0 flex-1 flex-col">
+                      <HeaderEditor activeTab={activeTab} onOpenSidebar={sidebarHidden ? handleRevealSidebar : undefined} />
 
-                    <TabsContent value={TabOption.Overview} className="flex-1 overflow-hidden">
-                      <OverviewContent />
-                    </TabsContent>
+                      <TabsContent value={TabOption.Overview} className="flex-1 overflow-hidden">
+                        <OverviewContent />
+                      </TabsContent>
 
-                    <TabsContent value={TabOption.Script} className="flex-1 overflow-hidden">
-                      <EditorCode />
-                    </TabsContent>
+                      <TabsContent value={TabOption.Script} className="flex-1 overflow-hidden">
+                        <EditorCode />
+                      </TabsContent>
 
-                    <TabsContent value={TabOption.Dependencies} className="flex-1 overflow-hidden">
-                      <DependenciesContent />
-                    </TabsContent>
+                      <TabsContent value={TabOption.Dependencies} className="flex-1 overflow-hidden">
+                        <DependenciesContent />
+                      </TabsContent>
 
-                    <TabsContent value={TabOption.Compare} className="flex-1 overflow-hidden">
-                      <DiffScriptContent />
-                    </TabsContent>
-                  </Tabs>
-                </div>
-              </ResizablePanel>
-            </ResizablePanelGroup>
+                      <TabsContent value={TabOption.Compare} className="flex-1 overflow-hidden">
+                        <DiffScriptContent />
+                      </TabsContent>
+                    </Tabs>
+                  </div>
+                </ResizablePanel>
+              </ResizablePanelGroup>
 
-            {/* Drawer lateral en mobile: el sidebar vive aquí por debajo del breakpoint lg */}
-            {!isDesktop && (
-              <Sheet open={drawerOpen} onOpenChange={setDrawerOpen}>
-                <SheetContent side="left" className="w-[85vw] max-w-xs p-0">
-                  <SheetHeader className="sr-only">
-                    <SheetTitle>Panel lateral</SheetTitle>
-                    <SheetDescription>Navegación, búsqueda y favoritos.</SheetDescription>
-                  </SheetHeader>
-                  <DialogSearchProvider>
-                    <PanelEditor onToggleSidebar={() => setDrawerOpen(false)} onNavigate={() => setDrawerOpen(false)} />
-                  </DialogSearchProvider>
-                </SheetContent>
-              </Sheet>
-            )}
+              {/* Drawer lateral en mobile: el sidebar vive aquí por debajo del breakpoint lg */}
+              {!isDesktop && (
+                <Sheet open={drawerOpen} onOpenChange={setDrawerOpen}>
+                  <SheetContent side="left" className="w-[85vw] max-w-xs p-0">
+                    <SheetHeader className="sr-only">
+                      <SheetTitle>Panel lateral</SheetTitle>
+                      <SheetDescription>Navegación, búsqueda y favoritos.</SheetDescription>
+                    </SheetHeader>
+                    <ObjectSidebar
+                      onToggleSidebar={() => setDrawerOpen(false)}
+                      onNavigate={() => setDrawerOpen(false)}
+                      scope={{
+                        searchType: 'ALL_EXCEPT_USERTABLE',
+                        route: AppRoutes.SQL_DEFINITION,
+                        activeObject: sysobject,
+                        refetch: fetchSysObjectByName,
+                      }}
+                    />
+                  </SheetContent>
+                </Sheet>
+              )}
+            </DialogSearchProvider>
           </FavoritoProvider>
         </section>
         <DatabaseSwitchOverlay />

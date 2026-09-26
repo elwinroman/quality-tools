@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useContext, useState, type Dispatch, type SetStateAction } from 'react'
+import { createContext, type Dispatch, ReactNode, type SetStateAction, useContext, useState } from 'react'
 
 import { useSearchSuggestions } from '@/components/search/hooks'
 import { ApiSysObjectType, SysObjectSuggestion } from '@/models/sysobject'

@@ -6,6 +6,7 @@ import { toast } from 'sonner'
 import { FavoritoProvider } from '@/components/favoritos'
 import { DatabaseSwitchOverlay } from '@/components/loader'
 import { DialogSearchProvider } from '@/components/search/context/dialogSearchContext'
+import { ObjectSidebar } from '@/components/sidebar'
 import {
   ResizableHandle,
   ResizablePanel,
@@ -18,6 +19,7 @@ import {
   Tabs,
   TabsContent,
 } from '@/components/ui'
+import { AppRoutes } from '@/constants'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { cn } from '@/lib/utils'
 import { parseQualifiedSysObjectName } from '@/utilities/sysobject-route.util'
@@ -25,13 +27,11 @@ import { useAppStore, useAuthStore } from '@/zustand'
 
 import { Columns } from './components/Columns'
 import { DataTable } from './components/DataTable'
-import { HeaderTabsUsertable } from './components/HeaderTabsUsertable'
 import { HeaderUsertable } from './components/HeaderUsertable'
 import { IndexColumns } from './components/IndexColumns'
 import { IndexDataTable } from './components/IndexDataTable'
 import { UsertableEmptyState } from './components/UsertableEmptyState'
 import { UsertableOverviewContent } from './components/UsertableOverviewContent'
-import { UsertablePanelEditor } from './components/UsertablePanelEditor'
 import { TabOption } from './constants/tab-options'
 import { useUserTableStore } from './store/usertable.store'
 
@@ -94,82 +94,98 @@ export function UsertablePage() {
       <main className="relative h-full w-full overflow-hidden">
         <section className="bg-background-paperchanel relative h-full w-full overflow-hidden">
           <FavoritoProvider type="U">
-            <ResizablePanelGroup
-              key={isDesktop ? 'desktop' : 'mobile'}
-              direction="horizontal"
-              onLayout={(sizes) => {
-                const [leftSize] = sizes
-                setIsCollapsed(leftSize === 0)
-              }}
-            >
-              {/* Sidebar izquierdo - full height */}
-              <ResizablePanel
-                minSize={isCollapsed ? 0 : 10}
-                defaultSize={isDesktop ? 15 : 0}
-                maxSize={15}
-                className="transition-all"
-                collapsible={true}
-                collapsedSize={0}
-                ref={leftPanelRef}
+            {/* El provider envuelve el panel y el drawer para que el header del editor también lo vea */}
+            <DialogSearchProvider>
+              <ResizablePanelGroup
+                key={isDesktop ? 'desktop' : 'mobile'}
+                direction="horizontal"
+                onLayout={(sizes) => {
+                  const [leftSize] = sizes
+                  setIsCollapsed(leftSize === 0)
+                }}
               >
-                {isDesktop && (
-                  <DialogSearchProvider>
-                    <UsertablePanelEditor onToggleSidebar={handleHidePanel} isCollapsed={isCollapsed} />
-                  </DialogSearchProvider>
-                )}
-              </ResizablePanel>
+                {/* Sidebar izquierdo - full height */}
+                <ResizablePanel
+                  minSize={isCollapsed ? 0 : 10}
+                  defaultSize={isDesktop ? 15 : 0}
+                  maxSize={15}
+                  className="max-w-[var(--width-sidebar)] transition-all"
+                  collapsible={true}
+                  collapsedSize={0}
+                  ref={leftPanelRef}
+                >
+                  {isDesktop && (
+                    <ObjectSidebar
+                      onToggleSidebar={handleHidePanel}
+                      isCollapsed={isCollapsed}
+                      scope={{
+                        searchType: 'U',
+                        route: AppRoutes.USERTABLE,
+                        activeObject: object,
+                        refetch: fetchUserTableByName,
+                      }}
+                    />
+                  )}
+                </ResizablePanel>
 
-              <ResizableHandle className={!isDesktop || !isCollapsed ? 'pointer-events-none' : ''} withHandle={false} />
+                <ResizableHandle className={!isDesktop || !isCollapsed ? 'pointer-events-none' : ''} withHandle={false} />
 
-              {/* Panel derecho: headers + tabs content */}
-              <ResizablePanel>
-                {/* Contenedor flex: las Tabs necesitan un padre de altura definida para resolver su flex-1 */}
-                <div className="flex h-full flex-col">
-                  <Tabs key={database} defaultValue={TabOption.Structure} className="flex min-h-0 flex-1 flex-col">
-                    <HeaderUsertable onOpenSidebar={sidebarHidden ? handleRevealSidebar : undefined} />
-                    <HeaderTabsUsertable />
+                {/* Panel derecho: headers + tabs content */}
+                <ResizablePanel>
+                  {/* Contenedor flex: las Tabs necesitan un padre de altura definida para resolver su flex-1 */}
+                  <div className="flex h-full flex-col">
+                    <Tabs key={database} defaultValue={TabOption.Structure} className="flex min-h-0 flex-1 flex-col">
+                      <HeaderUsertable onOpenSidebar={sidebarHidden ? handleRevealSidebar : undefined} />
 
-                    {/* Tab Estructura */}
-                    <TabsContent value={TabOption.Structure} className={cn('flex-1 overflow-auto', object && !loading && 'px-4 py-4')}>
-                      {loading ? (
-                        <div className="text-secondary flex h-full items-center justify-center text-sm">Cargando...</div>
-                      ) : (
-                        <DataTable columns={Columns} />
-                      )}
-                    </TabsContent>
+                      {/* Tab Estructura */}
+                      <TabsContent value={TabOption.Structure} className={cn('flex-1 overflow-auto', object && !loading && 'px-4 py-4')}>
+                        {loading ? (
+                          <div className="text-secondary flex h-full items-center justify-center text-sm">Cargando...</div>
+                        ) : (
+                          <DataTable columns={Columns} />
+                        )}
+                      </TabsContent>
 
-                    {/* Tab Overview */}
-                    <TabsContent value={TabOption.Overview} className="flex-1 overflow-auto">
-                      {!object ? <UsertableEmptyState /> : <UsertableOverviewContent />}
-                    </TabsContent>
+                      {/* Tab Overview */}
+                      <TabsContent value={TabOption.Overview} className="flex-1 overflow-auto">
+                        {!object ? <UsertableEmptyState /> : <UsertableOverviewContent />}
+                      </TabsContent>
 
-                    {/* Tab Índices */}
-                    <TabsContent value={TabOption.Indexes} className="flex-1 overflow-auto px-4 py-4">
-                      {loading ? (
-                        <div className="text-secondary flex h-full items-center justify-center text-sm">Cargando...</div>
-                      ) : (
-                        <IndexDataTable columns={IndexColumns} />
-                      )}
-                    </TabsContent>
-                  </Tabs>
-                </div>
-              </ResizablePanel>
-            </ResizablePanelGroup>
+                      {/* Tab Índices */}
+                      <TabsContent value={TabOption.Indexes} className="flex-1 overflow-auto px-4 py-4">
+                        {loading ? (
+                          <div className="text-secondary flex h-full items-center justify-center text-sm">Cargando...</div>
+                        ) : (
+                          <IndexDataTable columns={IndexColumns} />
+                        )}
+                      </TabsContent>
+                    </Tabs>
+                  </div>
+                </ResizablePanel>
+              </ResizablePanelGroup>
 
-            {/* Drawer lateral en mobile: el sidebar vive aquí por debajo del breakpoint lg */}
-            {!isDesktop && (
-              <Sheet open={drawerOpen} onOpenChange={setDrawerOpen}>
-                <SheetContent side="left" className="w-[85vw] max-w-xs p-0">
-                  <SheetHeader className="sr-only">
-                    <SheetTitle>Panel lateral</SheetTitle>
-                    <SheetDescription>Navegación, búsqueda y favoritos.</SheetDescription>
-                  </SheetHeader>
-                  <DialogSearchProvider>
-                    <UsertablePanelEditor onToggleSidebar={() => setDrawerOpen(false)} onNavigate={() => setDrawerOpen(false)} />
-                  </DialogSearchProvider>
-                </SheetContent>
-              </Sheet>
-            )}
+              {/* Drawer lateral en mobile: el sidebar vive aquí por debajo del breakpoint lg */}
+              {!isDesktop && (
+                <Sheet open={drawerOpen} onOpenChange={setDrawerOpen}>
+                  <SheetContent side="left" className="w-[85vw] max-w-xs p-0">
+                    <SheetHeader className="sr-only">
+                      <SheetTitle>Panel lateral</SheetTitle>
+                      <SheetDescription>Navegación, búsqueda y favoritos.</SheetDescription>
+                    </SheetHeader>
+                    <ObjectSidebar
+                      onToggleSidebar={() => setDrawerOpen(false)}
+                      onNavigate={() => setDrawerOpen(false)}
+                      scope={{
+                        searchType: 'U',
+                        route: AppRoutes.USERTABLE,
+                        activeObject: object,
+                        refetch: fetchUserTableByName,
+                      }}
+                    />
+                  </SheetContent>
+                </Sheet>
+              )}
+            </DialogSearchProvider>
           </FavoritoProvider>
         </section>
         <DatabaseSwitchOverlay />

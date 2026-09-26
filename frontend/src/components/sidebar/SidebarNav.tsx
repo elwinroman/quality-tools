@@ -51,7 +51,7 @@ export function SidebarNav({ className, onNavigate }: Props) {
 
   return (
     <nav className={className}>
-      <ul className="flex flex-col gap-1">
+      <ul className="flex flex-col gap-0.5">
         {menuList.map((menu) => {
           const isActive = isActiveMenu(menu.activePath)
           const Icon = menu.icon
@@ -61,7 +61,7 @@ export function SidebarNav({ className, onNavigate }: Props) {
               {/* Hover y activo siguen el mismo criterio que los ítems de Favoritos */}
               <NavLink
                 className={cn(
-                  'group/nav hover:bg-action-hover flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm text-nowrap',
+                  'group/nav hover:bg-action-hover flex w-full items-center gap-2 rounded-sm px-2 py-2 text-sm text-nowrap',
                   isActive && 'bg-action-hover',
                 )}
                 to={menu.href}
