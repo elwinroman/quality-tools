@@ -132,7 +132,8 @@ export const ValidTypeSysObjectValues: ValidTypeSysObject[] = Object.values(Type
 export function resolveTypeSysObjectValues(type: TypeSysObject): ValidTypeSysObject[] {
   switch (type) {
     case TypeSysObjectEnum.ALL:
-      return ValidTypeSysObjectValues
+      // Return a copy: handing out the module array would let a caller's push or sort corrupt it process-wide.
+      return [...ValidTypeSysObjectValues]
     case TypeSysObjectEnum.ALL_EXCEPT_USERTABLE:
       return ValidTypeSysObjectValues.filter(v => v !== TypeSysObjectEnum.USER_TABLE)
     default:
