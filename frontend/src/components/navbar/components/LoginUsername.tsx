@@ -1,6 +1,9 @@
-import { User } from 'lucide-react'
+import { Github, User } from 'lucide-react'
 
 import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -8,14 +11,27 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui'
+import { ENABLE_NAVBAR_REPO_LINK, GITHUB_REPOSITORIO_LINK } from '@/enviroment/enviroment'
 import useFetchAndLoad from '@/hooks/useFetchAndLoad'
+import { cn } from '@/lib/utils'
 import { useSysObjectStore } from '@/pages/SQLDefinition/store/sysobject.store'
 import { useUserTableStore } from '@/pages/Usertable/store/usertable.store'
 import { logoutService } from '@/services'
 import { useAuthStore } from '@/zustand'
 
-export function LoginUsername() {
+import { ThemeToggle } from './ThemeToggle'
+
+interface Props {
+  className?: string
+}
+
+/**
+ * Perfil del usuario: avatar, nombre y las opciones de cuenta (tema, repositorio y cierre de sesión).
+ *
+ * No envuelve en `<li>` ni fija tamaños: cada consumidor decide cómo posicionarlo
+ * (navbar, footer del sidebar, footer de Aligment).
+ */
+export function LoginUsername({ className = '' }: Props) {
   const clearSession = useAuthStore((state) => state.clearSession)
   const authContext = useAuthStore((state) => state.authContext)
   const resetSysObject = useSysObjectStore((state) => state.reset)
@@ -39,33 +55,54 @@ export function LoginUsername() {
     }
   }
 
+  const handleOpenRepo = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault()
+    window.open(GITHUB_REPOSITORIO_LINK)
+  }
+
   return (
-    <li className="list-none">
-      <div className="grid h-9 place-content-center px-3">
-        <DropdownMenu>
-          <DropdownMenuTrigger>
-            <div className="group flex items-center gap-2">
-              <Avatar>
-                <AvatarImage src="/shadcn-profile-morty.jpg" />
-                <AvatarFallback>QA</AvatarFallback>
-              </Avatar>
-              <span className="text-secondary group-hover:text-primary hidden text-sm font-medium transition-colors select-none md:block">
-                {authContext.username}
-              </span>
-            </div>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="center" sideOffset={10}>
-            <DropdownMenuLabel>Mi cuenta SQL</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <button onClick={closeSession} className="flex gap-1">
-                <User size={14} />
-                <span>Cerrar sesión</span>
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        className={cn('group hover:bg-action-hover flex cursor-pointer items-center gap-2 rounded-sm px-2 py-1.5', className)}
+      >
+        <Avatar>
+          <AvatarImage src="/shadcn-profile-morty.jpg" />
+          <AvatarFallback>QA</AvatarFallback>
+        </Avatar>
+        <span className="text-secondary group-hover:text-primary text-sm font-medium transition-colors select-none">
+          {authContext.username}
+        </span>
+      </DropdownMenuTrigger>
+
+      <DropdownMenuContent align="center" sideOffset={10} collisionPadding={16} className="w-56">
+        <DropdownMenuLabel>Mi cuenta SQL</DropdownMenuLabel>
+        <DropdownMenuSeparator />
+
+        {/* Tema: conserva el switch original para no agrandar la card */}
+        <DropdownMenuItem className="justify-between gap-2" onSelect={(event) => event.preventDefault()}>
+          <span>Tema</span>
+          <ThemeToggle />
+        </DropdownMenuItem>
+
+        {ENABLE_NAVBAR_REPO_LINK && (
+          <>
+            <DropdownMenuItem asChild>
+              <button type="button" onClick={handleOpenRepo} className="w-full justify-between gap-2">
+                <span>Repositorio</span>
+                <Github size={14} />
               </button>
             </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-    </li>
+            <DropdownMenuSeparator />
+          </>
+        )}
+
+        <DropdownMenuItem asChild>
+          <button type="button" onClick={closeSession} className="w-full justify-between gap-2">
+            <span>Cerrar sesión</span>
+            <User size={14} />
+          </button>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }

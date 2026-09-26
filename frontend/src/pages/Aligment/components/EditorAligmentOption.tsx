@@ -1,5 +1,6 @@
 import { ConfigOptionEditor, GenerateCodeForDropObject } from '@/components/editor-option'
 import { CopyCode } from '@/components/editor-option'
+import { ViewModeSelect } from '@/components/view-mode-select'
 
 import { useAligmentStore } from '../zustand/aligment.store'
 
@@ -16,6 +17,8 @@ export function EditorAligmentOption({ className = '' }: Props) {
     schemaName: '',
   }
   const currentEditorCode = useAligmentStore((state) => state.currentEditorCode)
+  const viewMode = useAligmentStore((state) => state.viewMode)
+  const updateViewMode = useAligmentStore((state) => state.updateViewMode)
 
   return (
     <section className={className}>
@@ -28,6 +31,7 @@ export function EditorAligmentOption({ className = '' }: Props) {
           <ConfigOptionEditor /> {/* Configuración del editor */}
           {/* <DownloadScript text={sysobject.definition} disabled={!sysobject.definition} filename={sysobject.name} /> */}
           <CopyCode text={currentEditorCode} />
+          <ViewModeSelect value={viewMode} onChange={updateViewMode} />
         </div>
       </div>
     </section>

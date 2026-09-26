@@ -9,7 +9,7 @@ import { AppRoutes } from '@/constants'
 import { APP_SHORT_NAME } from '@/enviroment/enviroment'
 import { useAppStore, useAuthStore } from '@/zustand'
 
-import { ButtonGroup, SearchAligment, ViewModeSelect } from './components'
+import { ButtonGroup, SearchAligment } from './components'
 
 interface Props {
   className?: string
@@ -55,9 +55,6 @@ export function MenuSidebar({ className = '' }: Props) {
           </div>
 
           <div className="flex flex-col gap-4">
-            {/* Radio options */}
-            <ViewModeSelect />
-
             {/* Input */}
             <SearchAligment />
           </div>

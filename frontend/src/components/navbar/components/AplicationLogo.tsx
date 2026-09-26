@@ -4,8 +4,6 @@ import { AppRoutes } from '@/constants'
 import { APP_SHORT_NAME } from '@/enviroment/enviroment'
 import { useAuthStore } from '@/zustand'
 
-import { SwitchDatabase } from './SwitchDatabase'
-
 interface Props {
   className?: string
 }
@@ -21,8 +19,6 @@ export function AplicationLogo({ className = '' }: Props) {
         <NavLink to={AppRoutes.Home} className="text-primary font-bold">
           {APP_SHORT_NAME}
         </NavLink>
-
-        <SwitchDatabase />
       </div>
     </div>
   )

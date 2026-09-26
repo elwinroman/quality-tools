@@ -27,7 +27,11 @@ import { listDatabasesAuthenticatedService, switchDatabaseService } from '@/serv
 import { filterFileDatabases } from '@/utilities'
 import { useAppStore, useAuthStore } from '@/zustand'
 
-export function SwitchDatabase() {
+interface Props {
+  className?: string
+}
+
+export function SwitchDatabase({ className = '' }: Props) {
   const location = useLocation()
   const navigate = useNavigate()
   const authContext = useAuthStore((state) => state.authContext)
@@ -96,6 +100,7 @@ export function SwitchDatabase() {
           className={cn(
             'text-secondary hover:bg-action-hover/80 hover:text-primary focus:bg-action-hover/80 h-8 max-w-[240px] justify-start gap-1.5 rounded-sm bg-transparent px-2 py-1 text-sm font-normal shadow-none disabled:cursor-wait disabled:opacity-100',
             switchingDatabase && 'bg-action-hover/80 text-primary',
+            className,
           )}
         >
           <span className="min-w-0 truncate text-left">{authContext.database}</span>

@@ -1,15 +1,20 @@
-import { Search as SearchIcon } from 'lucide-react'
+import { Code2, Search as SearchIcon, Table2 } from 'lucide-react'
 
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui'
+import { Badge, Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui'
 
 import { Results } from './components/results/Results'
 import { dialogSearchContext } from './context/dialogSearchContext'
 import { searchContext } from './context/searchContext'
 
 export function Search() {
-  const { suggestions, activeIndex, updateQuerySearch, debounceGetSuggestions, updateSuggestions, updateActiveIndex, onSelect } =
+  const { suggestions, activeIndex, updateQuerySearch, debounceGetSuggestions, updateSuggestions, updateActiveIndex, onSelect, type } =
     searchContext()
   const { open, updateOpen } = dialogSearchContext()
+
+  // El badge identifica el alcance del buscador según la página que lo abrió
+  const isUsertable = type === 'U'
+  const BadgeIcon = isUsertable ? Table2 : Code2
+  const badgeLabel = isUsertable ? 'Usertable' : 'SQL Definition'
 
   const handleSearchByTiping = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newSearch = e.target.value
@@ -65,14 +70,18 @@ export function Search() {
           <DialogHeader className="py-1">
             <DialogTitle>
               <div className="flex items-center gap-2 px-3">
-                <SearchIcon size={16} className="text-secondary" />
+                <SearchIcon size={16} className="text-secondary shrink-0" />
                 <input
-                  className="text-primary placeholder:text-muted flex h-8 w-full rounded-sm bg-transparent text-base font-normal file:bg-transparent placeholder:text-sm placeholder:font-normal focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-5"
+                  className="text-primary placeholder:text-muted flex h-8 min-w-0 flex-1 rounded-sm bg-transparent text-base font-normal file:bg-transparent placeholder:text-sm placeholder:font-normal focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-5"
                   placeholder="Escribe el nombre del objeto"
                   spellCheck={false}
                   onChange={handleSearchByTiping}
                   onKeyDown={handleKeyDown}
                 />
+                <Badge variant="outline" className="text-muted shrink-0 gap-1 border-dashed font-medium">
+                  <BadgeIcon size={11} />
+                  {badgeLabel}
+                </Badge>
               </div>
             </DialogTitle>
             <DialogDescription className="hidden" />

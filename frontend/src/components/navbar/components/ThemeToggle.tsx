@@ -1,19 +1,22 @@
 import { Moon, Sun } from 'lucide-react'
+import { useId } from 'react'
 
 import { useAppStore } from '@/zustand'
 
 export function ThemeToggle() {
   const isDark = useAppStore((state) => state.isDark)
   const updateDark = useAppStore((state) => state.updateDark)
+  // id único: el switch puede montarse a la vez en el perfil y en el header de Aligment
+  const toggleId = useId()
 
   // cambia el estado del theme toggle
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => updateDark(e.target.checked)
 
   return (
     <div className="">
-      <input type="checkbox" id="toggle" className="hidden" onChange={handleChange} checked={isDark} />
+      <input type="checkbox" id={toggleId} className="theme-toggle-input hidden" onChange={handleChange} checked={isDark} />
       <div className="wrapper flex items-center justify-center bg-inherit">
-        <label className="inset-sha bg-action-hover relative h-5 w-10 cursor-pointer rounded-xl border" htmlFor="toggle">
+        <label className="inset-sha bg-action-hover relative h-5 w-10 cursor-pointer rounded-xl border" htmlFor={toggleId}>
           {/* Circulo */}
           <div className="circle absolute top-[50%] left-0 flex h-4 w-4 translate-x-[10%] translate-y-[-50%] items-center justify-center rounded-full bg-white transition-all duration-300">
             <Sun size={12} strokeWidth={3} className="isun absolute mt-0 text-amber-400 opacity-100 transition-all duration-300" />

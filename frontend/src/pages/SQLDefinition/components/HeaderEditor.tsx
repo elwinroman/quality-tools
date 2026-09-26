@@ -1,8 +1,9 @@
-import { ChevronRight, Code2, RefreshCw, TriangleAlert } from 'lucide-react'
+import { PanelLeft, RefreshCw, TriangleAlert } from 'lucide-react'
 
 import { ConfigOptionEditor, CopyCode, GenerateCodeForDropObject } from '@/components/editor-option'
 import { ToggleFavoritoButton, useFavoritoContext } from '@/components/favoritos'
-import { Badge, Button, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui'
+import { Button, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui'
+import { ViewModeSelect } from '@/components/view-mode-select'
 import { useEditorOptionsStore } from '@/zustand'
 
 import { TabOption } from '../constants/tabs-options'
@@ -12,10 +13,13 @@ import { SideBySideToggle } from './diff-script-content/components/SideBySideTog
 
 interface Props {
   activeTab: string
+  onOpenSidebar?: () => void
 }
 
-export function HeaderEditor({ activeTab }: Props) {
+export function HeaderEditor({ activeTab, onOpenSidebar }: Props) {
   const sysobject = useSysObjectStore((state) => state.sysobject)
+  const viewMode = useSysObjectStore((state) => state.viewMode)
+  const updateViewMode = useSysObjectStore((state) => state.updateViewMode)
   const isLoadingObject = useSysObjectStore((state) => state.isLoadingObject)
   const currentEditorCode = useSysObjectStore((state) => state.currentEditorCode)
   const fetchSysObjectByName = useSysObjectStore((state) => state.fetchSysObjectByName)
@@ -23,6 +27,8 @@ export function HeaderEditor({ activeTab }: Props) {
   const { isFavorito, upsertFavorito, deleteFavorito } = useFavoritoContext()
 
   const isComparing = activeTab === TabOption.Compare
+  // La vista solo aplica a los tabs que muestran código
+  const showViewMode = activeTab === TabOption.Script || isComparing
   const currentFavorito = sysobject ? isFavorito(sysobject.name, sysobject.schemaName) : undefined
 
   const handleToggleFavorito = () => {
@@ -44,24 +50,31 @@ export function HeaderEditor({ activeTab }: Props) {
   return (
     <header className="bg-background flex items-center justify-between px-4 pt-2 pb-3">
       {/* Breadcrumb */}
-      {sysobject ? (
-        <div className="flex items-center gap-1">
-          <ul className="text-secondary SY flex items-center gap-0.5 font-bold">
-            <li>{sysobject.schemaName}</li>
-            <li>
-              <ChevronRight size={14} className="place-self-center-safe" />
-            </li>
-            <li className="text-primary overflow-hidden">{sysobject.name}</li>
-          </ul>
-          <Badge variant="outline" className="text-muted ml-2 gap-1 border-dashed font-medium">
-            <Code2 size={11} />
-            SQL Definition
-          </Badge>
-          <ToggleFavoritoButton isFavorite={!!currentFavorito} onClick={handleToggleFavorito} />
-        </div>
-      ) : (
-        <div className="SY flex h-11 items-center text-[13px]"></div>
-      )}
+      <div className="flex min-w-0 items-center gap-2">
+        {onOpenSidebar && (
+          <button
+            type="button"
+            className="hover:bg-background-neutral shrink-0 rounded-sm px-1 py-1"
+            onClick={onOpenSidebar}
+            aria-label="Mostrar panel lateral"
+          >
+            <PanelLeft size={16} />
+          </button>
+        )}
+
+        {sysobject ? (
+          <div className="flex min-w-0 items-center gap-1">
+            <ToggleFavoritoButton isFavorite={!!currentFavorito} onClick={handleToggleFavorito} />
+
+            <span className="flex min-w-0 items-center gap-1 text-sm">
+              <span className="text-secondary shrink-0">{sysobject.schemaName}</span>
+              <span className="text-primary min-w-0 truncate font-semibold">{sysobject.name}</span>
+            </span>
+          </div>
+        ) : (
+          <div className="SY flex h-11 items-center text-[13px]"></div>
+        )}
+      </div>
 
       {/* Aviso normalización activa */}
       {isComparing && normalizeWhitespace && (
@@ -105,6 +118,8 @@ export function HeaderEditor({ activeTab }: Props) {
         )}
 
         <ConfigOptionEditor />
+
+        {showViewMode && <ViewModeSelect value={viewMode} onChange={updateViewMode} />}
       </div>
     </header>
   )

@@ -1,4 +1,3 @@
-import { ArrowLeftToLine, ArrowRightToLine } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { ImperativePanelHandle } from 'react-resizable-panels'
 import { useParams } from 'react-router-dom'
@@ -6,9 +5,20 @@ import { toast } from 'sonner'
 
 import { FavoritoProvider } from '@/components/favoritos'
 import { DatabaseSwitchOverlay } from '@/components/loader'
-import { Navbar } from '@/components/navbar/Navbar'
 import { DialogSearchProvider } from '@/components/search/context/dialogSearchContext'
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup, Tabs, TabsContent } from '@/components/ui'
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  Tabs,
+  TabsContent,
+} from '@/components/ui'
+import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { parseQualifiedSysObjectName } from '@/utilities/sysobject-route.util'
 import { useAppStore, useAuthStore } from '@/zustand'
 
@@ -23,6 +33,8 @@ export function SQLDefinitionPage() {
   const switchingDatabase = useAppStore((state) => state.switchingDatabase)
   const leftPanelRef = useRef<ImperativePanelHandle>(null)
   const [isCollapsed, setIsCollapsed] = useState(false)
+  const isDesktop = useMediaQuery('(min-width: 64rem)')
+  const [drawerOpen, setDrawerOpen] = useState(false)
   const [activeTab, setActiveTab] = useState(TabOption.Script)
   const sysobject = useSysObjectStore((state) => state.sysobject)
   const fetchSysObjectByName = useSysObjectStore((state) => state.fetchSysObjectByName)
@@ -48,6 +60,11 @@ export function SQLDefinitionPage() {
     updateError(null)
   }, [error, updateError])
 
+  // Al volver a desktop el drawer deja de existir: se limpia para que no reaparezca al achicar
+  useEffect(() => {
+    if (isDesktop) setDrawerOpen(false)
+  }, [isDesktop])
+
   useEffect(() => {
     setActiveTab((currentTab) => (currentTab === TabOption.Compare ? TabOption.Script : currentTab))
   }, [database])
@@ -57,8 +74,7 @@ export function SQLDefinitionPage() {
     setActiveTab((currentTab) => (currentTab === TabOption.Compare ? TabOption.Script : currentTab))
   }, [sysobject])
 
-  const handleHidePanel = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault()
+  const handleHidePanel = () => {
     if (!leftPanelRef.current) return
 
     const isCollapsedCurrent = leftPanelRef.current.isCollapsed()
@@ -68,14 +84,20 @@ export function SQLDefinitionPage() {
     else leftPanelRef.current.collapse()
   }
 
+  // El reveal del sidebar vive en el header del editor: en mobile abre el drawer, en desktop expande el panel
+  const sidebarHidden = !isDesktop || isCollapsed
+  const handleRevealSidebar = () => {
+    if (isDesktop) handleHidePanel()
+    else setDrawerOpen(true)
+  }
+
   return (
     <section className="bg-background flex h-full w-full flex-col">
-      <Navbar />
-
       <main className="relative h-full w-full overflow-hidden">
         <section className="bg-background-paperchanel relative h-full w-full overflow-hidden">
           <FavoritoProvider type="ALL_EXCEPT_USERTABLE">
             <ResizablePanelGroup
+              key={isDesktop ? 'desktop' : 'mobile'}
               direction="horizontal"
               onLayout={(sizes) => {
                 const [leftSize] = sizes
@@ -85,60 +107,63 @@ export function SQLDefinitionPage() {
               {/* Sidebar izquierdo - full height */}
               <ResizablePanel
                 minSize={isCollapsed ? 0 : 10}
-                defaultSize={15}
+                defaultSize={isDesktop ? 15 : 0}
                 maxSize={15}
                 className="transition-all"
                 collapsible={true}
                 collapsedSize={0}
                 ref={leftPanelRef}
               >
-                <DialogSearchProvider>
-                  <PanelEditor />
-                </DialogSearchProvider>
+                {isDesktop && (
+                  <DialogSearchProvider>
+                    <PanelEditor onToggleSidebar={handleHidePanel} isCollapsed={isCollapsed} />
+                  </DialogSearchProvider>
+                )}
               </ResizablePanel>
 
-              <ResizableHandle className={!isCollapsed ? 'pointer-events-none' : ''} withHandle={false} />
+              <ResizableHandle className={!isDesktop || !isCollapsed ? 'pointer-events-none' : ''} withHandle={false} />
 
               {/* Panel derecho: headers + editor */}
               <ResizablePanel>
-                <Tabs key={database} value={activeTab} onValueChange={setActiveTab} className="flex h-full flex-col">
-                  <HeaderEditor activeTab={activeTab} />
-                  <HeaderTabs />
+                {/* Contenedor flex: las Tabs necesitan un padre de altura definida para resolver su flex-1 */}
+                <div className="flex h-full flex-col">
+                  <Tabs key={database} value={activeTab} onValueChange={setActiveTab} className="flex min-h-0 flex-1 flex-col">
+                    <HeaderEditor activeTab={activeTab} onOpenSidebar={sidebarHidden ? handleRevealSidebar : undefined} />
+                    <HeaderTabs />
 
-                  <TabsContent value={TabOption.Overview} className="flex-1 overflow-hidden">
-                    <OverviewContent />
-                  </TabsContent>
+                    <TabsContent value={TabOption.Overview} className="flex-1 overflow-hidden">
+                      <OverviewContent />
+                    </TabsContent>
 
-                  <TabsContent value={TabOption.Script} className="flex-1 overflow-hidden">
-                    <EditorCode />
-                  </TabsContent>
+                    <TabsContent value={TabOption.Script} className="flex-1 overflow-hidden">
+                      <EditorCode />
+                    </TabsContent>
 
-                  <TabsContent value={TabOption.Dependencies} className="flex-1 overflow-hidden">
-                    <DependenciesContent />
-                  </TabsContent>
+                    <TabsContent value={TabOption.Dependencies} className="flex-1 overflow-hidden">
+                      <DependenciesContent />
+                    </TabsContent>
 
-                  <TabsContent value={TabOption.Compare} className="flex-1 overflow-hidden">
-                    <DiffScriptContent />
-                  </TabsContent>
-                </Tabs>
+                    <TabsContent value={TabOption.Compare} className="flex-1 overflow-hidden">
+                      <DiffScriptContent />
+                    </TabsContent>
+                  </Tabs>
+                </div>
               </ResizablePanel>
             </ResizablePanelGroup>
 
-            {/* Botón para ocultar el panel */}
-            {!isCollapsed ? (
-              <button
-                className="bg-background-neutral ring-border border-border hover:bg-action-hover absolute bottom-2 left-2 z-50 grid h-8 w-8 place-content-center rounded-sm border"
-                onClick={handleHidePanel}
-              >
-                <ArrowLeftToLine size={18} className="text-primary" />
-              </button>
-            ) : (
-              <button
-                className="bg-background-neutral ring-border border-border hover:bg-action-hover absolute bottom-2 left-2 z-50 grid h-8 w-8 place-content-center rounded-sm border"
-                onClick={handleHidePanel}
-              >
-                <ArrowRightToLine size={18} className="text-primary" />
-              </button>
+            {/* Drawer lateral en mobile: el sidebar vive aquí por debajo del breakpoint lg */}
+            {!isDesktop && (
+              <Sheet open={drawerOpen} onOpenChange={setDrawerOpen}>
+                <SheetContent side="left" className="w-[85vw] max-w-xs p-0">
+                  <SheetHeader className="sr-only">
+                    <SheetTitle>Panel lateral</SheetTitle>
+                    <SheetDescription>Navegación, búsqueda y favoritos.</SheetDescription>
+                  </SheetHeader>
+                  <DialogSearchProvider>
+                    <PanelEditor onToggleSidebar={() => setDrawerOpen(false)} onNavigate={() => setDrawerOpen(false)} />
+                  </DialogSearchProvider>
+                </SheetContent>
+              </Sheet>
             )}
           </FavoritoProvider>
         </section>

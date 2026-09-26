@@ -1,14 +1,12 @@
 import { Laptop, Shredder } from 'lucide-react'
 
 import { DatabaseSwitchOverlay } from '@/components/loader'
-import { Navbar } from '@/components/navbar/Navbar'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { SearchFilter } from '@/pages/Issues/components/Filter'
 
 export function IssuesPage() {
   return (
     <section className="bg-background flex h-full w-full flex-col">
-      <Navbar />
       <main className="relative h-full w-full overflow-auto px-4 py-4">
         <DatabaseSwitchOverlay />
         <SearchFilter />

@@ -1,4 +1,3 @@
-import { ArrowLeftToLine, ArrowRightToLine } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { ImperativePanelHandle } from 'react-resizable-panels'
 import { useParams } from 'react-router-dom'
@@ -6,9 +5,20 @@ import { toast } from 'sonner'
 
 import { FavoritoProvider } from '@/components/favoritos'
 import { DatabaseSwitchOverlay } from '@/components/loader'
-import { Navbar } from '@/components/navbar/Navbar'
 import { DialogSearchProvider } from '@/components/search/context/dialogSearchContext'
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup, Tabs, TabsContent } from '@/components/ui'
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  Tabs,
+  TabsContent,
+} from '@/components/ui'
+import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { cn } from '@/lib/utils'
 import { parseQualifiedSysObjectName } from '@/utilities/sysobject-route.util'
 import { useAppStore, useAuthStore } from '@/zustand'
@@ -31,6 +41,8 @@ export function UsertablePage() {
   const switchingDatabase = useAppStore((state) => state.switchingDatabase)
   const leftPanelRef = useRef<ImperativePanelHandle>(null)
   const [isCollapsed, setIsCollapsed] = useState(false)
+  const isDesktop = useMediaQuery('(min-width: 64rem)')
+  const [drawerOpen, setDrawerOpen] = useState(false)
   const loading = useUserTableStore((state) => state.loading)
   const object = useUserTableStore((state) => state.userTableObject)
   const fetchUserTableByName = useUserTableStore((state) => state.fetchUserTableByName)
@@ -55,8 +67,12 @@ export function UsertablePage() {
     updateError(null)
   }, [error, updateError])
 
-  const handleHidePanel = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault()
+  // Al volver a desktop el drawer deja de existir: se limpia para que no reaparezca al achicar
+  useEffect(() => {
+    if (isDesktop) setDrawerOpen(false)
+  }, [isDesktop])
+
+  const handleHidePanel = () => {
     if (!leftPanelRef.current) return
 
     const isCollapsedCurrent = leftPanelRef.current.isCollapsed()
@@ -66,14 +82,20 @@ export function UsertablePage() {
     else leftPanelRef.current.collapse()
   }
 
+  // El reveal del sidebar vive en el header del editor: en mobile abre el drawer, en desktop expande el panel
+  const sidebarHidden = !isDesktop || isCollapsed
+  const handleRevealSidebar = () => {
+    if (isDesktop) handleHidePanel()
+    else setDrawerOpen(true)
+  }
+
   return (
     <section className="bg-background flex h-full w-full flex-col">
-      <Navbar />
-
       <main className="relative h-full w-full overflow-hidden">
         <section className="bg-background-paperchanel relative h-full w-full overflow-hidden">
           <FavoritoProvider type="U">
             <ResizablePanelGroup
+              key={isDesktop ? 'desktop' : 'mobile'}
               direction="horizontal"
               onLayout={(sizes) => {
                 const [leftSize] = sizes
@@ -83,67 +105,70 @@ export function UsertablePage() {
               {/* Sidebar izquierdo - full height */}
               <ResizablePanel
                 minSize={isCollapsed ? 0 : 10}
-                defaultSize={15}
+                defaultSize={isDesktop ? 15 : 0}
                 maxSize={15}
                 className="transition-all"
                 collapsible={true}
                 collapsedSize={0}
                 ref={leftPanelRef}
               >
-                <DialogSearchProvider>
-                  <UsertablePanelEditor />
-                </DialogSearchProvider>
+                {isDesktop && (
+                  <DialogSearchProvider>
+                    <UsertablePanelEditor onToggleSidebar={handleHidePanel} isCollapsed={isCollapsed} />
+                  </DialogSearchProvider>
+                )}
               </ResizablePanel>
 
-              <ResizableHandle className={!isCollapsed ? 'pointer-events-none' : ''} withHandle={false} />
+              <ResizableHandle className={!isDesktop || !isCollapsed ? 'pointer-events-none' : ''} withHandle={false} />
 
               {/* Panel derecho: headers + tabs content */}
               <ResizablePanel>
-                <Tabs key={database} defaultValue={TabOption.Structure} className="flex h-full flex-col">
-                  <HeaderUsertable />
-                  <HeaderTabsUsertable />
+                {/* Contenedor flex: las Tabs necesitan un padre de altura definida para resolver su flex-1 */}
+                <div className="flex h-full flex-col">
+                  <Tabs key={database} defaultValue={TabOption.Structure} className="flex min-h-0 flex-1 flex-col">
+                    <HeaderUsertable onOpenSidebar={sidebarHidden ? handleRevealSidebar : undefined} />
+                    <HeaderTabsUsertable />
 
-                  {/* Tab Estructura */}
-                  <TabsContent value={TabOption.Structure} className={cn('flex-1 overflow-auto', object && !loading && 'px-4 py-4')}>
-                    {loading ? (
-                      <div className="text-secondary flex h-full items-center justify-center text-sm">Cargando...</div>
-                    ) : (
-                      <DataTable columns={Columns} />
-                    )}
-                  </TabsContent>
+                    {/* Tab Estructura */}
+                    <TabsContent value={TabOption.Structure} className={cn('flex-1 overflow-auto', object && !loading && 'px-4 py-4')}>
+                      {loading ? (
+                        <div className="text-secondary flex h-full items-center justify-center text-sm">Cargando...</div>
+                      ) : (
+                        <DataTable columns={Columns} />
+                      )}
+                    </TabsContent>
 
-                  {/* Tab Overview */}
-                  <TabsContent value={TabOption.Overview} className="flex-1 overflow-auto">
-                    {!object ? <UsertableEmptyState /> : <UsertableOverviewContent />}
-                  </TabsContent>
+                    {/* Tab Overview */}
+                    <TabsContent value={TabOption.Overview} className="flex-1 overflow-auto">
+                      {!object ? <UsertableEmptyState /> : <UsertableOverviewContent />}
+                    </TabsContent>
 
-                  {/* Tab Índices */}
-                  <TabsContent value={TabOption.Indexes} className="flex-1 overflow-auto px-4 py-4">
-                    {loading ? (
-                      <div className="text-secondary flex h-full items-center justify-center text-sm">Cargando...</div>
-                    ) : (
-                      <IndexDataTable columns={IndexColumns} />
-                    )}
-                  </TabsContent>
-                </Tabs>
+                    {/* Tab Índices */}
+                    <TabsContent value={TabOption.Indexes} className="flex-1 overflow-auto px-4 py-4">
+                      {loading ? (
+                        <div className="text-secondary flex h-full items-center justify-center text-sm">Cargando...</div>
+                      ) : (
+                        <IndexDataTable columns={IndexColumns} />
+                      )}
+                    </TabsContent>
+                  </Tabs>
+                </div>
               </ResizablePanel>
             </ResizablePanelGroup>
 
-            {/* Botón para ocultar el panel */}
-            {!isCollapsed ? (
-              <button
-                className="bg-background-neutral ring-border border-border hover:bg-action-hover absolute bottom-2 left-2 z-50 grid h-8 w-8 place-content-center rounded-sm border"
-                onClick={handleHidePanel}
-              >
-                <ArrowLeftToLine size={18} className="text-primary" />
-              </button>
-            ) : (
-              <button
-                className="bg-background-neutral ring-border border-border hover:bg-action-hover absolute bottom-2 left-2 z-50 grid h-8 w-8 place-content-center rounded-sm border"
-                onClick={handleHidePanel}
-              >
-                <ArrowRightToLine size={18} className="text-primary" />
-              </button>
+            {/* Drawer lateral en mobile: el sidebar vive aquí por debajo del breakpoint lg */}
+            {!isDesktop && (
+              <Sheet open={drawerOpen} onOpenChange={setDrawerOpen}>
+                <SheetContent side="left" className="w-[85vw] max-w-xs p-0">
+                  <SheetHeader className="sr-only">
+                    <SheetTitle>Panel lateral</SheetTitle>
+                    <SheetDescription>Navegación, búsqueda y favoritos.</SheetDescription>
+                  </SheetHeader>
+                  <DialogSearchProvider>
+                    <UsertablePanelEditor onToggleSidebar={() => setDrawerOpen(false)} onNavigate={() => setDrawerOpen(false)} />
+                  </DialogSearchProvider>
+                </SheetContent>
+              </Sheet>
             )}
           </FavoritoProvider>
         </section>
