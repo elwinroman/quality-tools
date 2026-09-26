@@ -14,7 +14,7 @@ export function LoginPage() {
   if (authContext) return <Navigate to="/" />
 
   return (
-    <section className="bg-background flex h-screen w-full items-center overflow-auto">
+    <section className="bg-background relative flex h-screen w-full items-center overflow-auto">
       {/* Sidebox  */}
       <SideBox />
 
@@ -37,6 +37,13 @@ export function LoginPage() {
         {/* Formulario */}
         <Form />
       </div>
+
+      {/* Créditos */}
+      <footer className="text-muted absolute inset-x-0 bottom-0 grid place-content-center py-2 text-sm">
+        <span>
+          © 2026 <strong>Departamento de Aseguramiento de Calidad</strong>
+        </span>
+      </footer>
     </section>
   )
 }

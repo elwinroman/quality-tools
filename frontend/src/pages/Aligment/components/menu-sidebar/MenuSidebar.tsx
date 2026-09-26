@@ -1,71 +1,51 @@
 import { useSearchContext } from '@aligment/hooks'
-import { LayoutGrid, User } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
 
 import { CircleLoader } from '@/components/loader'
-import { LoginUsername, ThemeToggle } from '@/components/shared'
-import { Button, Checkbox } from '@/components/ui'
-import { AppRoutes } from '@/constants'
-import { APP_SHORT_NAME } from '@/enviroment/enviroment'
+import { Sidebar, SidebarFooter, SidebarHeader, SidebarNav } from '@/components/sidebar'
 import { useAppStore, useAuthStore } from '@/zustand'
 
-import { ButtonGroup, SearchAligment } from './components'
+import { ButtonGroup, InfoCard, SearchAligment } from './components'
 
 interface Props {
   className?: string
+  /** Oculta el botón de colapsar dentro del sidebar cuando ya está colapsado. */
+  isCollapsed?: boolean
+  onToggleSidebar?(): void
 }
 
-export function MenuSidebar({ className = '' }: Props) {
-  const navigate = useNavigate()
+/**
+ * Sidebar de Aligment. Reutiliza el marco, el header, la navegación y el footer
+ * compartidos; lo propio es el cuerpo de consulta.
+ *
+ * No se le pasa el toggle de colapsar a propósito: acá el sidebar se colapsa desde
+ * su propio header y, una vez colapsado, se lo revela desde el header del editor.
+ */
+export function MenuSidebar({ className = '', isCollapsed = false, onToggleSidebar }: Props) {
   const authContext = useAuthStore((state) => state.authContext)
   const isDark = useAppStore((state) => state.isDark)
   const { loading } = useSearchContext()
 
-  const backHome = () => navigate(AppRoutes.Home)
-  const redirectLogin = () => navigate(AppRoutes.Login)
-
   return (
-    <nav className={`border-border border-r shadow-xl ${className}`}>
-      <header className="flex items-center px-6 py-3">
-        {authContext ? (
-          <Button variant={'ghost'} size="sm" className="flex items-center gap-2" onClick={backHome}>
-            <LayoutGrid size={16} />
-            <span className="underline">Home</span>
-          </Button>
-        ) : (
-          <div className="flex w-full items-center justify-between">
-            <span className="text-primary font-bold">{APP_SHORT_NAME}</span>
-            <ThemeToggle />
-          </div>
-        )}
-      </header>
+    <Sidebar
+      className={className}
+      header={<SidebarHeader showDatabase={false} isCollapsed={isCollapsed} onToggleSidebar={onToggleSidebar} />}
+      footer={
+        <>
+          {/* Aviso cerrable, pegado arriba del bloque de perfil */}
+          <InfoCard />
 
-      <div className="grow overflow-x-hidden overflow-y-auto px-4 py-6 md:px-6">
+          <SidebarFooter />
+        </>
+      }
+    >
+      {/* Navegación entre páginas: sólo con sesión, porque sus destinos son protegidos */}
+      {authContext && <SidebarNav className="shrink-0 px-4 py-2" />}
+
+      {/* Cuerpo propio de Aligment */}
+      <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto px-4 py-6 md:px-6">
         <div className="flex flex-col gap-6">
-          {/* Texto */}
-          <div className="flex flex-col gap-3">
-            <h4 className="text-primary/90 text-sm font-bold">CONSULTA DE OBJETOS PARA ALINEACIÓN</h4>
-
-            <p className="text-secondary text-sm text-pretty">
-              <span>Recupera los objetos alineados a </span>
-              <strong>producción </strong>
-              <span>y dí adios a observaciones por desvío de ambientes </span>
-              <span className="text-primary">(Actualizado al día de ayer)</span>
-            </p>
-          </div>
-
-          <div className="flex flex-col gap-4">
-            {/* Input */}
-            <SearchAligment />
-          </div>
-
-          {/* Términos y condiciones */}
-          <div>
-            <label className="flex gap-2">
-              <Checkbox disabled={true} checked={true} className="mt-1" />
-              <span className="text-secondary text-[14px]">Al realizar la consulta acepto que mis datos sean recopilados.</span>
-            </label>
-          </div>
+          {/* Input */}
+          <SearchAligment />
 
           {/* Buttons */}
           <ButtonGroup />
@@ -77,21 +57,7 @@ export function MenuSidebar({ className = '' }: Props) {
             </div>
           )}
         </div>
-
-        {/* objeto copia */}
-        <div className="h-14 min-h-14 w-full bg-none"></div>
       </div>
-
-      <footer className="bg-background/85 absolute bottom-0 flex h-14 min-h-14 w-[calc(100%-20px)] items-center px-6 backdrop-blur-sm">
-        {!authContext ? (
-          <button className="hover:bg-action-hover flex h-10 items-center gap-2 rounded-sm px-2 transition-colors" onClick={redirectLogin}>
-            <User size={18} />
-            <span className="text-sm">Iniciar sesión</span>
-          </button>
-        ) : (
-          <LoginUsername />
-        )}
-      </footer>
-    </nav>
+    </Sidebar>
   )
 }

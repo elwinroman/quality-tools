@@ -55,6 +55,7 @@ export function SearchAligment() {
     <div>
       <label className="flex flex-col gap-1.5">
         <span className="text-sm font-medium">Objeto</span>
+
         <InputWithIcon
           ref={inputRef}
           value={search}

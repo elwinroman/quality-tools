@@ -11,6 +11,7 @@ import { useAligmentStore } from './zustand/aligment.store'
 export function AligmentPage() {
   const errorApiConnection = useAuthStore((state) => state.errorApiConnection)
   const hideMenu = useAligmentStore((state) => state.hideMenu)
+  const updateHideMenu = useAligmentStore((state) => state.updateHideMenu)
   const { error } = useSearchContext()
 
   // notificación de errores (evita repetir el toast si el error no cambió)
@@ -33,7 +34,7 @@ export function AligmentPage() {
       <aside
         className={`bg-background relative hidden h-full transition-all duration-300 ease-in-out sm:block ${hideMenu ? 'w-0 overflow-hidden opacity-0' : `w-sidebar opacity-100`} `}
       >
-        <MenuSidebar className={`w-sidebar bg-background h-full flex-col sm:flex`} />
+        <MenuSidebar className="w-sidebar shadow-xl" isCollapsed={hideMenu} onToggleSidebar={() => updateHideMenu(!hideMenu)} />
       </aside>
 
       {/* Main content */}
@@ -42,12 +43,6 @@ export function AligmentPage() {
 
         {/* Editor code */}
         <EditorCodeAligment />
-
-        <footer className="text-muted grid place-content-center py-2 text-sm">
-          <span>
-            © 2026 <strong>Departamento de Aseguramiento de Calidad</strong>
-          </span>
-        </footer>
       </main>
     </section>
   )
