@@ -61,9 +61,27 @@ Debe ser uno de los siguientes
 ### Scope
 El scope o ámbito debe ser el nombre del módulo afectado (tal y como lo percibe la persona que lee el registro de cambios generado a partir de los git commits).
 
-La siguiente es la lista de scope admitidos:
-- frontend
-- api
+Hay dos ejes, y se elige según el tipo de cambio:
+
+- **Funcionalidad**: cuando el cambio pertenece a una funcionalidad concreta, el scope es el nombre de esa funcionalidad, aunque toque api y frontend a la vez. Los nombres son los de los módulos bajo `api/src/modules/`:
+  - `auth`
+  - `busqueda-reciente`
+  - `cli-crypto`
+  - `favorito`
+  - `health`
+  - `observability`
+  - `shared`
+  - `sysobject`
+
+  Si el módulo del api y la carpeta del frontend se llaman distinto, se usa el nombre de la funcionalidad tal como la nombra el equipo. Por ejemplo: `favorito` en el api contra `favoritos` en el frontend — se usa `favoritos`.
+
+- **Capa**: cuando el cambio es transversal y no pertenece a una funcionalidad — build, CI, dependencias, configuración, herramientas — el scope es la capa:
+  - `api`
+  - `frontend`
+
+  Ejemplos: `ci(api)`, `build(api)`, `chore(frontend)`.
+
+Un cambio de funcionalidad que cruza api y frontend normalmente va en un solo commit con el scope de la funcionalidad: si se parte, el commit del api deja a un consumidor llamando a un contrato que todavía no existe.
 
 Se puede omitir el scope cuando el cambio no pertenece a un módulo, por ejemplo archivos de raíz como `README.md`, `CHANGELOG.md`, `CONTRIBUTING.md` o `.github/`. En ese caso el encabezado queda como `docs: <subject>` o `ci: <subject>`.
 
