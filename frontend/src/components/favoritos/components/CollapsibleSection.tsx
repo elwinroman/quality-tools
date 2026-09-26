@@ -16,11 +16,18 @@ export function CollapsibleSection({ title, children, defaultOpen = true }: Prop
     <div className="flex min-h-0 flex-1 flex-col">
       <button
         type="button"
-        className="hover:bg-action-hover flex shrink-0 items-center gap-1 rounded-sm px-2 py-2 text-left"
+        className="group/section flex shrink-0 cursor-pointer items-center justify-between gap-1 rounded-sm px-2 py-2 text-left"
         onClick={() => setIsOpen((prev) => !prev)}
       >
-        <ChevronRight size={14} className={cn('text-secondary shrink-0 transition-transform duration-200', isOpen && 'rotate-90')} />
-        <span className="text-primary text-sm font-semibold">{title}</span>
+        {/* Color y hover de texto con la misma regla que los ítems de menú */}
+        <span className="text-primary/60 group-hover/section:text-primary text-sm font-semibold">{title}</span>
+        <ChevronRight
+          size={14}
+          className={cn(
+            'text-secondary shrink-0 opacity-0 transition-transform duration-200 group-hover/section:opacity-100',
+            isOpen && 'rotate-90',
+          )}
+        />
       </button>
 
       <div

@@ -1,4 +1,4 @@
-import { CircleDashed, CircleOff, X } from 'lucide-react'
+import { Circle, CircleOff, X } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 
@@ -40,21 +40,21 @@ export function FavoritosList({ favoritos, onDelete, onSelect, activeObjectName,
         const inactive = fav.objectId === null
 
         return (
-          <li key={fav.id} className={cn('group/fav relative mx-2 rounded-sm', isActive(fav) && 'bg-action-hover')}>
+          <li key={fav.id} className={cn('group/fav relative rounded-sm', isActive(fav) && 'bg-action-hover')}>
             <button
               type="button"
               disabled={inactive}
               className={cn(
-                'flex w-full items-center gap-2 rounded-sm px-4 py-1.5 text-left text-[13px]',
+                'flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-[13px]',
                 inactive ? 'cursor-not-allowed' : 'hover:bg-action-hover cursor-pointer',
               )}
               onClick={() => handleClick(fav.objectId, fav.schema, fav.objectName)}
             >
               {inactive ? (
-                <CircleOff size={14} className="text-destructive shrink-0" />
+                <CircleOff size={10} className="text-destructive shrink-0" />
               ) : (
-                <CircleDashed
-                  size={14}
+                <Circle
+                  size={8}
                   className={cn('shrink-0', isActive(fav) ? 'text-primary' : 'text-secondary group-hover/fav:text-primary')}
                 />
               )}
