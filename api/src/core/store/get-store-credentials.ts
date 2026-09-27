@@ -1,5 +1,6 @@
 import { buildAuthCredentialsCacheKey } from '@auth/utils/auth-credentials-cache-key.util'
 import cryptocodeUtil from '@core/utils/cryptocode.util'
+import { CacheRepository } from '@shared/domain/cache-repository'
 import { StoreUserSchema } from '@shared/domain/store'
 
 import {
@@ -20,7 +21,6 @@ import {
 } from '@/config/enviroment'
 import { MODE } from '@/constants/commons'
 
-import { ValkeyCacheRepository } from '../cache/valkey-cache-repository'
 import { DatabaseName } from './database.enum'
 import { UserType, UserTypeEnum } from './mssql-database-connection'
 
@@ -68,10 +68,10 @@ export function getStaticDatabaseCredentials(name: DatabaseName): { credentials:
 export async function getCacheDatabaseCredentials(
   userId: number,
   sessionId: string,
+  cacheRepository: CacheRepository,
 ): Promise<{ credentials: StoreUserSchema; type: UserType } | null> {
   const key = buildAuthCredentialsCacheKey(userId, sessionId)
 
-  const cacheRepository = new ValkeyCacheRepository()
   const cachedCredentials = await cacheRepository.get(key)
 
   // si no existe la credencial en la caché

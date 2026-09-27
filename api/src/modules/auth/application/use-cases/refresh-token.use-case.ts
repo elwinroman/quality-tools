@@ -41,7 +41,7 @@ export class RefreshTokenUseCase {
 
     // intenta recuperar las credenciales del usuario desde la caché.
     // si no existen, es probable que la caché haya sido limpiada (e.g., reinicio de infraestructura, eliminación accidental, etc.).
-    const cacheCredentials = await getCacheDatabaseCredentials(decoded.user_id, decoded.session_id)
+    const cacheCredentials = await getCacheDatabaseCredentials(decoded.user_id, decoded.session_id, this.cacheRepository)
     if (!cacheCredentials) {
       this.loggerContext.set({
         auth: { status: 'failed', reason: 'cache_credentials_not_found' },

@@ -1,4 +1,5 @@
 import { authenticatorProxyAdapter } from '@auth/infrastructure/adapters/drivers/proxies/composition-root'
+import { ValkeyCacheRepository } from '@core/cache/valkey-cache-repository'
 import { logger } from '@observability/infrastructure/logging/logger-instance'
 import { SysObjectService } from '@sysobject/application/sysobject.service'
 import { GetProdSysObjectUseCase } from '@sysobject/application/use-cases/get-prod-sysobject.use-case'
@@ -25,8 +26,9 @@ import { SearchSuggestionsController } from './search-suggestions/search-suggest
  *************************************/
 const compositionMock = () => {
   // DRIVENS
-  const sysObjectRepository = new MssqlSysObjectRepositoryAdapter()
-  const sysUsertableRepository = new MssqlSysUsertableRepositoryAdapter()
+  const cacheRepository = new ValkeyCacheRepository()
+  const sysObjectRepository = new MssqlSysObjectRepositoryAdapter(cacheRepository)
+  const sysUsertableRepository = new MssqlSysUsertableRepositoryAdapter(cacheRepository)
   const prodSysObjectRepository = new MssqlProdSysObjectRepositoryAdapter()
   const logRepository = new MssqlLogRepositoryAdapter()
   // proxy
@@ -60,8 +62,8 @@ const compositionMock = () => {
 
   // CONTROLLERS
   const searchSuggestionsController = new SearchSuggestionsController(sysObjectService)
-  const getSysObjectController = new GetSysObjectController(sysObjectService)
-  const getSysUsertableController = new GetSysUsertableController(sysObjectService)
+  const getSysObjectController = new GetSysObjectController(sysObjectService, cacheRepository)
+  const getSysUsertableController = new GetSysUsertableController(sysObjectService, cacheRepository)
   const getProdSysObjectController = new GetProdSysObjectController(sysObjectService, authenticatorProxyAdapter)
   const getSysObjectReferencesController = new GetSysObjectReferencesController(sysObjectService)
   const getSysObjectDependenciesController = new GetSysObjectDependenciesController(sysObjectService)

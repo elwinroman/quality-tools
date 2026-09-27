@@ -1,6 +1,7 @@
 import { MSSQLDatabaseConnection } from '@core/store'
 import { buildStoreAuthContext, wrapDatabaseError } from '@core/utils'
 import { decodeRow, decodeRows } from '@core/utils/decode-recordset.util'
+import { CacheRepository } from '@shared/domain/cache-repository'
 import { ForSysObjectRepositoryPort } from '@sysobject/domain/ports/drivens/for-sysobject-repository.port'
 import { PermissionRol } from '@sysobject/domain/schemas/permission-rol'
 import {
@@ -30,6 +31,8 @@ import {
 export class MssqlSysObjectRepositoryAdapter implements ForSysObjectRepositoryPort {
   private connection = new MSSQLDatabaseConnection()
 
+  constructor(private readonly cacheRepository: CacheRepository) {}
+
   private isIncompleteDependencyMetadataError(err: unknown): boolean {
     if (!(err instanceof Error)) return false
 
@@ -58,7 +61,7 @@ export class MssqlSysObjectRepositoryAdapter implements ForSysObjectRepositoryPo
   }
 
   async getBySchemaAndName(schema: string, name: string): Promise<SysObject | null> {
-    const { store } = await buildStoreAuthContext()
+    const { store } = await buildStoreAuthContext(this.cacheRepository)
 
     try {
       const conn = await this.connection.connect(store.credentials, store.type)
@@ -98,7 +101,7 @@ export class MssqlSysObjectRepositoryAdapter implements ForSysObjectRepositoryPo
   }
 
   async getRolesById(id: number): Promise<PermissionRol[]> {
-    const { store } = await buildStoreAuthContext()
+    const { store } = await buildStoreAuthContext(this.cacheRepository)
 
     try {
       const conn = await this.connection.connect(store.credentials, store.type)
@@ -124,7 +127,7 @@ export class MssqlSysObjectRepositoryAdapter implements ForSysObjectRepositoryPo
   }
 
   async findByNameAndType(name: string, types: ValidTypeSysObject[]): Promise<SysObjectSummary[]> {
-    const { store } = await buildStoreAuthContext()
+    const { store } = await buildStoreAuthContext(this.cacheRepository)
 
     try {
       const conn = await this.connection.connect(store.credentials, store.type)
@@ -161,7 +164,7 @@ export class MssqlSysObjectRepositoryAdapter implements ForSysObjectRepositoryPo
   }
 
   async findDependentsBySchemaAndName(name: string, schema: string): Promise<SysObjectRelationsResult<SysObjectDependent>> {
-    const { store } = await buildStoreAuthContext()
+    const { store } = await buildStoreAuthContext(this.cacheRepository)
 
     try {
       const conn = await this.connection.connect(store.credentials, store.type)
@@ -234,7 +237,7 @@ export class MssqlSysObjectRepositoryAdapter implements ForSysObjectRepositoryPo
   }
 
   async findDependenciesBySchemaAndName(name: string, schema: string): Promise<SysObjectRelationsResult<SysObjectDependency>> {
-    const { store } = await buildStoreAuthContext()
+    const { store } = await buildStoreAuthContext(this.cacheRepository)
 
     try {
       const conn = await this.connection.connect(store.credentials, store.type)

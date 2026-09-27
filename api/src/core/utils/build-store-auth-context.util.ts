@@ -1,15 +1,16 @@
 import { getAuthContext } from '@auth/infrastructure/auth-context'
 import { CacheCredentialNotFoundException } from '@core/exceptions/cache/cache-credential-not-found.exception'
 import { getCacheDatabaseCredentials, UserType } from '@core/store'
+import { CacheRepository } from '@shared/domain/cache-repository'
 import { StoreUserSchema } from '@shared/domain/store'
 
 /**
  * Representa el contexto completo del usuario autenticado
- * para acceder a una tienda o entorno dinámico del sistema.
+ * para acceder a un store o entorno dinámico del sistema.
  *
  * Se compone de:
  * - El contexto de autenticación (por ejemplo, userId, roles).
- * - Las credenciales de acceso a la tienda o espacio del usuario.
+ * - Las credenciales de acceso al store o espacio del usuario.
  */
 export interface StoreAuthContext {
   /**
@@ -20,11 +21,11 @@ export interface StoreAuthContext {
     sessionId: string
     email?: string
     roles?: string[]
-    // Extensible según tu modelo de autenticación
+    // Extensible según el modelo de autenticación
   }
 
   /**
-   * Información de la tienda o entorno del usuario, incluyendo tipo de usuario.
+   * Información del store o entorno del usuario, incluyendo tipo de usuario.
    */
   store: {
     credentials: StoreUserSchema
@@ -34,7 +35,7 @@ export interface StoreAuthContext {
 
 /**
  * Recupera y construye el contexto completo del usuario autenticado
- * para acceder a su tienda o entorno de datos.
+ * para acceder al store o entorno de datos.
  *
  * Este contexto unificado se utiliza en escenarios como:
  * - Conexión dinámica a bases de datos según el usuario.
@@ -44,14 +45,14 @@ export interface StoreAuthContext {
  * @throws {Error} Si no se puede recuperar el contexto de autenticación.
  * @throws {CacheCredentialNotFoundException} Si las credenciales no están disponibles en caché.
  *
- * @returns {Promise<StoreAuthContext>} El contexto unificado de autenticación y acceso a tienda.
+ * @returns {Promise<StoreAuthContext>} El contexto unificado de autenticación y acceso al store.
  */
-export async function buildStoreAuthContext(): Promise<StoreAuthContext> {
+export async function buildStoreAuthContext(cacheRepository: CacheRepository): Promise<StoreAuthContext> {
   const authContext = getAuthContext()
   if (!authContext) throw new Error('No se pudo recuperar el contexto de autenticación')
   if (!authContext.sessionId) throw new CacheCredentialNotFoundException(authContext.userId)
 
-  const cached = await getCacheDatabaseCredentials(authContext.userId, authContext.sessionId)
+  const cached = await getCacheDatabaseCredentials(authContext.userId, authContext.sessionId, cacheRepository)
   if (!cached) throw new CacheCredentialNotFoundException(authContext.userId)
 
   return {

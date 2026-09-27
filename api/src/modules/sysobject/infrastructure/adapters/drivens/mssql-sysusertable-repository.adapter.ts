@@ -1,6 +1,7 @@
 import { MSSQLDatabaseConnection } from '@core/store'
 import { buildStoreAuthContext, wrapDatabaseError } from '@core/utils'
 import { decodeRow, decodeRows } from '@core/utils/decode-recordset.util'
+import { CacheRepository } from '@shared/domain/cache-repository'
 import { ForSysUsertableRepositoryPort } from '@sysobject/domain/ports/drivens/for-sysusertable-repository.port'
 import { Column, ExtendedProperty, ForeignKey, Index, UsertableSysObject } from '@sysobject/domain/schemas/usertable'
 import sql from 'mssql'
@@ -23,8 +24,10 @@ import {
 export class MssqlSysUsertableRepositoryAdapter implements ForSysUsertableRepositoryPort {
   private connection = new MSSQLDatabaseConnection()
 
+  constructor(private readonly cacheRepository: CacheRepository) {}
+
   async getBySchemaAndName(schema: string, name: string): Promise<UsertableSysObject | null> {
-    const { store } = await buildStoreAuthContext()
+    const { store } = await buildStoreAuthContext(this.cacheRepository)
 
     try {
       const conn = await this.connection.connect(store.credentials, store.type)
@@ -62,7 +65,7 @@ export class MssqlSysUsertableRepositoryAdapter implements ForSysUsertableReposi
   }
 
   async getColumnsById(id: number): Promise<Column[]> {
-    const { store } = await buildStoreAuthContext()
+    const { store } = await buildStoreAuthContext(this.cacheRepository)
 
     try {
       const conn = await this.connection.connect(store.credentials, store.type)
@@ -118,7 +121,7 @@ export class MssqlSysUsertableRepositoryAdapter implements ForSysUsertableReposi
   }
 
   async getForeignKeysById(id: number): Promise<ForeignKey[]> {
-    const { store } = await buildStoreAuthContext()
+    const { store } = await buildStoreAuthContext(this.cacheRepository)
 
     try {
       const conn = await this.connection.connect(store.credentials, store.type)
@@ -148,7 +151,7 @@ export class MssqlSysUsertableRepositoryAdapter implements ForSysUsertableReposi
   }
 
   async getIndexesById(id: number): Promise<Index[]> {
-    const { store } = await buildStoreAuthContext()
+    const { store } = await buildStoreAuthContext(this.cacheRepository)
 
     try {
       const conn = await this.connection.connect(store.credentials, store.type)
@@ -197,7 +200,7 @@ export class MssqlSysUsertableRepositoryAdapter implements ForSysUsertableReposi
   }
 
   async getUsertableExtendedPropertieById(id: number): Promise<ExtendedProperty[]> {
-    const { store } = await buildStoreAuthContext()
+    const { store } = await buildStoreAuthContext(this.cacheRepository)
 
     try {
       const conn = await this.connection.connect(store.credentials, store.type)

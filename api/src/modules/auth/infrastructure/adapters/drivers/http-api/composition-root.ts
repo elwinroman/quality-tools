@@ -60,9 +60,9 @@ const compositionMock = () => {
   const loginController = new LoginController(controlAuthenticatorService, jwtTokenManager)
   const logoutController = new LogoutController(controlAuthenticatorService)
   const refreshTokenController = new RefreshTokenController(controlAuthenticatorService)
-  const checkSessionController = new CheckSessionController(controlAuthenticatorService)
-  const listDatabasesController = new ListDatabasesController(controlAuthenticatorService)
-  const switchDatabaseController = new SwitchDatabaseController(controlAuthenticatorService)
+  const checkSessionController = new CheckSessionController(controlAuthenticatorService, cacheRepository)
+  const listDatabasesController = new ListDatabasesController(controlAuthenticatorService, cacheRepository)
+  const switchDatabaseController = new SwitchDatabaseController(controlAuthenticatorService, cacheRepository)
 
   return {
     loginController,
