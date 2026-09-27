@@ -1,6 +1,6 @@
 import { MSSQLDatabaseConnection } from '@core/store'
 import { buildStoreAuthContext, wrapDatabaseError } from '@core/utils'
-import { convertLocalToUTC } from '@core/utils'
+import { decodeRow, decodeRows } from '@core/utils/decode-recordset.util'
 import { ForSysObjectRepositoryPort } from '@sysobject/domain/ports/drivens/for-sysobject-repository.port'
 import { PermissionRol } from '@sysobject/domain/schemas/permission-rol'
 import {
@@ -16,12 +16,16 @@ import sql from 'mssql'
 
 import { TIMEZONE_DATABASE } from '@/config/enviroment'
 
-type SysObjectRelationRow = {
-  object_id: number | null
-  schema_name: string | null
-  object_name: string
-  type_desc: string | null
-}
+import {
+  permissionRolRowMapper,
+  PermissionRolRowSchema,
+  sysObjectRelationRowMapper,
+  SysObjectRelationRowSchema,
+  sysObjectRowMapper,
+  SysObjectRowSchema,
+  sysObjectSummaryRowMapper,
+  SysObjectSummaryRowSchema,
+} from './sysobject.mapper'
 
 export class MssqlSysObjectRepositoryAdapter implements ForSysObjectRepositoryPort {
   private connection = new MSSQLDatabaseConnection()
@@ -83,21 +87,11 @@ export class MssqlSysObjectRepositoryAdapter implements ForSysObjectRepositoryPo
       request.input('name', sql.VarChar(128), name)
       const res = await request.query(stmt)
 
-      if (res && res.rowsAffected[0] === 0) return null
+      const row = decodeRow(res.recordset, SysObjectRowSchema)
 
-      const data: SysObject = {
-        id: res.recordset[0].object_id,
-        name: res.recordset[0].name,
-        type: res.recordset[0].type.trim(),
-        typeDesc: res.recordset[0].type_desc,
-        schemaId: res.recordset[0].schema_id,
-        schemaName: res.recordset[0].schema_name,
-        createDate: convertLocalToUTC(res.recordset[0].create_date, TIMEZONE_DATABASE),
-        modifyDate: convertLocalToUTC(res.recordset[0].modify_date, TIMEZONE_DATABASE),
-        definition: res.recordset[0].definition,
-      }
+      if (!row) return null
 
-      return data
+      return sysObjectRowMapper(row, TIMEZONE_DATABASE)
     } catch (err) {
       throw wrapDatabaseError(err)
     }
@@ -123,16 +117,7 @@ export class MssqlSysObjectRepositoryAdapter implements ForSysObjectRepositoryPo
       request.input('id', sql.Int, id)
       const res = await request.query(stmt)
 
-      const roles: PermissionRol[] =
-        res.recordset.map((obj): PermissionRol => {
-          return {
-            stateDesc: obj.state_desc,
-            permissionName: obj.permission_name,
-            name: obj.rol,
-          }
-        }) ?? []
-
-      return roles
+      return decodeRows(res.recordset, PermissionRolRowSchema).map(permissionRolRowMapper)
     } catch (err) {
       throw wrapDatabaseError(err)
     }
@@ -169,18 +154,7 @@ export class MssqlSysObjectRepositoryAdapter implements ForSysObjectRepositoryPo
       request.input('name', sql.VarChar(128), name)
       const res = await request.query(stmt)
 
-      // adapter
-      const data =
-        res.recordset.map((obj): SysObjectSummary => {
-          return {
-            id: obj.object_id,
-            name: obj.name,
-            schemaName: obj.schema_name,
-            typeDesc: obj.type_desc.trim(),
-          }
-        }) ?? []
-
-      return data
+      return decodeRows(res.recordset, SysObjectSummaryRowSchema).map(sysObjectSummaryRowMapper)
     } catch (err) {
       throw wrapDatabaseError(err)
     }
@@ -212,7 +186,7 @@ export class MssqlSysObjectRepositoryAdapter implements ForSysObjectRepositoryPo
       `
 
       request.input('fullName', sql.VarChar(192), fullName)
-      let res: sql.IResult<SysObjectRelationRow>
+      let res: sql.IResult<unknown>
       let warning: SysObjectRelationsWarning | undefined
       const getFallbackDependents = async () => {
         const fallbackRequest = conn.request()
@@ -239,7 +213,7 @@ export class MssqlSysObjectRepositoryAdapter implements ForSysObjectRepositoryPo
         fallbackRequest.input('fullName', sql.VarChar(192), fullName)
         fallbackRequest.input('schema', sql.VarChar(128), schema)
         fallbackRequest.input('name', sql.VarChar(128), name)
-        return fallbackRequest.query<SysObjectRelationRow>(fallbackStmt)
+        return fallbackRequest.query<unknown>(fallbackStmt)
       }
 
       try {
@@ -251,16 +225,7 @@ export class MssqlSysObjectRepositoryAdapter implements ForSysObjectRepositoryPo
         res = await getFallbackDependents()
       }
 
-      // adapter
-      const data =
-        res.recordset.map((obj): SysObjectDependent => {
-          return {
-            id: obj.object_id,
-            name: obj.object_name,
-            schemaName: obj.schema_name,
-            typeDesc: obj.type_desc?.trim() ?? '',
-          }
-        }) ?? []
+      const data = decodeRows(res.recordset, SysObjectRelationRowSchema).map(sysObjectRelationRowMapper)
 
       return warning ? { data, meta: { warning } } : { data }
     } catch (err) {
@@ -295,7 +260,7 @@ export class MssqlSysObjectRepositoryAdapter implements ForSysObjectRepositoryPo
       `
 
       request.input('fullName', sql.VarChar(192), fullName)
-      let res: sql.IResult<SysObjectRelationRow>
+      let res: sql.IResult<unknown>
       let warning: SysObjectRelationsWarning | undefined
       const getFallbackDependencies = async () => {
         const fallbackRequest = conn.request()
@@ -317,7 +282,7 @@ export class MssqlSysObjectRepositoryAdapter implements ForSysObjectRepositoryPo
         `
 
         fallbackRequest.input('fullName', sql.VarChar(192), fullName)
-        return fallbackRequest.query<SysObjectRelationRow>(fallbackStmt)
+        return fallbackRequest.query<unknown>(fallbackStmt)
       }
 
       try {
@@ -329,15 +294,7 @@ export class MssqlSysObjectRepositoryAdapter implements ForSysObjectRepositoryPo
         res = await getFallbackDependencies()
       }
 
-      const data =
-        res.recordset.map((obj): SysObjectDependency => {
-          return {
-            id: obj.object_id,
-            name: obj.object_name,
-            schemaName: obj.schema_name,
-            typeDesc: obj.type_desc?.trim() ?? '',
-          }
-        }) ?? []
+      const data = decodeRows(res.recordset, SysObjectRelationRowSchema).map(sysObjectRelationRowMapper)
 
       return warning ? { data, meta: { warning } } : { data }
     } catch (err) {

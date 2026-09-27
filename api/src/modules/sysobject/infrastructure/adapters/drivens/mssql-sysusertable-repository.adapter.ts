@@ -1,15 +1,24 @@
 import { MSSQLDatabaseConnection } from '@core/store'
 import { buildStoreAuthContext, wrapDatabaseError } from '@core/utils'
-import { format } from '@formkit/tempo'
-import {
-  ForSysUsertableRepositoryPort,
-  RawColumn,
-  RawExtendedProperty,
-  RawIndexRow,
-} from '@sysobject/domain/ports/drivens/for-sysusertable-repository.port'
-import { Column, ExtendedProperty, ForeignKey, Index, IndexColumn, UsertableSysObject } from '@sysobject/domain/schemas/usertable'
-import { formatSQLDataType } from '@sysobject/infrastructure/utils/format-sql-data-type.util'
+import { decodeRow, decodeRows } from '@core/utils/decode-recordset.util'
+import { ForSysUsertableRepositoryPort } from '@sysobject/domain/ports/drivens/for-sysusertable-repository.port'
+import { Column, ExtendedProperty, ForeignKey, Index, UsertableSysObject } from '@sysobject/domain/schemas/usertable'
 import sql from 'mssql'
+
+import {
+  columnExtendedPropertyRowMapper,
+  ColumnExtendedPropertyRowSchema,
+  columnRowMapper,
+  ColumnRowSchema,
+  foreignKeyRowMapper,
+  ForeignKeyRowSchema,
+  indexRowMapper,
+  IndexRowSchema,
+  usertableExtendedPropertyRowMapper,
+  UsertableExtendedPropertyRowSchema,
+  usertableSysObjectRowMapper,
+  UsertableSysObjectRowSchema,
+} from './sysusertable.mapper'
 
 export class MssqlSysUsertableRepositoryAdapter implements ForSysUsertableRepositoryPort {
   private connection = new MSSQLDatabaseConnection()
@@ -42,20 +51,11 @@ export class MssqlSysUsertableRepositoryAdapter implements ForSysUsertableReposi
       request.input('name', sql.VarChar(128), name)
       const res = await request.query(stmt)
 
-      if (res && res.rowsAffected[0] === 0) return null
+      const row = decodeRow(res.recordset, UsertableSysObjectRowSchema)
 
-      const data: UsertableSysObject = {
-        id: res.recordset[0].object_id,
-        name: res.recordset[0].name,
-        type: res.recordset[0].type.trim(),
-        typeDesc: res.recordset[0].type_desc,
-        schemaId: res.recordset[0].schema_id,
-        schemaName: res.recordset[0].schema_name,
-        createDate: format(res.recordset[0].create_date, 'DD-MM-YYYY'),
-        modifyDate: format(res.recordset[0].modify_date, 'DD-MM-YYYY'),
-      }
+      if (!row) return null
 
-      return data
+      return usertableSysObjectRowMapper(row)
     } catch (err) {
       throw wrapDatabaseError(err)
     }
@@ -68,7 +68,6 @@ export class MssqlSysUsertableRepositoryAdapter implements ForSysUsertableReposi
       const conn = await this.connection.connect(store.credentials, store.type)
       const request = conn.request()
 
-      // columnas
       const stmt = `
         --======================================================================
         -- Obtener columnas => recordset[0]
@@ -104,32 +103,15 @@ export class MssqlSysUsertableRepositoryAdapter implements ForSysUsertableReposi
       request.input('id', sql.Int, id)
       const res = await request.query(stmt)
 
-      // tipando los resultados del recordsets (se usa unknown para decirle a typescript que confie en lo que se está haciendo)
-      const recordsets = res.recordsets as unknown as [RawColumn[], RawExtendedProperty[]]
+      // el batch devuelve dos recordsets; cada uno se valida antes de mapear
+      const [columnsRecordset, extendedPropertiesRecordset] = res.recordsets as unknown as [unknown[], unknown[]]
 
-      const columnsRaw = recordsets[0]
-      const extendedPropsRaw = recordsets[1]
+      const columnRows = decodeRows(columnsRecordset, ColumnRowSchema)
+      const extendedPropertyRows = decodeRows(extendedPropertiesRecordset, ColumnExtendedPropertyRowSchema)
 
-      const columns =
-        columnsRaw.map((obj): Column => {
-          return {
-            id: obj.column_id,
-            name: obj.name,
-            type: formatSQLDataType(obj.type_name, obj.max_length, obj.precision, obj.scale),
-            isNullable: obj.is_nullable,
-            isIdentity: obj.is_identity,
-            defaultDefinition: obj.default_definition,
-            extendedProperties:
-              extendedPropsRaw
-                .filter(prop => prop.column_id === obj.column_id)
-                .map(prop => ({
-                  propertyValue: prop.value,
-                  propertyName: prop.name,
-                })) ?? [],
-          }
-        }) ?? []
-
-      return columns
+      return columnRows.map(row =>
+        columnRowMapper(row, extendedPropertyRows.filter(prop => prop.column_id === row.column_id).map(columnExtendedPropertyRowMapper)),
+      )
     } catch (err) {
       throw wrapDatabaseError(err)
     }
@@ -159,19 +141,7 @@ export class MssqlSysUsertableRepositoryAdapter implements ForSysUsertableReposi
       request.input('id', sql.Int, id)
       const res = await request.query(stmt)
 
-      const data =
-        res.recordset.map(
-          (obj): ForeignKey => ({
-            columnId: obj.column_id,
-            referencedObjectId: obj.referenced_object_id,
-            referencedObject: obj.referenced_object,
-            referencedSchema: obj.referenced_schema,
-            referencedColumnId: obj.referenced_column_id,
-            referencedColumn: obj.referenced_column,
-          }),
-        ) ?? []
-
-      return data
+      return decodeRows(res.recordset, ForeignKeyRowSchema).map(foreignKeyRowMapper)
     } catch (err) {
       throw wrapDatabaseError(err)
     }
@@ -209,29 +179,15 @@ export class MssqlSysUsertableRepositoryAdapter implements ForSysUsertableReposi
 
       const indexMap = new Map<string, Index>()
 
-      for (const row of res.recordset as RawIndexRow[]) {
-        if (!indexMap.has(row.index_name)) {
-          indexMap.set(row.index_name, {
-            name: row.index_name,
-            typeDesc: row.type_desc,
-            isPrimaryKey: row.is_primary_key,
-            isUnique: row.is_unique,
-            isFiltered: row.is_filtered,
-            filterDefinition: row.filter_definition,
-            isDisabled: row.is_disabled,
-            columns: [],
-          })
+      for (const index of decodeRows(res.recordset, IndexRowSchema).map(indexRowMapper)) {
+        const existing = indexMap.get(index.name)
+
+        if (existing) {
+          existing.columns.push(...index.columns)
+          continue
         }
 
-        const column: IndexColumn = {
-          columnId: row.column_id,
-          columnName: row.column_name,
-          keyOrdinal: row.key_ordinal,
-          isDescendingKey: row.is_descending_key,
-          isIncludedColumn: row.is_included_column,
-        }
-
-        indexMap.get(row.index_name)!.columns.push(column)
+        indexMap.set(index.name, index)
       }
 
       return [...indexMap.values()]
@@ -257,15 +213,7 @@ export class MssqlSysUsertableRepositoryAdapter implements ForSysUsertableReposi
       request.input('id', sql.Int, id)
       const res = await request.query(stmt)
 
-      const data =
-        res.recordset.map((obj): ExtendedProperty => {
-          return {
-            propertyValue: obj.value,
-            propertyName: obj.name,
-          }
-        }) ?? []
-
-      return data
+      return decodeRows(res.recordset, UsertableExtendedPropertyRowSchema).map(usertableExtendedPropertyRowMapper)
     } catch (err) {
       throw wrapDatabaseError(err)
     }

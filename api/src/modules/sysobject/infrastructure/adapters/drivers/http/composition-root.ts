@@ -11,7 +11,7 @@ import { SearchSuggestionsUseCase } from '@sysobject/application/use-cases/searc
 import { MssqlLogRepositoryAdapter } from '@sysobject/infrastructure/adapters/drivens/mssql-log-repository.adapter'
 import { MssqlProdSysObjectRepositoryAdapter } from '@sysobject/infrastructure/adapters/drivens/mssql-prod-sysobject-repository.adapter'
 import { MssqlSysObjectRepositoryAdapter } from '@sysobject/infrastructure/adapters/drivens/mssql-sysobject-repository.adapter'
-import { MssqlSysUsertableRepositoryAdapter } from '@sysobject/infrastructure/adapters/drivens/mssql-sysusertable-repositorey.adapter'
+import { MssqlSysUsertableRepositoryAdapter } from '@sysobject/infrastructure/adapters/drivens/mssql-sysusertable-repository.adapter'
 import { RegisterBusquedaRecienteProxyAdapter } from '@sysobject/infrastructure/adapters/drivens/register-busqueda-reciente-proxy.adapter'
 
 import { GetProdSysObjectController } from './get-prod-sysobject/get-prod-sysobject.controller'
