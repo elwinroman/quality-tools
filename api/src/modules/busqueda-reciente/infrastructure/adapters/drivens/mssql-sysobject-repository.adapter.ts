@@ -1,6 +1,9 @@
 import { ForSysObjectRepositoryPort, SysObject } from '@busqueda-reciente/domain/ports/drivens/for-sysobject-repository.port'
 import { MSSQLDatabaseConnection } from '@core/store'
 import { buildStoreAuthContext, wrapDatabaseError } from '@core/utils'
+import { decodeRows } from '@core/utils/decode-recordset.util'
+
+import { sysobjectIdRowMapper, SysObjectIdRowSchema } from './sysobject.mapper'
 
 export class MssqlSysObjectRepositoryAdapter implements ForSysObjectRepositoryPort {
   private connection = new MSSQLDatabaseConnection()
@@ -12,7 +15,6 @@ export class MssqlSysObjectRepositoryAdapter implements ForSysObjectRepositoryPo
     sysObjects.forEach((row, index) => {
       sqlValues += `(${index}, '${row.schema}', '${row.name}'),`
     })
-    // reemplaza la última coma por punto y coma
     sqlValues = sqlValues.slice(0, -1) + ';'
 
     try {
@@ -46,9 +48,8 @@ export class MssqlSysObjectRepositoryAdapter implements ForSysObjectRepositoryPo
       `
 
       const res = await request.query(stmt)
-      const data = res.recordset.map(obj => obj.object_id)
 
-      return data
+      return decodeRows(res.recordset, SysObjectIdRowSchema).map(sysobjectIdRowMapper)
     } catch (err) {
       throw wrapDatabaseError(err)
     }
