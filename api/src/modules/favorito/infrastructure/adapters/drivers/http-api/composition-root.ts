@@ -1,3 +1,4 @@
+import { ValkeyCacheRepository } from '@core/cache/valkey-cache-repository'
 import { FavoritoManagerService } from '@favorito/application/favorito-manager.service'
 import { GetAllFavoritosUseCase } from '@favorito/application/use-cases/get-all-favorito.use-case'
 import { RegisterFavoritoUseCase } from '@favorito/application/use-cases/register-favorito.use-case'
@@ -14,7 +15,8 @@ import { RegisterFavoritoController } from './controllers/register-favorito/regi
 const compositionRoot = () => {
   // DRIVENS
   const repository = new MSSQLFavoritoRepositoryAdapter() // repositorio de favorito
-  const sysobjectRepository = new MSSQLSysObjectRepositoryAdapter()
+  const cacheRepository = new ValkeyCacheRepository()
+  const sysobjectRepository = new MSSQLSysObjectRepositoryAdapter(cacheRepository)
 
   // USE CASES
   const registerFavoritoUC = new RegisterFavoritoUseCase(repository, logger)
@@ -24,8 +26,8 @@ const compositionRoot = () => {
   const service = new FavoritoManagerService(registerFavoritoUC, getAllFavoritosUC)
 
   // CONTROLLERS
-  const registerFavoritoController = new RegisterFavoritoController(service)
-  const getAllFavoritosController = new GetAllFavoritosController(service)
+  const registerFavoritoController = new RegisterFavoritoController(service, cacheRepository)
+  const getAllFavoritosController = new GetAllFavoritosController(service, cacheRepository)
 
   return { registerFavoritoController, getAllFavoritosController }
 }

@@ -1,5 +1,14 @@
 import { MssqlSysObjectRepositoryAdapter } from '@busqueda-reciente/infrastructure/adapters/drivens/mssql-sysobject-repository.adapter'
+import { CacheRepository } from '@shared/domain/cache-repository'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+
+// el adaptador solo conserva el puerto; la resolución real está mockeada en `@core/utils`
+const cacheRepository: CacheRepository = {
+  set: async () => undefined,
+  get: async () => null,
+  delete: async () => undefined,
+  ttl: async () => -2,
+}
 
 const { connectionControl } = vi.hoisted(() => ({
   connectionControl: {
@@ -33,7 +42,7 @@ describe('MssqlSysObjectRepositoryAdapter.findIDsByNameAndSchema', () => {
   it('debería enviar un nombre con apóstrofe como parámetro JSON en vez de interpolarlo en el SQL', async () => {
     connectionControl.query.mockResolvedValue({ recordset: [{ object_id: 7 }] })
 
-    const adapter = new MssqlSysObjectRepositoryAdapter()
+    const adapter = new MssqlSysObjectRepositoryAdapter(cacheRepository)
     const result = await adapter.findIDsByNameAndSchema([{ schema: "Ven'tas", name: "O'Brien" }])
 
     expect(result).toEqual([7])
@@ -52,7 +61,7 @@ describe('MssqlSysObjectRepositoryAdapter.findIDsByNameAndSchema', () => {
   it('debería conservar el orden de entrada en el payload y en el ORDER BY', async () => {
     connectionControl.query.mockResolvedValue({ recordset: [{ object_id: 10 }, { object_id: null }] })
 
-    const adapter = new MssqlSysObjectRepositoryAdapter()
+    const adapter = new MssqlSysObjectRepositoryAdapter(cacheRepository)
     const result = await adapter.findIDsByNameAndSchema([
       { schema: 'dbo', name: 'primera' },
       { schema: 'dbo', name: 'segunda' },
@@ -72,7 +81,7 @@ describe('MssqlSysObjectRepositoryAdapter.findIDsByNameAndSchema', () => {
   })
 
   it('debería devolver un arreglo vacío sin abrir conexión cuando no hay objetos', async () => {
-    const adapter = new MssqlSysObjectRepositoryAdapter()
+    const adapter = new MssqlSysObjectRepositoryAdapter(cacheRepository)
 
     const result = await adapter.findIDsByNameAndSchema([])
 

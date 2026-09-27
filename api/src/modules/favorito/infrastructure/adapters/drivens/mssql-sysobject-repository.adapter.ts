@@ -2,6 +2,7 @@ import { MSSQLDatabaseConnection } from '@core/store'
 import { buildStoreAuthContext, wrapDatabaseError } from '@core/utils'
 import { decodeRows } from '@core/utils/decode-recordset.util'
 import { ForSysObjectRepositoryPort, SysObject } from '@favorito/domain/ports/drivens/for-sysobject-repository.port'
+import { CacheRepository } from '@shared/domain/cache-repository'
 import sql from 'mssql'
 
 import { sysobjectIdRowMapper, SysObjectIdRowSchema } from './sysobject.mapper'
@@ -9,11 +10,13 @@ import { sysobjectIdRowMapper, SysObjectIdRowSchema } from './sysobject.mapper'
 export class MSSQLSysObjectRepositoryAdapter implements ForSysObjectRepositoryPort {
   private connection = new MSSQLDatabaseConnection()
 
+  constructor(private readonly cacheRepository: CacheRepository) {}
+
   async findIDsByNameAndSchema(sysObjects: SysObject[]): Promise<(number | null)[]> {
     // con cero objetos no hay nada que resolver: se evita abrir conexión y el lote `VALUES ;` inválido
     if (sysObjects.length === 0) return []
 
-    const { store } = await buildStoreAuthContext()
+    const { store } = await buildStoreAuthContext(this.cacheRepository)
 
     // el arreglo completo viaja como UN solo parámetro JSON: sin interpolación de SQL y sin el
     // tope de 2100 parámetros de SQL Server, que rompería a un usuario con muchos favoritos
