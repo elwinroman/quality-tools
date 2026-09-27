@@ -5,17 +5,13 @@ import { cn } from '@/lib/utils'
 
 interface Props {
   children: React.ReactNode
-  objectId: number
   schema: string
   objectName: string
   updateOpen(state: boolean): void
   active?: boolean
 }
 
-export const Item = forwardRef<HTMLLIElement, Props>(function Item(
-  { children, objectId, schema, objectName, updateOpen, active = false },
-  ref,
-) {
+export const Item = forwardRef<HTMLLIElement, Props>(function Item({ children, schema, objectName, updateOpen, active = false }, ref) {
   const { onSelect, updateSuggestions, updateQuerySearch } = searchContext()
 
   const handleClickGetObject = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -30,7 +26,7 @@ export const Item = forwardRef<HTMLLIElement, Props>(function Item(
   }
 
   return (
-    <li key={objectId} ref={ref}>
+    <li key={`${schema}:${objectName}`} ref={ref}>
       <button
         aria-current={active}
         className={cn(

@@ -6,5 +6,6 @@ export interface BusquedaReciente {
   objectName: string
   type: BaseSysObjectType
   date: string | Date
-  objectId: number
+  /** ID del objeto SQL; `null` cuando el objeto ya no existe en la base */
+  objectId: number | null
 }
