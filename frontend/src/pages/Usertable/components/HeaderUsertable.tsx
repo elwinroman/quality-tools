@@ -35,8 +35,7 @@ export function HeaderUsertable({ onOpenSidebar }: Props) {
   }
 
   return (
-    <header className="bg-background flex items-center justify-between px-4 pt-2 pb-3">
-      {/* Breadcrumb */}
+    <header className="bg-background flex h-14 items-center justify-between px-4">
       <div className="flex min-w-0 items-center gap-2">
         {onOpenSidebar && <HeaderSidebarToggle onClick={onOpenSidebar} />}
 
@@ -50,7 +49,6 @@ export function HeaderUsertable({ onOpenSidebar }: Props) {
           <div className="SY flex h-11 items-center text-[13px]"></div>
         )}
 
-        {/* Tabs del editor, a la derecha del nombre del objeto */}
         <HeaderTabsUsertable />
       </div>
 

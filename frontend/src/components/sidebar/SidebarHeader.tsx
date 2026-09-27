@@ -3,9 +3,7 @@ import { PanelLeft } from 'lucide-react'
 import { AplicationLogo, SwitchDatabase } from '@/components/shared'
 
 interface Props {
-  /** Muestra el selector de base de datos activa. */
   showDatabase?: boolean
-  /** Oculta el botón de colapsar cuando el panel ya está colapsado. */
   isCollapsed?: boolean
   /**
    * Si se omite, no se renderiza el botón de colapsar. Es el caso de las páginas
@@ -14,14 +12,10 @@ interface Props {
   onToggleSidebar?(): void
 }
 
-/**
- * Fila superior del sidebar: marca, selector de base de datos y botón para colapsar.
- *
- * Es reutilizable por cualquier página; lo único opcional es la base de datos.
- */
 export function SidebarHeader({ showDatabase = true, isCollapsed = false, onToggleSidebar }: Props) {
   return (
-    <div className="flex shrink-0 items-center justify-between gap-2 px-4 py-2">
+    // Altura fija: si la dictara el contenido, el SwitchDatabase la haría crecer y Aligment quedaría más bajo
+    <div className="flex h-14 shrink-0 items-center justify-between gap-2 px-4">
       <AplicationLogo />
 
       {showDatabase && <SwitchDatabase className="min-w-0 flex-1" />}

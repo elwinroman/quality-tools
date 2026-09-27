@@ -48,8 +48,7 @@ export function HeaderEditor({ activeTab, onOpenSidebar }: Props) {
   }
 
   return (
-    <header className="bg-background flex items-center justify-between px-4 pt-2 pb-3">
-      {/* Breadcrumb */}
+    <header className="bg-background flex h-14 items-center justify-between px-4">
       <div className="flex min-w-0 items-center gap-2">
         {onOpenSidebar && <HeaderSidebarToggle onClick={onOpenSidebar} />}
 
@@ -63,11 +62,9 @@ export function HeaderEditor({ activeTab, onOpenSidebar }: Props) {
           <div className="SY flex h-11 items-center text-[13px]"></div>
         )}
 
-        {/* Tabs del editor, a la derecha del nombre del objeto */}
         <HeaderTabs />
       </div>
 
-      {/* Aviso normalización activa */}
       {isComparing && normalizeWhitespace && (
         <div className="flex items-center gap-1 rounded px-2 py-0.5 text-[11px] font-medium text-amber-400/80">
           <TriangleAlert size={11} />
@@ -75,7 +72,6 @@ export function HeaderEditor({ activeTab, onOpenSidebar }: Props) {
         </div>
       )}
 
-      {/* Acciones */}
       <div className="flex items-center gap-1">
         <SearchTrigger />
 

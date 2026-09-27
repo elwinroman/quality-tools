@@ -11,7 +11,7 @@ export function HeaderEditor() {
   const updateViewMode = useAligmentStore((state) => state.updateViewMode)
 
   return (
-    <header className="dark:bg-background bg-action-hover flex flex-col justify-start gap-x-5 gap-y-2 px-4 py-2.5 sm:items-center lg:flex-row lg:justify-between">
+    <header className="dark:bg-background bg-action-hover flex flex-col justify-start gap-x-5 gap-y-2 px-4 py-2.5 sm:items-center lg:h-14 lg:flex-row lg:justify-between">
       {/* El sidebar se colapsa desde su propio header; aca solo se lo vuelve a mostrar */}
       {hideMenu && <HeaderSidebarToggle onClick={() => updateHideMenu(!hideMenu)} />}
 
@@ -26,7 +26,6 @@ export function HeaderEditor() {
         </div>
       </div>
 
-      {/* Opciones del editor */}
       <div className="flex flex-[1_1_0] flex-wrap items-center gap-x-3 gap-y-2 sm:justify-end sm:gap-x-5 sm:gap-y-4">
         <EditorOptions
           object={{ schema: sysobject?.schemaName ?? '', name: sysobject?.name ?? '', type: sysobject?.type ?? '' }}
