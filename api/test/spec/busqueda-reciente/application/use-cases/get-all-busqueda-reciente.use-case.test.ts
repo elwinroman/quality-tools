@@ -115,6 +115,24 @@ describe('GetAllBusquedasRecientesUseCase', () => {
     })
   })
 
+  describe('objeto inexistente en la base', () => {
+    it('debería dejar pasar el objectId NULL porque la guarda solo compara longitudes', async () => {
+      const rows = [buildRow({ id: 'hash-1' }), buildRow({ id: 'hash-2', objectName: 'fn_total' })]
+      const meta: Meta = { total: rows.length, limit: LIMIT }
+      const repository = createFakeBusquedaRepository({ findMany: async () => ({ data: rows, meta }) })
+      // OBJECT_ID(...) devuelve NULL cuando el objeto ya no existe; el puerto ya lo tipa como number | null.
+      const sysObjectRepository = createFakeSysObjectRepository({
+        findIDsByNameAndSchema: async () => [1001, null],
+      })
+      const useCase = new GetAllBusquedasRecientesUseCase(repository, sysObjectRepository, createFakeLogger().logger)
+
+      const result = await useCase.execute(FILTER, LIMIT)
+
+      // el largo coincide (2 === 2), así que el NULL llega al cliente tipado honestamente como number | null.
+      expect(result.data.map(row => row.objectId)).toEqual([1001, null])
+    })
+  })
+
   describe('inconsistencia de longitudes', () => {
     it('debería lanzar un error cuando la cantidad de IDs no coincide con la de objetos', async () => {
       const rows = [buildRow({ id: 'hash-1' }), buildRow({ id: 'hash-2', objectName: 'fn_total' })]

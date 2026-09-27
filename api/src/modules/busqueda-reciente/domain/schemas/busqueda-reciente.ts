@@ -58,7 +58,8 @@ export type BusquedaRecienteRepoResponse = Pick<BusquedaReciente, 'id' | 'schema
  * Datos de respuesta para obtener todas las búsquedas recientes (incluye el ID del objeto SQL).
  */
 export type BusquedaRecienteResponse = BusquedaRecienteRepoResponse & {
-  objectId: number
+  /** Identificador del objeto SQL; `null` cuando el objeto ya no existe en la base */
+  objectId: number | null
 }
 
 /**

@@ -23,6 +23,10 @@ describe('sysobjectIdRowMapper', () => {
 })
 
 describe('SysObjectIdRowSchema', () => {
+  it('debería modelar un object_id nulo como nullable en vez de rechazarlo', () => {
+    expect(SysObjectIdRowSchema.parse({ object_id: null })).toEqual({ object_id: null })
+  })
+
   it('debería fallar si la consulta no devuelve object_id', () => {
     expect(() => SysObjectIdRowSchema.parse({})).toThrow()
   })

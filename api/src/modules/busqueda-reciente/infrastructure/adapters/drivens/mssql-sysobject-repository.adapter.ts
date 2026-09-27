@@ -2,52 +2,41 @@ import { ForSysObjectRepositoryPort, SysObject } from '@busqueda-reciente/domain
 import { MSSQLDatabaseConnection } from '@core/store'
 import { buildStoreAuthContext, wrapDatabaseError } from '@core/utils'
 import { decodeRows } from '@core/utils/decode-recordset.util'
+import sql from 'mssql'
 
 import { sysobjectIdRowMapper, SysObjectIdRowSchema } from './sysobject.mapper'
 
 export class MssqlSysObjectRepositoryAdapter implements ForSysObjectRepositoryPort {
   private connection = new MSSQLDatabaseConnection()
 
-  async findIDsByNameAndSchema(sysObjects: SysObject[]): Promise<number[]> {
+  async findIDsByNameAndSchema(sysObjects: SysObject[]): Promise<(number | null)[]> {
+    // con cero objetos no hay nada que resolver: se evita abrir conexión y el lote `VALUES ;` inválido
+    if (sysObjects.length === 0) return []
+
     const { store } = await buildStoreAuthContext()
 
-    let sqlValues = ''
-    sysObjects.forEach((row, index) => {
-      sqlValues += `(${index}, '${row.schema}', '${row.name}'),`
-    })
-    sqlValues = sqlValues.slice(0, -1) + ';'
+    // el arreglo completo viaja como UN solo parámetro JSON: sin interpolación de SQL y sin el
+    // tope de 2100 parámetros de SQL Server, que rompería a un usuario con muchos favoritos
+    const payload = sysObjects.map((row, index) => ({ id: index, schema: row.schema, name: row.name }))
 
     try {
       const conn = await this.connection.connect(store.credentials, store.type)
       const request = conn.request()
 
       const stmt = `
-        IF OBJECT_ID('tempdb..#TemporalObjects') IS NOT NULL
-        BEGIN
-          DROP TABLE #TemporalObjects
-        END
-
-        --==================================
-        --Tabla temporal de los objetos
-        --==================================
-        CREATE TABLE #TemporalObjects (
-          id INT,
-          schema_name VARCHAR(255),
-          object_name VARCHAR(255)
-        )
-
-        INSERT INTO #TemporalObjects (id, schema_name, object_name)
-        VALUES ${sqlValues}
-
         SELECT 
           OBJECT_ID(CONCAT(schema_name, '.', object_name)) AS object_id
-        FROM #TemporalObjects
+        FROM OPENJSON(@objects)
+        WITH (
+          id INT '$.id',
+          schema_name VARCHAR(255) '$.schema',
+          object_name VARCHAR(255) '$.name'
+        )
         ORDER BY id ASC
-        
-        DROP TABLE #TemporalObjects
       `
 
-      const res = await request.query(stmt)
+      // `ORDER BY id ASC` sobre el índice de entrada conserva una fila por objeto en el orden original
+      const res = await request.input('objects', sql.NVarChar(sql.MAX), JSON.stringify(payload)).query(stmt)
 
       return decodeRows(res.recordset, SysObjectIdRowSchema).map(sysobjectIdRowMapper)
     } catch (err) {

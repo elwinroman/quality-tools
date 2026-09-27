@@ -61,6 +61,6 @@ export type FavoritoRepoResponse = Pick<Favorito, 'id' | 'schema' | 'objectName'
  * incluyendo el identificador del objeto referenciado.
  */
 export type FavoritoResponse = FavoritoRepoResponse & {
-  /** Identificador del objeto */
-  objectId: number
+  /** Identificador del objeto; `null` cuando el objeto referenciado ya no existe en la base */
+  objectId: number | null
 }
