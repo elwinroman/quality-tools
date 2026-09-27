@@ -1,16 +1,19 @@
 import { ForUserRepositoryPort } from '@auth/domain/ports/drivens'
-import { PrimitiveUser, RepoUser, User } from '@auth/domain/schemas/user'
+import { PersistedUser, PrimitiveUser } from '@auth/domain/schemas/user'
 import { DatabaseName, MSSQLDatabaseConnection } from '@core/store'
 import { getStaticDatabaseCredentials } from '@core/store/get-store-credentials'
 import { wrapDatabaseError } from '@core/utils'
+import { decodeRow } from '@core/utils/decode-recordset.util'
 import { logger } from '@observability/infrastructure/logging/logger-instance'
 import sql from 'mssql'
+
+import { userRowMapper, UserRowSchema } from './user.mapper'
 
 export class MssqlUserRepositoryAdapter implements ForUserRepositoryPort {
   private connection = new MSSQLDatabaseConnection()
   private db = getStaticDatabaseCredentials(DatabaseName.APP)
 
-  async getOrCreate(user: PrimitiveUser, _userDatabase: string): Promise<RepoUser | null> {
+  async getOrCreate(user: PrimitiveUser, _userDatabase: string): Promise<PersistedUser | null> {
     let conn: sql.ConnectionPool | null = null
     let transaction: sql.Transaction | null = null
 
@@ -55,26 +58,19 @@ export class MssqlUserRepositoryAdapter implements ForUserRepositoryPort {
 
       const res = await request.query(stmt)
 
-      if (res.recordset && res.recordset.length === 1) {
-        const userData = res.recordset[0]
+      const row = decodeRow(res.recordset, UserRowSchema)
 
-        const userRepository = User.create({
-          id: userData.idUsuario,
-          hashId: userData.cHashUsuarioUID,
-          user: userData.cUsuario,
-          host: userData.cServer,
-          aliasHost: userData.cAliasServer,
-          createdAt: userData.dFechaRegistro,
-          isActive: userData.lVigente,
-        }).toRepoUser()
-
-        await transaction.commit()
-
-        return userRepository
+      if (!row) {
+        await transaction.rollback()
+        return null
       }
 
-      await transaction.rollback()
-      return null
+      // se materializa antes del commit: una fila inválida hace rollback de la transacción
+      const userRepository = userRowMapper(row)
+
+      await transaction.commit()
+
+      return userRepository
     } catch (err: unknown) {
       if (transaction) {
         try {
@@ -88,30 +84,31 @@ export class MssqlUserRepositoryAdapter implements ForUserRepositoryPort {
     }
   }
 
-  async getById(id: number): Promise<RepoUser | null> {
+  async getById(id: number): Promise<PersistedUser | null> {
     try {
       const conn = await this.connection.connect(this.db.credentials, this.db.type)
       const request = conn.request()
 
-      const stmt = 'SELECT * FROM dbo.Usuario WHERE idUsuario = @id'
+      const stmt = `
+        SELECT
+          idUsuario,
+          cHashUsuarioUID,
+          cUsuario,
+          cServer,
+          cAliasServer,
+          dFechaRegistro,
+          lVigente
+        FROM dbo.Usuario
+        WHERE idUsuario = @id
+      `
       request.input('id', sql.Int, id)
       const res = await request.query(stmt)
 
-      if (res.recordset && res.recordset.length === 1) {
-        const userData = res.recordset[0]
+      const row = decodeRow(res.recordset, UserRowSchema)
 
-        return User.create({
-          id: userData.idUsuario,
-          hashId: userData.cHashUsuarioUID,
-          user: userData.cUsuario,
-          host: userData.cServer,
-          aliasHost: userData.cAliasServer,
-          createdAt: userData.dFechaRegistro,
-          isActive: userData.lVigente,
-        }).toRepoUser()
-      }
+      if (!row) return null
 
-      return null
+      return userRowMapper(row)
     } catch (err) {
       throw wrapDatabaseError(err)
     }

@@ -13,6 +13,14 @@ function buildParams() {
   }
 }
 
+function buildPersistedParams() {
+  return {
+    ...buildParams(),
+    id: 7,
+    hashId: UserHashId.generate('uMonitor', 'SQLSERVER01'),
+  }
+}
+
 describe('User', () => {
   describe('create', () => {
     it('debería aplicar el rol analista por defecto', () => {
@@ -100,29 +108,20 @@ describe('User', () => {
     })
   })
 
-  describe('toRepoUser', () => {
+  describe('persisted', () => {
     it('debería exponer el identificador del usuario persistido', () => {
-      expect(User.create({ ...buildParams(), id: 7 }).toRepoUser().id).toBe(7)
-    })
-
-    it('debería devolver id undefined en runtime si el usuario no fue persistido', () => {
-      // `toRepoUser` usa una aserción no-nula sobre el id, así que el tipo
-      // promete un number que en runtime puede no existir. Queda documentado
-      // para que el llamador lo trate como requisito, no como garantía.
-      const sinId = User.create(buildParams()).toRepoUser()
-
-      expect(sinId.id).toBeUndefined()
+      expect(User.persisted(buildPersistedParams()).id).toBe(7)
     })
 
     it('debería conservar el resto de los valores', () => {
-      const repoUser = User.create({ ...buildParams(), id: 7 }).toRepoUser()
+      const persistedUser = User.persisted(buildPersistedParams())
 
-      expect(repoUser.user).toBe('umonitor')
-      expect(repoUser.role).toBe(UserRoleList.ANALIST)
-      expect(repoUser.host).toBe('SQLSERVER01')
-      expect(repoUser.aliasHost).toBe('SERVIDOR-ALIAS')
-      expect(repoUser.createdAt).toBe(CREATED_AT)
-      expect(repoUser.isActive).toBe(true)
+      expect(persistedUser.user).toBe('umonitor')
+      expect(persistedUser.role).toBe(UserRoleList.ANALIST)
+      expect(persistedUser.host).toBe('SQLSERVER01')
+      expect(persistedUser.aliasHost).toBe('SERVIDOR-ALIAS')
+      expect(persistedUser.createdAt).toBe(CREATED_AT)
+      expect(persistedUser.isActive).toBe(true)
     })
   })
 })

@@ -3,9 +3,19 @@ import { PermissionStore, StoreInfo } from '@auth/domain/schemas/store'
 import { MSSQLDatabaseConnection } from '@core/store'
 import { UserTypeEnum } from '@core/store'
 import { wrapDatabaseError } from '@core/utils'
+import { decodeRow, decodeRows } from '@core/utils/decode-recordset.util'
 import { StoreUserSchema } from '@shared/domain/store'
 
 import { PREPROD_DBNAME } from '@/config/enviroment'
+
+import {
+  databaseNameRowMapper,
+  DatabaseNameRowSchema,
+  storeDetailsRowMapper,
+  StoreDetailsRowSchema,
+  storePermissionRowMapper,
+  StorePermissionRowSchema,
+} from './store.mapper'
 
 export class MssqlStoreRepositoryAdapter implements ForStoreRepositoryPort {
   private connection = new MSSQLDatabaseConnection()
@@ -26,15 +36,12 @@ export class MssqlStoreRepositoryAdapter implements ForStoreRepositoryPort {
       `
       const res = await request.query(stmt)
 
-      const data: StoreInfo = {
-        name: res.recordset[0].name,
-        compatibility: res.recordset[0].cmptlevel,
-        description: res.recordset[0].value,
-        server: res.recordset[0].server_name,
-        prodDatabase: PREPROD_DBNAME,
-      }
+      const row = decodeRow(res.recordset, StoreDetailsRowSchema)
 
-      return data
+      // la consulta siempre devuelve una fila para la base activa
+      if (!row) throw new Error('[auth] La consulta de detalles no devolvió filas.')
+
+      return storeDetailsRowMapper(row, PREPROD_DBNAME)
     } catch (err: unknown) {
       throw wrapDatabaseError(err)
     }
@@ -62,12 +69,12 @@ export class MssqlStoreRepositoryAdapter implements ForStoreRepositoryPort {
       `
       const res = await request.query(stmt)
 
-      const hasPermsViewDefinition: boolean = Boolean(res.recordset[0].viewdefinition_permission)
+      const row = decodeRow(res.recordset, StorePermissionRowSchema)
 
-      const data: PermissionStore = {
-        viewdefinitionPermission: hasPermsViewDefinition,
-      }
-      return data
+      // la consulta siempre devuelve una fila
+      if (!row) throw new Error('[auth] La consulta de permisos no devolvió filas.')
+
+      return storePermissionRowMapper(row)
     } catch (err) {
       throw wrapDatabaseError(err)
     }
@@ -87,11 +94,11 @@ export class MssqlStoreRepositoryAdapter implements ForStoreRepositoryPort {
       `
       const res = await request.query(stmt)
 
-      if (res && res.rowsAffected[0] === 0) return null
+      const rows = decodeRows(res.recordset, DatabaseNameRowSchema)
 
-      // adapter
-      const dbnameList: string[] = res.recordset.map(item => item.name)
-      return dbnameList
+      if (rows.length === 0) return null
+
+      return rows.map(databaseNameRowMapper)
     } catch (err) {
       throw wrapDatabaseError(err)
     }
