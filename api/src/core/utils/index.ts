@@ -1,6 +1,7 @@
 export * from './build-store-auth-context.util'
 export * from './convert-local-to-utc.util'
 export { default } from './cryptocode.util'
+export * from './decode-recordset.util'
 export * from './extract-bearer-token.util'
 export * from './format-zod-errors.util'
 export * from './parse-sysobject-type.util'

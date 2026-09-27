@@ -1,6 +1,7 @@
 import {
-  decodeRow,
-  decodeRows,
+  FavoritoEntityRow,
+  favoritoEntityRowMapper,
+  FavoritoEntityRowSchema,
   FavoritoListRowSchema,
   FavoritoRow,
   favoritoRowMapper,
@@ -62,30 +63,32 @@ describe('FavoritoListRowSchema', () => {
   })
 })
 
-describe('decodeRow', () => {
-  it('debería devolver null cuando la consulta no trae filas', () => {
-    expect(decodeRow([], FavoritoRowSchema)).toBeNull()
-    expect(decodeRow(undefined, FavoritoRowSchema)).toBeNull()
-  })
+function buildEntityRow(overrides: Partial<FavoritoEntityRow> = {}): FavoritoEntityRow {
+  return {
+    ...buildRow(),
+    idUsuario: 7,
+    ...overrides,
+  }
+}
 
-  it('debería devolver la fila validada cuando la forma coincide', () => {
-    expect(decodeRow([buildRow()], FavoritoRowSchema)).toEqual(buildRow())
-  })
-
-  it('debería lanzar cuando la fila existe pero no coincide con el schema', () => {
-    expect(() => decodeRow([{ ...buildRow(), lVigente: 1 }], FavoritoRowSchema)).toThrow()
+describe('favoritoEntityRowMapper', () => {
+  it('debería traducir la entidad al tipo del puerto incluyendo idUser', () => {
+    expect(favoritoEntityRowMapper(buildEntityRow({ idFavorito: 101, idUsuario: 7, lVigente: false }))).toEqual({
+      id: 101,
+      idUser: 7,
+      schema: 'dbo',
+      objectName: 'vw_orders',
+      type: 'V',
+      date: new Date('2026-01-01T00:00:00.000Z'),
+      isActive: false,
+    })
   })
 })
 
-describe('decodeRows', () => {
-  it('debería devolver una lista vacía cuando no hay filas', () => {
-    expect(decodeRows(undefined, FavoritoListRowSchema)).toEqual([])
-  })
+describe('FavoritoEntityRowSchema', () => {
+  it('debería fallar si la consulta no devuelve idUsuario', () => {
+    const { idUsuario: _idUsuario, ...rowWithoutIdUsuario } = buildEntityRow()
 
-  it('debería validar cada fila de la lista', () => {
-    const row = { ...buildRow(), nTotal: 2 }
-
-    expect(decodeRows([row], FavoritoListRowSchema)).toEqual([row])
-    expect(() => decodeRows([buildRow()], FavoritoListRowSchema)).toThrow()
+    expect(() => FavoritoEntityRowSchema.parse(rowWithoutIdUsuario)).toThrow()
   })
 })

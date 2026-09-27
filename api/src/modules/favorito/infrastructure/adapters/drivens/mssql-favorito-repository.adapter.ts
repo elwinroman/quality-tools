@@ -1,13 +1,15 @@
 import { DatabaseName, getStaticDatabaseCredentials, MSSQLDatabaseConnection } from '@core/store'
 import { wrapDatabaseError } from '@core/utils'
+import { decodeRow, decodeRows } from '@core/utils/decode-recordset.util'
 import { ForFavoritoRepositoryPort } from '@favorito/domain/ports/drivens/for-favorito-repository.port'
 import { Favorito, FavoritoFilterRepo, FavoritoRepoInput, FavoritoRepoResponse } from '@favorito/domain/schemas/favorito'
 import { Meta } from '@shared/domain/schemas/meta'
 import sql from 'mssql'
 
 import {
-  decodeRow,
-  decodeRows,
+  FavoritoEntityRow,
+  favoritoEntityRowMapper,
+  FavoritoEntityRowSchema,
   FavoritoListRow,
   FavoritoListRowSchema,
   FavoritoRow,
@@ -138,28 +140,26 @@ export class MSSQLFavoritoRepositoryAdapter implements ForFavoritoRepositoryPort
       const request = conn.request()
 
       const stmt = `
-        SELECT * FROM dbo.Favorito 
+        SELECT
+          idFavorito,
+          cSchema,
+          cNombreObjeto,
+          cType,
+          dFecha,
+          lVigente,
+          idUsuario
+        FROM dbo.Favorito
         WHERE idFavorito = @id
       `
       request.input('id', sql.Int, id)
 
-      const res = await request.query(stmt)
+      const res = await request.query<FavoritoEntityRow>(stmt)
 
-      // no se encontró
-      if (res && res.rowsAffected[0] === 0) return null
+      const row = decodeRow(res.recordset, FavoritoEntityRowSchema)
 
-      // adapter
-      const data: Favorito = {
-        id: res.recordset[0].idFavorito,
-        idUser: res.recordset[0].idUsuario,
-        schema: res.recordset[0].cSchema,
-        objectName: res.recordset[0].cNombreObjeto,
-        date: res.recordset[0].dFecha,
-        type: res.recordset[0].cType,
-        isActive: res.recordset[0].lVigente,
-      }
+      if (!row) return null
 
-      return data
+      return favoritoEntityRowMapper(row)
     } catch (err) {
       throw wrapDatabaseError(err)
     }

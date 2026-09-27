@@ -1,4 +1,4 @@
-import { FavoritoRepoResponse } from '@favorito/domain/schemas/favorito'
+import { Favorito, FavoritoRepoResponse } from '@favorito/domain/schemas/favorito'
 import { z } from 'zod'
 
 /**
@@ -42,29 +42,34 @@ export function favoritoRowMapper(row: FavoritoRow): FavoritoRepoResponse {
 
 // ── findMany ────────────────────────────────────────────────────────────────
 
-/** Igual que `FavoritoRowSchema` más el total de registros de la consulta. */
 export const FavoritoListRowSchema = FavoritoRowSchema.extend({
   nTotal: z.number().int(),
 })
 
 export type FavoritoListRow = z.infer<typeof FavoritoListRowSchema>
 
-// ── Lectura del recordset ───────────────────────────────────────────────────
+// ── getById ─────────────────────────────────────────────────────────────────
 
 /**
- * Decodifica una fila única.
- *
- * `null` significa "la consulta no devolvió filas", que es un resultado legítimo:
- * desactivar un favorito que no existía. Una fila que existe pero no coincide con
- * el schema es un bug, así que lanza en vez de devolver un valor con campos vacíos.
+ * `FavoritoRowSchema` no alcanza para la fila de `getById`: la consulta proyecta
+ * `idUsuario` y el tipo del puerto (`Favorito`) incluye el usuario. createOrUpdate
+ * y findMany no lo devuelven, por eso se extiende el schema base en vez de
+ * modificarlo.
  */
-export function decodeRow<TRow>(rows: unknown[] | undefined, schema: z.ZodType<TRow>): TRow | null {
-  const [row] = rows ?? []
+export const FavoritoEntityRowSchema = FavoritoRowSchema.extend({
+  idUsuario: z.number().int(),
+})
 
-  return row === undefined ? null : schema.parse(row)
-}
+export type FavoritoEntityRow = z.infer<typeof FavoritoEntityRowSchema>
 
-/** Decodifica una lista completa, validando cada fila. */
-export function decodeRows<TRow>(rows: unknown[] | undefined, schema: z.ZodType<TRow>): TRow[] {
-  return (rows ?? []).map(row => schema.parse(row))
+export function favoritoEntityRowMapper(row: FavoritoEntityRow): Favorito {
+  return {
+    id: row.idFavorito,
+    idUser: row.idUsuario,
+    schema: row.cSchema,
+    objectName: row.cNombreObjeto,
+    type: row.cType,
+    date: row.dFecha,
+    isActive: row.lVigente,
+  }
 }
