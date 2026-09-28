@@ -1,7 +1,7 @@
+import { CurrentStoreContextResolver } from '@auth/domain/ports/drivens/current-store-context-resolver.port'
 import { ForHttpAuthenticatingPort } from '@auth/domain/ports/drivers/for-http-authenticating.port'
 import { setAuthContext } from '@auth/infrastructure/auth-context'
-import { buildStoreAuthContext, extractBearerToken } from '@core/utils'
-import { CacheRepository } from '@shared/domain/cache-repository'
+import { extractBearerToken } from '@core/utils/extract-bearer-token.util'
 import { NextFunction, Request, Response } from 'express'
 
 import type { ListDatabasesHttpDto } from './list-databases.dto'
@@ -10,7 +10,7 @@ import { ListDatabasesSchema } from './list-databases.dto'
 export class ListDatabasesController {
   constructor(
     private readonly authenticatorService: ForHttpAuthenticatingPort,
-    private readonly cacheRepository: CacheRepository,
+    private readonly currentStoreContextResolver: CurrentStoreContextResolver,
   ) {}
 
   async run(req: Request, res: Response, next: NextFunction) {
@@ -33,7 +33,7 @@ export class ListDatabasesController {
       const decoded = await this.authenticatorService.verifyAccessToken(accessToken)
       setAuthContext({ userId: decoded.user_id, sessionId: decoded.session_id })
 
-      const { store } = await buildStoreAuthContext(this.cacheRepository)
+      const { store } = await this.currentStoreContextResolver.resolve()
       const { database: _database, ...credentials } = store.credentials
 
       return credentials

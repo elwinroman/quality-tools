@@ -1,7 +1,6 @@
-import { buildStoreAuthContext } from '@core/utils'
+import { CurrentStoreContextResolver } from '@auth/domain/ports/drivens/current-store-context-resolver.port'
 import { ForFavoritoManagingPort } from '@favorito/domain/ports/drivers/for-favorito-managing.port'
 import { FavoritoInput } from '@favorito/domain/schemas/favorito'
-import { CacheRepository } from '@shared/domain/cache-repository'
 import { ValidTypeSysObject } from '@sysobject/domain/schemas/sysobject'
 import { NextFunction, Request, Response } from 'express'
 
@@ -10,7 +9,7 @@ import { RegisterFavoritoParams, RegisterFavoritoParamsSchema } from './register
 export class RegisterFavoritoController {
   constructor(
     private readonly service: ForFavoritoManagingPort,
-    private readonly cacheRepository: CacheRepository,
+    private readonly currentStoreContextResolver: CurrentStoreContextResolver,
   ) {}
 
   async run(req: Request, res: Response, next: NextFunction) {
@@ -20,7 +19,7 @@ export class RegisterFavoritoController {
       const dto: RegisterFavoritoParams = RegisterFavoritoParamsSchema.parse({ schema, objectName, type, isActive })
 
       // credenciales de usuario e idUser
-      const { authContext } = await buildStoreAuthContext(this.cacheRepository)
+      const { authContext } = await this.currentStoreContextResolver.resolve()
 
       const input: FavoritoInput = {
         idUser: authContext.userId,

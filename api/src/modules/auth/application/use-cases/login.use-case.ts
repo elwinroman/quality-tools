@@ -1,23 +1,17 @@
 import { randomBytes } from 'node:crypto'
 
 import { PermissionDenyException } from '@auth/domain/exceptions'
-import { ForStoreRepositoryPort, ForTokenManagementPort, ForUserRepositoryPort } from '@auth/domain/ports/drivens'
+import { ForStoreRepositoryPort, ForTokenManagementPort, ForUserRepositoryPort, SessionCredentialStore } from '@auth/domain/ports/drivens'
 import { AuthenticatedUser } from '@auth/domain/schemas/auth-user'
 import { User } from '@auth/domain/schemas/user'
-import { buildAuthCredentialsCacheKey } from '@auth/utils/auth-credentials-cache-key.util'
-import cryptocodeUtil from '@core/utils/cryptocode.util'
 import { Logger } from '@observability/domain/logger'
-import { CacheRepository } from '@shared/domain/cache-repository'
 import { StoreUserSchema } from '@shared/domain/store'
-
-import { JWT_REFRESH_TOKEN_TTL, NODE_ENV } from '@/config/enviroment'
-import { MODE } from '@/constants/commons'
 
 export class LoginUseCase {
   constructor(
     private readonly userRepository: ForUserRepositoryPort,
     private readonly storeRepository: ForStoreRepositoryPort,
-    private readonly cacheRepository: CacheRepository,
+    private readonly sessionCredentialStore: SessionCredentialStore,
     private readonly tokenManager: ForTokenManagementPort,
     private readonly logger: Logger,
   ) {}
@@ -46,18 +40,12 @@ export class LoginUseCase {
     const accessToken = this.tokenManager.createAccessToken(repoUser.id, repoUser.user, sessionId)
     const refreshToken = this.tokenManager.createRefreshToken(repoUser.id, repoUser.user, sessionId)
 
-    // En producción, encriptar credenciales antes de guardar en cache
-    const cachedUser = NODE_ENV === MODE.development ? sqlUser.user : cryptocodeUtil.encrypt(sqlUser.user)
-    const cachedPassword = NODE_ENV === MODE.development ? sqlUser.password : cryptocodeUtil.encrypt(sqlUser.password)
-
-    const cachedCredentials = JSON.stringify({
+    await this.sessionCredentialStore.save(repoUser.id, sessionId, {
       host: sqlUser.host,
       database: details.name,
-      user: cachedUser,
-      password: cachedPassword,
+      user: sqlUser.user,
+      password: sqlUser.password,
     })
-
-    await this.cacheRepository.set(buildAuthCredentialsCacheKey(repoUser.id, sessionId), cachedCredentials, JWT_REFRESH_TOKEN_TTL)
 
     this.logger.info('[auth] Autenticación exitosa', {
       actionDetails: {

@@ -1,5 +1,9 @@
+import { CacheSessionCredentialStoreAdapter } from '@auth/infrastructure/adapters/drivens/cache-session-credential-store.adapter'
+import { CurrentStoreContextResolverAdapter } from '@auth/infrastructure/adapters/drivens/current-store-context-resolver.adapter'
 import { authenticatorProxyAdapter } from '@auth/infrastructure/adapters/drivers/proxies/composition-root'
 import { ValkeyCacheRepository } from '@core/cache/valkey-cache-repository'
+import { createCredentialDecryptor } from '@core/crypto/create-credential-decryptor.factory'
+import { createCredentialEncryptor } from '@core/crypto/create-credential-encryptor.factory'
 import { logger } from '@observability/infrastructure/logging/logger-instance'
 import { SysObjectService } from '@sysobject/application/sysobject.service'
 import { GetProdSysObjectUseCase } from '@sysobject/application/use-cases/get-prod-sysobject.use-case'
@@ -15,6 +19,8 @@ import { MssqlSysObjectRepositoryAdapter } from '@sysobject/infrastructure/adapt
 import { MssqlSysUsertableRepositoryAdapter } from '@sysobject/infrastructure/adapters/drivens/mssql-sysusertable-repository.adapter'
 import { RegisterBusquedaRecienteProxyAdapter } from '@sysobject/infrastructure/adapters/drivens/register-busqueda-reciente-proxy.adapter'
 
+import { JWT_REFRESH_TOKEN_TTL } from '@/config/enviroment'
+
 import { GetProdSysObjectController } from './get-prod-sysobject/get-prod-sysobject.controller'
 import { GetSysObjectController } from './get-sysobject/get-sysobject.controller'
 import { GetSysObjectDependenciesController } from './get-sysobject-dependencies/get-sysobject-dependencies.controller'
@@ -27,8 +33,17 @@ import { SearchSuggestionsController } from './search-suggestions/search-suggest
 const compositionMock = () => {
   // DRIVENS
   const cacheRepository = new ValkeyCacheRepository()
-  const sysObjectRepository = new MssqlSysObjectRepositoryAdapter(cacheRepository)
-  const sysUsertableRepository = new MssqlSysUsertableRepositoryAdapter(cacheRepository)
+  const credentialDecryptor = createCredentialDecryptor()
+  const credentialEncryptor = createCredentialEncryptor()
+  const sessionCredentialStore = new CacheSessionCredentialStoreAdapter(
+    cacheRepository,
+    credentialEncryptor,
+    credentialDecryptor,
+    JWT_REFRESH_TOKEN_TTL,
+  )
+  const currentStoreContextResolver = new CurrentStoreContextResolverAdapter(sessionCredentialStore)
+  const sysObjectRepository = new MssqlSysObjectRepositoryAdapter(currentStoreContextResolver)
+  const sysUsertableRepository = new MssqlSysUsertableRepositoryAdapter(currentStoreContextResolver)
   const prodSysObjectRepository = new MssqlProdSysObjectRepositoryAdapter()
   const logRepository = new MssqlLogRepositoryAdapter()
   // proxy
@@ -62,8 +77,8 @@ const compositionMock = () => {
 
   // CONTROLLERS
   const searchSuggestionsController = new SearchSuggestionsController(sysObjectService)
-  const getSysObjectController = new GetSysObjectController(sysObjectService, cacheRepository)
-  const getSysUsertableController = new GetSysUsertableController(sysObjectService, cacheRepository)
+  const getSysObjectController = new GetSysObjectController(sysObjectService, currentStoreContextResolver)
+  const getSysUsertableController = new GetSysUsertableController(sysObjectService, currentStoreContextResolver)
   const getProdSysObjectController = new GetProdSysObjectController(sysObjectService, authenticatorProxyAdapter)
   const getSysObjectReferencesController = new GetSysObjectReferencesController(sysObjectService)
   const getSysObjectDependenciesController = new GetSysObjectDependenciesController(sysObjectService)

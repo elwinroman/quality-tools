@@ -1,7 +1,7 @@
 import { ForUserRepositoryPort } from '@auth/domain/ports/drivens'
 import { PersistedUser, PrimitiveUser } from '@auth/domain/schemas/user'
 import { DatabaseName, MSSQLDatabaseConnection } from '@core/store'
-import { getStaticDatabaseCredentials } from '@core/store/get-store-credentials'
+import { getStaticDatabaseCredentials } from '@core/store/get-static-store-credentials'
 import { wrapDatabaseError } from '@core/utils'
 import { decodeRow } from '@core/utils/decode-recordset.util'
 import { logger } from '@observability/infrastructure/logging/logger-instance'

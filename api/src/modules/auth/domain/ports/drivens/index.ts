@@ -1,4 +1,6 @@
+export * from './current-store-context-resolver.port'
 export * from './for-store-repository.port'
-export * from './for-token-blacklist.port'
 export * from './for-token-management.port'
 export * from './for-user-repository.port'
+export * from './session-credential-store.port'
+export * from './token-revocation-store.port'

@@ -1,25 +1,23 @@
-import { ForTokenBlacklistPort, ForTokenManagementPort } from '@auth/domain/ports/drivens'
+import { ForTokenManagementPort, SessionCredentialStore, TokenRevocationStore } from '@auth/domain/ports/drivens'
 import { CacheCredentialNotFoundException } from '@core/exceptions/cache/cache-credential-not-found.exception'
-import { getCacheDatabaseCredentials } from '@core/store'
 import { Logger } from '@observability/domain/logger'
 import { LoggerContext } from '@observability/domain/logger-context'
 import { ForbiddenException } from '@shared/application/exceptions'
-import { CacheRepository } from '@shared/domain/cache-repository'
 
 export class RefreshTokenUseCase {
   constructor(
     private readonly tokenManager: ForTokenManagementPort,
-    private readonly cacheRepository: CacheRepository,
-    private readonly blacklist: ForTokenBlacklistPort,
+    private readonly tokenRevocationStore: TokenRevocationStore,
     private readonly logger: Logger,
     private readonly loggerContext: LoggerContext,
+    private readonly sessionCredentialStore: SessionCredentialStore,
   ) {}
 
   async execute(refreshToken: string): Promise<{ accessToken: string }> {
     const decoded = this.tokenManager.verifyRefreshToken(refreshToken)
 
     // comprobar que el refresh token no esté en la blacklist
-    const isRevoked = await this.blacklist.isBlacklisted(decoded.jti)
+    const isRevoked = await this.tokenRevocationStore.isRevoked(decoded.jti)
     if (isRevoked) {
       this.loggerContext.set({
         auth: { status: 'failed', reason: 'revoked_token' },
@@ -41,7 +39,7 @@ export class RefreshTokenUseCase {
 
     // intenta recuperar las credenciales del usuario desde la caché.
     // si no existen, es probable que la caché haya sido limpiada (e.g., reinicio de infraestructura, eliminación accidental, etc.).
-    const cacheCredentials = await getCacheDatabaseCredentials(decoded.user_id, decoded.session_id, this.cacheRepository)
+    const cacheCredentials = await this.sessionCredentialStore.find(decoded.user_id, decoded.session_id)
     if (!cacheCredentials) {
       this.loggerContext.set({
         auth: { status: 'failed', reason: 'cache_credentials_not_found' },
@@ -59,11 +57,7 @@ export class RefreshTokenUseCase {
       })
 
       // invalida el refresh token para proteger el sistema de envío de errores ya que no se encuentra la credencial asociada en la caché
-      await this.cacheRepository.set(
-        `blacklist:${decoded.jti}`,
-        JSON.stringify({ type: decoded.type, jti: decoded.jti, user_id: decoded.user_id }),
-        decoded.expirationCountdown,
-      )
+      await this.tokenRevocationStore.revoke({ type: decoded.type, jti: decoded.jti, userId: decoded.user_id }, decoded.expirationCountdown)
 
       throw new CacheCredentialNotFoundException(decoded.user_id)
     }

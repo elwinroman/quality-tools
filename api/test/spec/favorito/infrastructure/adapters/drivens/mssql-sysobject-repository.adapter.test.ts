@@ -1,13 +1,16 @@
+import { CurrentStoreContextResolver } from '@auth/domain/ports/drivens/current-store-context-resolver.port'
+import { UserTypeEnum } from '@core/store/mssql-database-connection'
 import { MSSQLSysObjectRepositoryAdapter } from '@favorito/infrastructure/adapters/drivens/mssql-sysobject-repository.adapter'
-import { CacheRepository } from '@shared/domain/cache-repository'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-// el adaptador solo conserva el puerto; la resolución real está mockeada en `@core/utils`
-const cacheRepository: CacheRepository = {
-  set: async () => undefined,
-  get: async () => null,
-  delete: async () => undefined,
-  ttl: async () => -2,
+const currentStoreContextResolver: CurrentStoreContextResolver = {
+  resolve: vi.fn(async () => ({
+    authContext: { userId: 1, sessionId: 'session' },
+    store: {
+      credentials: { host: 'host', database: 'database', user: 'user', password: 'password' },
+      type: UserTypeEnum.External,
+    },
+  })),
 }
 
 const { connectionControl } = vi.hoisted(() => ({
@@ -19,14 +22,9 @@ const { connectionControl } = vi.hoisted(() => ({
 }))
 
 // se reemplaza el pool real: el adaptador solo necesita `request().input().query()`
-vi.mock('@core/store', () => ({
+vi.mock('@core/store/mssql-database-connection', () => ({
   MSSQLDatabaseConnection: vi.fn(() => ({ connect: connectionControl.connect })),
-}))
-
-// se reemplaza el barrel @core/utils para no cargar valkey-client ni @/config/enviroment
-vi.mock('@core/utils', () => ({
-  buildStoreAuthContext: vi.fn(async () => ({ store: { credentials: {}, type: 'external' } })),
-  wrapDatabaseError: vi.fn((err: unknown) => err),
+  UserTypeEnum: { External: 'external', Internal: 'internal' },
 }))
 
 describe('MSSQLSysObjectRepositoryAdapter.findIDsByNameAndSchema', () => {
@@ -42,7 +40,7 @@ describe('MSSQLSysObjectRepositoryAdapter.findIDsByNameAndSchema', () => {
   it('debería enviar un nombre con apóstrofe como parámetro JSON en vez de interpolarlo en el SQL', async () => {
     connectionControl.query.mockResolvedValue({ recordset: [{ object_id: 7 }] })
 
-    const adapter = new MSSQLSysObjectRepositoryAdapter(cacheRepository)
+    const adapter = new MSSQLSysObjectRepositoryAdapter(currentStoreContextResolver)
     const result = await adapter.findIDsByNameAndSchema([{ schema: "Ven'tas", name: "O'Brien" }])
 
     expect(result).toEqual([7])
@@ -61,7 +59,7 @@ describe('MSSQLSysObjectRepositoryAdapter.findIDsByNameAndSchema', () => {
   it('debería conservar el orden de entrada en el payload y en el ORDER BY', async () => {
     connectionControl.query.mockResolvedValue({ recordset: [{ object_id: 10 }, { object_id: null }] })
 
-    const adapter = new MSSQLSysObjectRepositoryAdapter(cacheRepository)
+    const adapter = new MSSQLSysObjectRepositoryAdapter(currentStoreContextResolver)
     const result = await adapter.findIDsByNameAndSchema([
       { schema: 'dbo', name: 'primera' },
       { schema: 'dbo', name: 'segunda' },
@@ -81,7 +79,7 @@ describe('MSSQLSysObjectRepositoryAdapter.findIDsByNameAndSchema', () => {
   })
 
   it('debería devolver un arreglo vacío sin abrir conexión cuando no hay objetos', async () => {
-    const adapter = new MSSQLSysObjectRepositoryAdapter(cacheRepository)
+    const adapter = new MSSQLSysObjectRepositoryAdapter(currentStoreContextResolver)
 
     const result = await adapter.findIDsByNameAndSchema([])
 
