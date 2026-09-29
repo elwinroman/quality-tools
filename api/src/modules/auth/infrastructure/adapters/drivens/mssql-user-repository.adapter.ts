@@ -1,7 +1,8 @@
 import { ForUserRepositoryPort } from '@auth/domain/ports/drivens'
 import { PersistedUser, PrimitiveUser } from '@auth/domain/schemas/user'
-import { DatabaseName, MSSQLDatabaseConnection } from '@core/store'
+import { DatabaseName } from '@core/store'
 import { getStaticDatabaseCredentials } from '@core/store/get-static-store-credentials'
+import { MSSQLConnection } from '@core/store/mssql-connection'
 import { wrapDatabaseError } from '@core/utils'
 import { decodeRow } from '@core/utils/decode-recordset.util'
 import { logger } from '@observability/infrastructure/logging/logger-instance'
@@ -10,8 +11,9 @@ import sql from 'mssql'
 import { userRowMapper, UserRowSchema } from './user.mapper'
 
 export class MssqlUserRepositoryAdapter implements ForUserRepositoryPort {
-  private connection = new MSSQLDatabaseConnection()
   private db = getStaticDatabaseCredentials(DatabaseName.APP)
+
+  constructor(private readonly connection: MSSQLConnection) {}
 
   async getOrCreate(user: PrimitiveUser, _userDatabase: string): Promise<PersistedUser | null> {
     let conn: sql.ConnectionPool | null = null

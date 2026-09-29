@@ -2,6 +2,8 @@ import { InvalidCredentialsException } from '@auth/domain/exceptions'
 import { StoreUserSchema } from '@shared/domain/store'
 import sql, { ConnectionPool } from 'mssql'
 
+import type { MSSQLConnection } from './mssql-connection'
+
 /** Mapa de conexiones activas, donde la clave es una representación en cadena */
 interface PoolStack {
   [key: string]: ConnectionPool
@@ -16,7 +18,7 @@ export enum UserTypeEnum {
 /** Tipo que deriva de los valores del enum UserType */
 export type UserType = UserTypeEnum
 
-export class MSSQLDatabaseConnection {
+export class MSSQLDatabaseConnection implements MSSQLConnection {
   private pools: PoolStack = {} // Almacena múltiples conexiones
 
   /**

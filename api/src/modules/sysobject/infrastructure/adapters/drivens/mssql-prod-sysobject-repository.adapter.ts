@@ -1,4 +1,5 @@
-import { DatabaseName, getStaticDatabaseCredentials, MSSQLDatabaseConnection } from '@core/store'
+import { DatabaseName, getStaticDatabaseCredentials } from '@core/store'
+import { MSSQLConnection } from '@core/store/mssql-connection'
 import { wrapDatabaseError } from '@core/utils'
 import { decodeRow, decodeRows } from '@core/utils/decode-recordset.util'
 import { ForProdSysObjectRepositoryPort } from '@sysobject/domain/ports/drivens/for-prod-sysobject-repository.port'
@@ -14,8 +15,9 @@ import {
 } from './prod-sysobject.mapper'
 
 export class MssqlProdSysObjectRepositoryAdapter implements ForProdSysObjectRepositoryPort {
-  private connection = new MSSQLDatabaseConnection()
   private db = getStaticDatabaseCredentials(DatabaseName.PREPROD)
+
+  constructor(private readonly connection: MSSQLConnection) {}
 
   async getByNameAndSchema(name: string, schema: string): Promise<SysObject | null> {
     try {

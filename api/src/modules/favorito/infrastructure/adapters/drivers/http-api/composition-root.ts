@@ -3,6 +3,7 @@ import { CurrentStoreContextResolverAdapter } from '@auth/infrastructure/adapter
 import { ValkeyCacheRepository } from '@core/cache/valkey-cache-repository'
 import { createCredentialDecryptor } from '@core/crypto/create-credential-decryptor.factory'
 import { createCredentialEncryptor } from '@core/crypto/create-credential-encryptor.factory'
+import { mssqlConnection } from '@core/store/mssql-connection-instance'
 import { FavoritoManagerService } from '@favorito/application/favorito-manager.service'
 import { GetAllFavoritosUseCase } from '@favorito/application/use-cases/get-all-favorito.use-case'
 import { RegisterFavoritoUseCase } from '@favorito/application/use-cases/register-favorito.use-case'
@@ -20,7 +21,7 @@ import { RegisterFavoritoController } from './controllers/register-favorito/regi
  *************************************/
 const compositionRoot = () => {
   // DRIVENS
-  const repository = new MSSQLFavoritoRepositoryAdapter() // repositorio de favorito
+  const repository = new MSSQLFavoritoRepositoryAdapter(mssqlConnection) // repositorio de favorito
   const cacheRepository = new ValkeyCacheRepository()
   const credentialDecryptor = createCredentialDecryptor()
   const credentialEncryptor = createCredentialEncryptor()
@@ -31,7 +32,7 @@ const compositionRoot = () => {
     JWT_REFRESH_TOKEN_TTL,
   )
   const currentStoreContextResolver = new CurrentStoreContextResolverAdapter(sessionCredentialStore)
-  const sysobjectRepository = new MSSQLSysObjectRepositoryAdapter(currentStoreContextResolver)
+  const sysobjectRepository = new MSSQLSysObjectRepositoryAdapter(mssqlConnection, currentStoreContextResolver)
 
   // USE CASES
   const registerFavoritoUC = new RegisterFavoritoUseCase(repository, logger)

@@ -1,5 +1,5 @@
 import { CurrentStoreContextResolver } from '@auth/domain/ports/drivens/current-store-context-resolver.port'
-import { MSSQLDatabaseConnection } from '@core/store/mssql-database-connection'
+import { MSSQLConnection } from '@core/store/mssql-connection'
 import { decodeRow, decodeRows } from '@core/utils/decode-recordset.util'
 import { wrapDatabaseError } from '@core/utils/wrap-database-error.util'
 import { ForSysObjectRepositoryPort } from '@sysobject/domain/ports/drivens/for-sysobject-repository.port'
@@ -29,9 +29,10 @@ import {
 } from './sysobject.mapper'
 
 export class MssqlSysObjectRepositoryAdapter implements ForSysObjectRepositoryPort {
-  private connection = new MSSQLDatabaseConnection()
-
-  constructor(private readonly currentStoreContextResolver: CurrentStoreContextResolver) {}
+  constructor(
+    private readonly connection: MSSQLConnection,
+    private readonly currentStoreContextResolver: CurrentStoreContextResolver,
+  ) {}
 
   private isIncompleteDependencyMetadataError(err: unknown): boolean {
     if (!(err instanceof Error)) return false

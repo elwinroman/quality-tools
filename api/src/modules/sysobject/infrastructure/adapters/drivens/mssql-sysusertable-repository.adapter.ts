@@ -1,5 +1,5 @@
 import { CurrentStoreContextResolver } from '@auth/domain/ports/drivens/current-store-context-resolver.port'
-import { MSSQLDatabaseConnection } from '@core/store/mssql-database-connection'
+import { MSSQLConnection } from '@core/store/mssql-connection'
 import { decodeRow, decodeRows } from '@core/utils/decode-recordset.util'
 import { wrapDatabaseError } from '@core/utils/wrap-database-error.util'
 import { ForSysUsertableRepositoryPort } from '@sysobject/domain/ports/drivens/for-sysusertable-repository.port'
@@ -22,9 +22,10 @@ import {
 } from './sysusertable.mapper'
 
 export class MssqlSysUsertableRepositoryAdapter implements ForSysUsertableRepositoryPort {
-  private connection = new MSSQLDatabaseConnection()
-
-  constructor(private readonly currentStoreContextResolver: CurrentStoreContextResolver) {}
+  constructor(
+    private readonly connection: MSSQLConnection,
+    private readonly currentStoreContextResolver: CurrentStoreContextResolver,
+  ) {}
 
   async getBySchemaAndName(schema: string, name: string): Promise<UsertableSysObject | null> {
     const { store } = await this.currentStoreContextResolver.resolve()

@@ -1,11 +1,13 @@
-import { DatabaseName, getStaticDatabaseCredentials, MSSQLDatabaseConnection } from '@core/store'
+import { DatabaseName, getStaticDatabaseCredentials } from '@core/store'
+import { MSSQLConnection } from '@core/store/mssql-connection'
 import { wrapDatabaseError } from '@core/utils'
 import { ForLogRepositoryPort, SearchLog } from '@sysobject/domain/ports/drivens/for-log-repository.port'
 import sql from 'mssql'
 
 export class MssqlLogRepositoryAdapter implements ForLogRepositoryPort {
-  private connection = new MSSQLDatabaseConnection()
   private db = getStaticDatabaseCredentials(DatabaseName.APP)
+
+  constructor(private readonly connection: MSSQLConnection) {}
 
   async createSearchLog(logSearch: SearchLog): Promise<boolean> {
     try {

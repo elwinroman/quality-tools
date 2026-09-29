@@ -1,4 +1,5 @@
-import { DatabaseName, getStaticDatabaseCredentials, MSSQLDatabaseConnection } from '@core/store'
+import { DatabaseName, getStaticDatabaseCredentials } from '@core/store'
+import { MSSQLConnection } from '@core/store/mssql-connection'
 import { wrapDatabaseError } from '@core/utils'
 import { decodeRow, decodeRows } from '@core/utils/decode-recordset.util'
 import { ForFavoritoRepositoryPort } from '@favorito/domain/ports/drivens/for-favorito-repository.port'
@@ -18,8 +19,9 @@ import {
 } from './favorito.mapper'
 
 export class MSSQLFavoritoRepositoryAdapter implements ForFavoritoRepositoryPort {
-  private connection = new MSSQLDatabaseConnection()
   private db = getStaticDatabaseCredentials(DatabaseName.APP)
+
+  constructor(private readonly connection: MSSQLConnection) {}
 
   async createOrUpdate(favoritoRepoInput: FavoritoRepoInput): Promise<{ data: FavoritoRepoResponse } | null> {
     try {

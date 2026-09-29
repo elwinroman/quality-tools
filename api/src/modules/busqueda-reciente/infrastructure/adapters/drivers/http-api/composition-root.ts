@@ -7,6 +7,7 @@ import { ValkeyCacheBusquedaRecienteRepositoryAdapter } from '@busqueda-reciente
 import { ValkeyCacheRepository } from '@core/cache/valkey-cache-repository'
 import { createCredentialDecryptor } from '@core/crypto/create-credential-decryptor.factory'
 import { createCredentialEncryptor } from '@core/crypto/create-credential-encryptor.factory'
+import { mssqlConnection } from '@core/store/mssql-connection-instance'
 import { logger } from '@observability/infrastructure/logging/logger-instance'
 
 import { JWT_REFRESH_TOKEN_TTL } from '@/config/enviroment'
@@ -30,7 +31,7 @@ const compositionRoot = () => {
     JWT_REFRESH_TOKEN_TTL,
   )
   const currentStoreContextResolver = new CurrentStoreContextResolverAdapter(sessionCredentialStore)
-  const sysobjectRepository = new MssqlSysObjectRepositoryAdapter(currentStoreContextResolver)
+  const sysobjectRepository = new MssqlSysObjectRepositoryAdapter(mssqlConnection, currentStoreContextResolver)
 
   // USE CASES
   const deleteBusquedaRecienteUC = new DeleteBusquedaRecienteUseCase(brRepository, logger)

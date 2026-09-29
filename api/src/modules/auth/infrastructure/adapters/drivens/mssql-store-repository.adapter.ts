@@ -1,7 +1,7 @@
 import { ForStoreRepositoryPort } from '@auth/domain/ports/drivens'
 import { PermissionStore, StoreInfo } from '@auth/domain/schemas/store'
-import { MSSQLDatabaseConnection } from '@core/store'
 import { UserTypeEnum } from '@core/store'
+import { MSSQLConnection } from '@core/store/mssql-connection'
 import { wrapDatabaseError } from '@core/utils'
 import { decodeRow, decodeRows } from '@core/utils/decode-recordset.util'
 import { StoreUserSchema } from '@shared/domain/store'
@@ -18,7 +18,7 @@ import {
 } from './store.mapper'
 
 export class MssqlStoreRepositoryAdapter implements ForStoreRepositoryPort {
-  private connection = new MSSQLDatabaseConnection()
+  constructor(private readonly connection: MSSQLConnection) {}
 
   async getDetails(credential: StoreUserSchema): Promise<StoreInfo> {
     try {

@@ -4,6 +4,7 @@ import { authenticatorProxyAdapter } from '@auth/infrastructure/adapters/drivers
 import { ValkeyCacheRepository } from '@core/cache/valkey-cache-repository'
 import { createCredentialDecryptor } from '@core/crypto/create-credential-decryptor.factory'
 import { createCredentialEncryptor } from '@core/crypto/create-credential-encryptor.factory'
+import { mssqlConnection } from '@core/store/mssql-connection-instance'
 import { logger } from '@observability/infrastructure/logging/logger-instance'
 import { SysObjectService } from '@sysobject/application/sysobject.service'
 import { GetProdSysObjectUseCase } from '@sysobject/application/use-cases/get-prod-sysobject.use-case'
@@ -42,10 +43,10 @@ const compositionMock = () => {
     JWT_REFRESH_TOKEN_TTL,
   )
   const currentStoreContextResolver = new CurrentStoreContextResolverAdapter(sessionCredentialStore)
-  const sysObjectRepository = new MssqlSysObjectRepositoryAdapter(currentStoreContextResolver)
-  const sysUsertableRepository = new MssqlSysUsertableRepositoryAdapter(currentStoreContextResolver)
-  const prodSysObjectRepository = new MssqlProdSysObjectRepositoryAdapter()
-  const logRepository = new MssqlLogRepositoryAdapter()
+  const sysObjectRepository = new MssqlSysObjectRepositoryAdapter(mssqlConnection, currentStoreContextResolver)
+  const sysUsertableRepository = new MssqlSysUsertableRepositoryAdapter(mssqlConnection, currentStoreContextResolver)
+  const prodSysObjectRepository = new MssqlProdSysObjectRepositoryAdapter(mssqlConnection)
+  const logRepository = new MssqlLogRepositoryAdapter(mssqlConnection)
   // proxy
   const registerBusquedaRecienteProxy = new RegisterBusquedaRecienteProxyAdapter()
 
