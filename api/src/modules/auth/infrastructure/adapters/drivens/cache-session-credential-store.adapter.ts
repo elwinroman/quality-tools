@@ -3,16 +3,16 @@ import {
   SessionCredentials,
   SessionCredentialStore,
 } from '@auth/domain/ports/drivens/session-credential-store.port'
+import { KeyValueStore } from '@core/cache/key-value-store'
 import { CacheCredentialNotFoundException } from '@core/exceptions/cache/cache-credential-not-found.exception'
 import { UserTypeEnum } from '@core/store/mssql-database-connection'
-import { CacheRepository } from '@shared/domain/cache-repository'
 import { CredentialDecryptor } from '@shared/domain/credential-decryptor'
 import { CredentialEncryptor } from '@shared/domain/credential-encryptor'
 import { StoreUserSchema } from '@shared/domain/store'
 
 export class CacheSessionCredentialStoreAdapter implements SessionCredentialStore {
   constructor(
-    private readonly cacheRepository: CacheRepository,
+    private readonly cacheRepository: KeyValueStore,
     private readonly credentialEncryptor: CredentialEncryptor,
     private readonly credentialDecryptor: CredentialDecryptor,
     private readonly sessionLifetimeSeconds: number,

@@ -1,17 +1,18 @@
 import { CacheSessionCredentialStoreAdapter } from '@auth/infrastructure/adapters/drivens/cache-session-credential-store.adapter'
+import { KeyValueStore } from '@core/cache/key-value-store'
 import { CacheCredentialNotFoundException } from '@core/exceptions/cache/cache-credential-not-found.exception'
 import { UserTypeEnum } from '@core/store/mssql-database-connection'
-import { CacheRepository } from '@shared/domain/cache-repository'
 import { CredentialDecryptor } from '@shared/domain/credential-decryptor'
 import { CredentialEncryptor } from '@shared/domain/credential-encryptor'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 describe('CacheSessionCredentialStoreAdapter', () => {
-  const cacheRepository: CacheRepository = {
+  const cacheRepository: KeyValueStore = {
     set: vi.fn(),
     get: vi.fn(),
     delete: vi.fn(),
     ttl: vi.fn(),
+    keys: vi.fn(),
   }
   const credentialEncryptor: CredentialEncryptor = { encrypt: vi.fn(value => `encrypted:${value}`) }
   const credentialDecryptor: CredentialDecryptor = { decrypt: vi.fn(value => value.replace('encrypted:', '')) }

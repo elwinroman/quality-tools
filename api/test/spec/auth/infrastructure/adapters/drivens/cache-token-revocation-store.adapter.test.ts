@@ -1,13 +1,14 @@
 import { CacheTokenRevocationStoreAdapter } from '@auth/infrastructure/adapters/drivens/cache-token-revocation-store.adapter'
-import { CacheRepository } from '@shared/domain/cache-repository'
+import { KeyValueStore } from '@core/cache/key-value-store'
 import { describe, expect, it, vi } from 'vitest'
 
-function createCacheRepository(overrides: Partial<CacheRepository> = {}): CacheRepository {
+function createCacheRepository(overrides: Partial<KeyValueStore> = {}): KeyValueStore {
   return {
     set: vi.fn(async () => undefined),
     get: vi.fn(async () => null),
     delete: vi.fn(async () => undefined),
     ttl: vi.fn(async () => -2),
+    keys: vi.fn(async () => []),
     ...overrides,
   }
 }

@@ -9,12 +9,12 @@ import { TokenRevocationStore } from '@auth/domain/ports/drivens/token-revocatio
 import { User } from '@auth/domain/schemas/user'
 import { UserHashId } from '@auth/domain/value-objects/user-hash-id'
 import { CacheSessionCredentialStoreAdapter } from '@auth/infrastructure/adapters/drivens/cache-session-credential-store.adapter'
+import { KeyValueStore } from '@core/cache/key-value-store'
 import { CacheCredentialNotFoundException } from '@core/exceptions/cache/cache-credential-not-found.exception'
 import { UserTypeEnum } from '@core/store/mssql-database-connection'
 import { Logger } from '@observability/domain/logger'
 import { LoggerContext } from '@observability/domain/logger-context'
 import { ForbiddenException } from '@shared/application/exceptions'
-import { CacheRepository } from '@shared/domain/cache-repository'
 import { CredentialDecryptor } from '@shared/domain/credential-decryptor'
 import { CredentialEncryptor } from '@shared/domain/credential-encryptor'
 import { StoreUserSchema } from '@shared/domain/store'
@@ -204,11 +204,12 @@ describe('migración de casos de uso al almacén de credenciales de sesión', ()
   })
 
   it.each([-2, -1, 0])('debería rechazar en switch-database TTL %i antes de llamar al repositorio de store', async ttl => {
-    const cacheRepository: CacheRepository = {
+    const cacheRepository: KeyValueStore = {
       set: vi.fn(async () => undefined),
       get: vi.fn(async () => null),
       delete: vi.fn(async () => undefined),
       ttl: vi.fn(async () => ttl),
+      keys: vi.fn(async () => []),
     }
     const encryptor: CredentialEncryptor = { encrypt: vi.fn(value => value) }
     const decryptor: CredentialDecryptor = { decrypt: vi.fn(value => value) }

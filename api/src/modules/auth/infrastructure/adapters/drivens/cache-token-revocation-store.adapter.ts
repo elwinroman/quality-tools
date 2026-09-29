@@ -1,8 +1,8 @@
 import { RevocableToken, TokenRevocationStore } from '@auth/domain/ports/drivens/token-revocation-store.port'
-import { CacheRepository } from '@shared/domain/cache-repository'
+import { KeyValueStore } from '@core/cache/key-value-store'
 
 export class CacheTokenRevocationStoreAdapter implements TokenRevocationStore {
-  constructor(private readonly cacheRepository: CacheRepository) {}
+  constructor(private readonly cacheRepository: KeyValueStore) {}
 
   async isRevoked(jti: string): Promise<boolean> {
     const value = await this.cacheRepository.get(this.buildKey(jti))
