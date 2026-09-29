@@ -19,8 +19,8 @@ import { GetAllBusquedaRecienteController } from './get-all-busqueda-reciente/ge
  *************************************/
 const compositionRoot = () => {
   // DRIVENS
-  const brRepository = new ValkeyCacheBusquedaRecienteRepositoryAdapter()
   const cacheRepository = new ValkeyCacheRepository()
+  const brRepository = new ValkeyCacheBusquedaRecienteRepositoryAdapter(cacheRepository)
   const credentialDecryptor = createCredentialDecryptor()
   const credentialEncryptor = createCredentialEncryptor()
   const sessionCredentialStore = new CacheSessionCredentialStoreAdapter(
