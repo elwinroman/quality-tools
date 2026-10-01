@@ -5,7 +5,7 @@ WORKDIR /app
 FROM base AS build
 
 # Instalar PNPM con version fija para que Docker/CI no cambie comportamiento entre builds.
-RUN npm install -g pnpm@11.13.0
+RUN npm install -g pnpm@11.19.0
 
 RUN apt-get update && \
     apt-get install -y dumb-init

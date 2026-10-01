@@ -47,7 +47,7 @@ jobs:
 
       - uses: pnpm/action-setup@v6
         with:
-          version: 11.13.0
+          version: 11.19.0
 
       - uses: actions/setup-node@v7
         with:
@@ -66,3 +66,8 @@ jobs:
 
       - name: Unit tests
         run: pnpm exec vitest run
+
+      # Corre la suite otra vez en orden aleatorio: un test que solo pasa por
+      # depender del orden de ejecucion tiene que fallar aca, no meses despues.
+      - name: Unit tests (random order)
+        run: pnpm exec vitest run --sequence.shuffle
