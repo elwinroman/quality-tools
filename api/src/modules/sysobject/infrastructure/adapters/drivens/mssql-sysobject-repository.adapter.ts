@@ -1,7 +1,6 @@
 import { CurrentStoreContextResolver } from '@auth/domain/ports/drivens/current-store-context-resolver.port'
-import { MSSQLConnection } from '@core/store/mssql-connection'
+import { MSSQLExecutor, MSSQLParameter } from '@core/store/mssql-query-runner'
 import { decodeRow, decodeRows } from '@core/utils/decode-recordset.util'
-import { wrapDatabaseError } from '@core/utils/wrap-database-error.util'
 import { ForSysObjectRepositoryPort } from '@sysobject/domain/ports/drivens/for-sysobject-repository.port'
 import { PermissionRol } from '@sysobject/domain/schemas/permission-rol'
 import {
@@ -30,20 +29,13 @@ import {
 
 export class MssqlSysObjectRepositoryAdapter implements ForSysObjectRepositoryPort {
   constructor(
-    private readonly connection: MSSQLConnection,
+    private readonly executor: MSSQLExecutor,
     private readonly currentStoreContextResolver: CurrentStoreContextResolver,
   ) {}
 
   private isIncompleteDependencyMetadataError(err: unknown): boolean {
-    if (!(err instanceof Error)) return false
-
-    const requestError = err as sql.RequestError
-
-    return (
-      requestError.number === 2020 ||
-      err.message.includes('The dependencies reported for entity') ||
-      err.message.includes('might not include references to all columns')
-    )
+    // El ejecutor propaga el error crudo del driver: se inspecciona directamente el request error.
+    return err instanceof sql.RequestError && err.number === 2020
   }
 
   private buildDependencyFallbackWarning(
@@ -64,11 +56,7 @@ export class MssqlSysObjectRepositoryAdapter implements ForSysObjectRepositoryPo
   async getBySchemaAndName(schema: string, name: string): Promise<SysObject | null> {
     const { store } = await this.currentStoreContextResolver.resolve()
 
-    try {
-      const conn = await this.connection.connect(store.credentials, store.type)
-      const request = conn.request()
-
-      const stmt = `
+    const stmt = `
         SELECT
           A.object_id,
           A.name,
@@ -87,28 +75,27 @@ export class MssqlSysObjectRepositoryAdapter implements ForSysObjectRepositoryPo
           AND A.name = @name
       `
 
-      request.input('schema', sql.VarChar(128), schema)
-      request.input('name', sql.VarChar(128), name)
-      const res = await request.query(stmt)
+    const res = await this.executor.query({
+      credentials: store.credentials,
+      userType: store.type,
+      statement: stmt,
+      parameters: [
+        { name: 'schema', type: sql.VarChar(128), value: schema },
+        { name: 'name', type: sql.VarChar(128), value: name },
+      ],
+    })
 
-      const row = decodeRow(res.recordset, SysObjectRowSchema)
+    const row = decodeRow(res.recordset, SysObjectRowSchema)
 
-      if (!row) return null
+    if (!row) return null
 
-      return sysObjectRowMapper(row, TIMEZONE_DATABASE)
-    } catch (err) {
-      throw wrapDatabaseError(err)
-    }
+    return sysObjectRowMapper(row, TIMEZONE_DATABASE)
   }
 
   async getRolesById(id: number): Promise<PermissionRol[]> {
     const { store } = await this.currentStoreContextResolver.resolve()
 
-    try {
-      const conn = await this.connection.connect(store.credentials, store.type)
-      const request = conn.request()
-
-      const stmt = `
+    const stmt = `
         SELECT 
           A.state_desc,
           A.permission_name, 
@@ -118,28 +105,27 @@ export class MssqlSysObjectRepositoryAdapter implements ForSysObjectRepositoryPo
         INNER JOIN sys.database_principals	C ON C.principal_id = A.grantee_principal_id
         WHERE B.object_id = @id
       `
-      request.input('id', sql.Int, id)
-      const res = await request.query(stmt)
+    const res = await this.executor.query({
+      credentials: store.credentials,
+      userType: store.type,
+      statement: stmt,
+      parameters: [{ name: 'id', type: sql.Int, value: id }],
+    })
 
-      return decodeRows(res.recordset, PermissionRolRowSchema).map(permissionRolRowMapper)
-    } catch (err) {
-      throw wrapDatabaseError(err)
-    }
+    return decodeRows(res.recordset, PermissionRolRowSchema).map(permissionRolRowMapper)
   }
 
   async findByNameAndType(name: string, types: ValidTypeSysObject[]): Promise<SysObjectSummary[]> {
     const { store } = await this.currentStoreContextResolver.resolve()
 
-    try {
-      const conn = await this.connection.connect(store.credentials, store.type)
-      const request = conn.request()
-      const typeParams = types.map((type, index) => {
-        const param = `type${index}`
-        request.input(param, sql.VarChar(2), type)
-        return `@${param}`
-      })
+    const parameters: MSSQLParameter[] = []
+    const typeParams = types.map((type, index) => {
+      const param = `type${index}`
+      parameters.push({ name: param, type: sql.VarChar(2), value: type })
+      return `@${param}`
+    })
 
-      const stmt = `
+    const stmt = `
         SELECT TOP 100
           object_id,
           name,
@@ -155,24 +141,17 @@ export class MssqlSysObjectRepositoryAdapter implements ForSysObjectRepositoryPo
         ORDER BY peso,name
       `
 
-      request.input('name', sql.VarChar(128), name)
-      const res = await request.query(stmt)
+    parameters.push({ name: 'name', type: sql.VarChar(128), value: name })
+    const res = await this.executor.query({ credentials: store.credentials, userType: store.type, statement: stmt, parameters })
 
-      return decodeRows(res.recordset, SysObjectSummaryRowSchema).map(sysObjectSummaryRowMapper)
-    } catch (err) {
-      throw wrapDatabaseError(err)
-    }
+    return decodeRows(res.recordset, SysObjectSummaryRowSchema).map(sysObjectSummaryRowMapper)
   }
 
   async findDependentsBySchemaAndName(name: string, schema: string): Promise<SysObjectRelationsResult<SysObjectDependent>> {
     const { store } = await this.currentStoreContextResolver.resolve()
 
-    try {
-      const conn = await this.connection.connect(store.credentials, store.type)
-      const request = conn.request()
-
-      const fullName = `${schema}.${name}`
-      const stmt = `
+    const fullName = `${schema}.${name}`
+    const stmt = `
         SELECT
           A.referencing_id object_id,
           COALESCE(A.referencing_schema_name, SCHEMA_NAME(B.schema_id)) schema_name,
@@ -189,12 +168,11 @@ export class MssqlSysObjectRepositoryAdapter implements ForSysObjectRepositoryPo
           object_name
       `
 
-      request.input('fullName', sql.VarChar(192), fullName)
-      let res: sql.IResult<unknown>
-      let warning: SysObjectRelationsWarning | undefined
-      const getFallbackDependents = async () => {
-        const fallbackRequest = conn.request()
-        const fallbackStmt = `
+    const parameters = [{ name: 'fullName', type: sql.VarChar(192), value: fullName }]
+    let res: sql.IResult<unknown>
+    let warning: SysObjectRelationsWarning | undefined
+    const getFallbackDependents = async () => {
+      const fallbackStmt = `
           SELECT DISTINCT
             A.referencing_id object_id,
             SCHEMA_NAME(B.schema_id) schema_name,
@@ -214,38 +192,37 @@ export class MssqlSysObjectRepositoryAdapter implements ForSysObjectRepositoryPo
             object_name
         `
 
-        fallbackRequest.input('fullName', sql.VarChar(192), fullName)
-        fallbackRequest.input('schema', sql.VarChar(128), schema)
-        fallbackRequest.input('name', sql.VarChar(128), name)
-        return fallbackRequest.query<unknown>(fallbackStmt)
-      }
-
-      try {
-        res = await request.query(stmt)
-      } catch (err) {
-        if (!this.isIncompleteDependencyMetadataError(err)) throw err
-
-        warning = this.buildDependencyFallbackWarning(err, 'sys.dm_sql_referencing_entities', fullName)
-        res = await getFallbackDependents()
-      }
-
-      const data = decodeRows(res.recordset, SysObjectRelationRowSchema).map(sysObjectRelationRowMapper)
-
-      return warning ? { data, meta: { warning } } : { data }
-    } catch (err) {
-      throw wrapDatabaseError(err)
+      return this.executor.query<unknown>({
+        credentials: store.credentials,
+        userType: store.type,
+        statement: fallbackStmt,
+        parameters: [
+          ...parameters,
+          { name: 'schema', type: sql.VarChar(128), value: schema },
+          { name: 'name', type: sql.VarChar(128), value: name },
+        ],
+      })
     }
+
+    try {
+      res = await this.executor.query({ credentials: store.credentials, userType: store.type, statement: stmt, parameters })
+    } catch (err) {
+      if (!this.isIncompleteDependencyMetadataError(err)) throw err
+
+      warning = this.buildDependencyFallbackWarning(err, 'sys.dm_sql_referencing_entities', fullName)
+      res = await getFallbackDependents()
+    }
+
+    const data = decodeRows(res.recordset, SysObjectRelationRowSchema).map(sysObjectRelationRowMapper)
+
+    return warning ? { data, meta: { warning } } : { data }
   }
 
   async findDependenciesBySchemaAndName(name: string, schema: string): Promise<SysObjectRelationsResult<SysObjectDependency>> {
     const { store } = await this.currentStoreContextResolver.resolve()
 
-    try {
-      const conn = await this.connection.connect(store.credentials, store.type)
-      const request = conn.request()
-
-      const fullName = `${schema}.${name}`
-      const stmt = `
+    const fullName = `${schema}.${name}`
+    const stmt = `
         SELECT
           A.referenced_id object_id,
           COALESCE(A.referenced_schema_name, SCHEMA_NAME(B.schema_id)) schema_name,
@@ -263,12 +240,11 @@ export class MssqlSysObjectRepositoryAdapter implements ForSysObjectRepositoryPo
           object_name
       `
 
-      request.input('fullName', sql.VarChar(192), fullName)
-      let res: sql.IResult<unknown>
-      let warning: SysObjectRelationsWarning | undefined
-      const getFallbackDependencies = async () => {
-        const fallbackRequest = conn.request()
-        const fallbackStmt = `
+    const parameters = [{ name: 'fullName', type: sql.VarChar(192), value: fullName }]
+    let res: sql.IResult<unknown>
+    let warning: SysObjectRelationsWarning | undefined
+    const getFallbackDependencies = async () => {
+      const fallbackStmt = `
           SELECT DISTINCT
             A.referenced_id object_id,
             COALESCE(A.referenced_schema_name, SCHEMA_NAME(B.schema_id)) schema_name,
@@ -285,24 +261,25 @@ export class MssqlSysObjectRepositoryAdapter implements ForSysObjectRepositoryPo
             object_name
         `
 
-        fallbackRequest.input('fullName', sql.VarChar(192), fullName)
-        return fallbackRequest.query<unknown>(fallbackStmt)
-      }
-
-      try {
-        res = await request.query(stmt)
-      } catch (err) {
-        if (!this.isIncompleteDependencyMetadataError(err)) throw err
-
-        warning = this.buildDependencyFallbackWarning(err, 'sys.dm_sql_referenced_entities', fullName)
-        res = await getFallbackDependencies()
-      }
-
-      const data = decodeRows(res.recordset, SysObjectRelationRowSchema).map(sysObjectRelationRowMapper)
-
-      return warning ? { data, meta: { warning } } : { data }
-    } catch (err) {
-      throw wrapDatabaseError(err)
+      return this.executor.query<unknown>({
+        credentials: store.credentials,
+        userType: store.type,
+        statement: fallbackStmt,
+        parameters,
+      })
     }
+
+    try {
+      res = await this.executor.query({ credentials: store.credentials, userType: store.type, statement: stmt, parameters })
+    } catch (err) {
+      if (!this.isIncompleteDependencyMetadataError(err)) throw err
+
+      warning = this.buildDependencyFallbackWarning(err, 'sys.dm_sql_referenced_entities', fullName)
+      res = await getFallbackDependencies()
+    }
+
+    const data = decodeRows(res.recordset, SysObjectRelationRowSchema).map(sysObjectRelationRowMapper)
+
+    return warning ? { data, meta: { warning } } : { data }
   }
 }

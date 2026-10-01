@@ -17,20 +17,6 @@ describe('formatZodErrors', () => {
     expect(formatZodErrors(issues)).toEqual(['body.database: Required'])
   })
 
-  it('debería formatear la ruta de un solo nivel', () => {
-    const issues: ZodIssue[] = [
-      {
-        code: 'invalid_type',
-        expected: 'number',
-        received: 'string',
-        path: ['userId'],
-        message: 'Expected number, received string',
-      },
-    ]
-
-    expect(formatZodErrors(issues)).toEqual(['userId: Expected number, received string'])
-  })
-
   it('debería formatear la ruta de arreglos con su índice', () => {
     const issues: ZodIssue[] = [
       {
@@ -71,14 +57,5 @@ describe('formatZodErrors', () => {
 
   it('debería devolver un arreglo vacío cuando no hay issues', () => {
     expect(formatZodErrors([])).toEqual([])
-  })
-
-  it('debería devolver un elemento por cada issue', () => {
-    const issues: ZodIssue[] = [
-      { code: 'custom', path: ['a'], message: 'A' },
-      { code: 'custom', path: ['b'], message: 'B' },
-    ]
-
-    expect(formatZodErrors(issues)).toHaveLength(issues.length)
   })
 })

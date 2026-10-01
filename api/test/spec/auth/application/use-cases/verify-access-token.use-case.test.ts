@@ -103,7 +103,8 @@ describe('VerifyAccessTokenUseCase', () => {
 
       await expect(useCase.execute('token-revocado')).rejects.toBeInstanceOf(ForbiddenException)
       expect(verifyAccessToken).toHaveBeenCalledWith('token-revocado')
-      expect(warnCalls).toHaveLength(1)
+      // El arreglo sólo captura nivel `warn`: fija a la vez el nivel y el mensaje del evento.
+      expect(warnCalls).toEqual([`[auth] Se está intentando usar un token revocado. TYPE: ${DECODED.type} JTI: ${DECODED.jti}`])
     })
   })
 

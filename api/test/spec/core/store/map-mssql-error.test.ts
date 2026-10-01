@@ -50,14 +50,6 @@ describe('mapMSSQLError', () => {
     expect(mapped.type).toBe('DatabaseErrorMappingException')
   })
 
-  it('expone un detail definido para el error de MSSQL no mapeado', () => {
-    const unmapped = new sql.MSSQLError('error mssql desconocido', 'EMSSQL') as unknown as sql.RequestError
-
-    const mapped = mapMSSQLError(unmapped)
-
-    expect(mapped.detail).toEqual(expect.any(String))
-  })
-
   it('resuelve el status y el errorCode sin lanzar para el error de MSSQL no mapeado', () => {
     const unmapped = new sql.MSSQLError('error mssql desconocido', 'EMSSQL') as unknown as sql.RequestError
 

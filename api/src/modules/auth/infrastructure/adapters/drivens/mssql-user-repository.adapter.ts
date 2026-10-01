@@ -2,10 +2,8 @@ import { ForUserRepositoryPort } from '@auth/domain/ports/drivens'
 import { PersistedUser, PrimitiveUser } from '@auth/domain/schemas/user'
 import { DatabaseName } from '@core/store'
 import { getStaticDatabaseCredentials } from '@core/store/get-static-store-credentials'
-import { MSSQLConnection } from '@core/store/mssql-connection'
-import { wrapDatabaseError } from '@core/utils'
+import { MSSQLExecutor, MSSQLTransactionRunner } from '@core/store/mssql-query-runner'
 import { decodeRow } from '@core/utils/decode-recordset.util'
-import { logger } from '@observability/infrastructure/logging/logger-instance'
 import sql from 'mssql'
 
 import { userRowMapper, UserRowSchema } from './user.mapper'
@@ -13,19 +11,13 @@ import { userRowMapper, UserRowSchema } from './user.mapper'
 export class MssqlUserRepositoryAdapter implements ForUserRepositoryPort {
   private db = getStaticDatabaseCredentials(DatabaseName.APP)
 
-  constructor(private readonly connection: MSSQLConnection) {}
+  constructor(
+    private readonly executor: MSSQLExecutor,
+    private readonly transactionRunner: MSSQLTransactionRunner,
+  ) {}
 
   async getOrCreate(user: PrimitiveUser, _userDatabase: string): Promise<PersistedUser | null> {
-    let conn: sql.ConnectionPool | null = null
-    let transaction: sql.Transaction | null = null
-
-    try {
-      conn = await this.connection.connect(this.db.credentials, this.db.type)
-      transaction = new sql.Transaction(conn)
-
-      await transaction.begin()
-      const request = new sql.Request(transaction)
-
+    return this.transactionRunner.runInTransaction(this.db.credentials, this.db.type, async ({ query, rollback }) => {
       const stmt = `
         MERGE INTO dbo.Usuario AS target
         USING (
@@ -51,47 +43,34 @@ export class MssqlUserRepositoryAdapter implements ForUserRepositoryPort {
             INSERTED.cServer, INSERTED.cAliasServer, INSERTED.dFechaRegistro, INSERTED.lVigente;
       `
 
-      request.input('hashId', sql.Char(32), user.hashId.getValue)
-      request.input('user', sql.VarChar(64), user.user)
-      request.input('host', sql.VarChar(64), user.host)
-      request.input('aliasHost', sql.VarChar(64), user.aliasHost)
-      request.input('createdAt', sql.DateTime2, user.createdAt)
-      request.input('isActive', sql.Bit, user.isActive)
-
-      const res = await request.query(stmt)
+      const res = await query({
+        statement: stmt,
+        parameters: [
+          { name: 'hashId', type: sql.Char(32), value: user.hashId.getValue },
+          { name: 'user', type: sql.VarChar(64), value: user.user },
+          { name: 'host', type: sql.VarChar(64), value: user.host },
+          { name: 'aliasHost', type: sql.VarChar(64), value: user.aliasHost },
+          { name: 'createdAt', type: sql.DateTime2, value: user.createdAt },
+          { name: 'isActive', type: sql.Bit, value: user.isActive },
+        ],
+      })
 
       const row = decodeRow(res.recordset, UserRowSchema)
 
       if (!row) {
-        await transaction.rollback()
+        await rollback()
         return null
       }
 
       // se materializa antes del commit: una fila inválida hace rollback de la transacción
       const userRepository = userRowMapper(row)
 
-      await transaction.commit()
-
       return userRepository
-    } catch (err: unknown) {
-      if (transaction) {
-        try {
-          await transaction.rollback()
-        } catch (rollbackError) {
-          logger.error('[auth] Error al hacer rollback:', { rollbackError })
-        }
-      }
-
-      throw wrapDatabaseError(err)
-    }
+    })
   }
 
   async getById(id: number): Promise<PersistedUser | null> {
-    try {
-      const conn = await this.connection.connect(this.db.credentials, this.db.type)
-      const request = conn.request()
-
-      const stmt = `
+    const stmt = `
         SELECT
           idUsuario,
           cHashUsuarioUID,
@@ -103,16 +82,17 @@ export class MssqlUserRepositoryAdapter implements ForUserRepositoryPort {
         FROM dbo.Usuario
         WHERE idUsuario = @id
       `
-      request.input('id', sql.Int, id)
-      const res = await request.query(stmt)
+    const res = await this.executor.query({
+      credentials: this.db.credentials,
+      userType: this.db.type,
+      statement: stmt,
+      parameters: [{ name: 'id', type: sql.Int, value: id }],
+    })
 
-      const row = decodeRow(res.recordset, UserRowSchema)
+    const row = decodeRow(res.recordset, UserRowSchema)
 
-      if (!row) return null
+    if (!row) return null
 
-      return userRowMapper(row)
-    } catch (err) {
-      throw wrapDatabaseError(err)
-    }
+    return userRowMapper(row)
   }
 }

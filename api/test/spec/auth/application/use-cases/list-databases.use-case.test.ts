@@ -61,7 +61,8 @@ describe('ListDatabasesUseCase', () => {
       const useCase = new ListDatabasesUseCase(storeRepository, logger)
 
       await expect(useCase.execute(CREDENTIALS)).resolves.toEqual(databaseList)
-      expect(infoCalls).toHaveLength(1)
+      // El arreglo sólo captura nivel `info`: fija a la vez el nivel y el mensaje del evento.
+      expect(infoCalls).toEqual(['[auth] Lista de base de datos obtenida'])
     })
   })
 

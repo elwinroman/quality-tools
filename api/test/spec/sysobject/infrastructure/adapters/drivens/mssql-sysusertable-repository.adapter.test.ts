@@ -1,9 +1,10 @@
 import { CurrentStoreContextResolver } from '@auth/domain/ports/drivens/current-store-context-resolver.port'
-import { DatabaseErrorMappingException } from '@core/exceptions/store/database-error-mapping.exception'
 import { MSSQLConnection } from '@core/store/mssql-connection'
 import { UserTypeEnum } from '@core/store/mssql-database-connection'
+import { MSSQLQueryRunner } from '@core/store/mssql-query-runner'
 import { MssqlSysUsertableRepositoryAdapter } from '@sysobject/infrastructure/adapters/drivens/mssql-sysusertable-repository.adapter'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { ZodError } from 'zod'
 
 const credentials = { host: 'host', database: 'database', user: 'user', password: 'password' }
 
@@ -15,6 +16,7 @@ const connectionControl = {
 }
 
 const connection: MSSQLConnection = { connect: connectionControl.connect }
+const queryRunner = new MSSQLQueryRunner(connection)
 
 function buildResolver(): CurrentStoreContextResolver {
   return {
@@ -84,7 +86,7 @@ describe('MssqlSysUsertableRepositoryAdapter.getColumnsById', () => {
       ],
     })
 
-    const adapter = new MssqlSysUsertableRepositoryAdapter(connection, buildResolver())
+    const adapter = new MssqlSysUsertableRepositoryAdapter(queryRunner, buildResolver())
     const columns = await adapter.getColumnsById(10)
 
     const columnById = new Map(columns.map(column => [column.id, column]))
@@ -100,7 +102,7 @@ describe('MssqlSysUsertableRepositoryAdapter.getColumnsById', () => {
       ],
     })
 
-    const adapter = new MssqlSysUsertableRepositoryAdapter(connection, buildResolver())
+    const adapter = new MssqlSysUsertableRepositoryAdapter(queryRunner, buildResolver())
     const columns = await adapter.getColumnsById(10)
 
     const columnById = new Map(columns.map(column => [column.id, column]))
@@ -115,7 +117,7 @@ describe('MssqlSysUsertableRepositoryAdapter.getColumnsById', () => {
       recordsets: [[buildColumnRow({ column_id: 1, name: 'id' })], [buildExtendedPropertyRow({ column_id: 99, value: 'huerfana' })]],
     })
 
-    const adapter = new MssqlSysUsertableRepositoryAdapter(connection, buildResolver())
+    const adapter = new MssqlSysUsertableRepositoryAdapter(queryRunner, buildResolver())
     const columns = await adapter.getColumnsById(10)
 
     // comportamiento actual: la propiedad huérfana no se adjunta a ninguna columna ni lanza
@@ -129,7 +131,7 @@ describe('MssqlSysUsertableRepositoryAdapter.getColumnsById', () => {
       recordsets: [[buildColumnRow({ column_id: 1, name: 'id' })]],
     })
 
-    const adapter = new MssqlSysUsertableRepositoryAdapter(connection, buildResolver())
+    const adapter = new MssqlSysUsertableRepositoryAdapter(queryRunner, buildResolver())
     const columns = await adapter.getColumnsById(10)
 
     const [column] = columns
@@ -176,7 +178,7 @@ describe('MssqlSysUsertableRepositoryAdapter.getIndexesById', () => {
       ],
     })
 
-    const adapter = new MssqlSysUsertableRepositoryAdapter(connection, buildResolver())
+    const adapter = new MssqlSysUsertableRepositoryAdapter(queryRunner, buildResolver())
     const indexes = await adapter.getIndexesById(10)
 
     expect(indexes).toHaveLength(1)
@@ -189,24 +191,13 @@ describe('MssqlSysUsertableRepositoryAdapter.getIndexesById', () => {
     ])
   })
 
-  it('debería conservar la forma de un índice de una sola columna', async () => {
-    connectionControl.query.mockResolvedValue({ recordset: [buildIndexRow({ index_name: 'PK_Clientes' })] })
+  it('debería propagar crudo un error Zod ocurrido después de ejecutar la query', async () => {
+    connectionControl.query.mockResolvedValue({ recordset: [buildIndexRow({ is_primary_key: 'inválido' })] })
+    const adapter = new MssqlSysUsertableRepositoryAdapter(queryRunner, buildResolver())
 
-    const adapter = new MssqlSysUsertableRepositoryAdapter(connection, buildResolver())
-    const indexes = await adapter.getIndexesById(10)
+    const operation = adapter.getIndexesById(10)
 
-    expect(indexes).toEqual([
-      {
-        name: 'PK_Clientes',
-        typeDesc: 'CLUSTERED',
-        isPrimaryKey: true,
-        isUnique: true,
-        isFiltered: false,
-        filterDefinition: null,
-        isDisabled: false,
-        columns: [{ columnId: 1, columnName: 'id', keyOrdinal: 1, isDescendingKey: false, isIncludedColumn: false }],
-      },
-    ])
+    await expect(operation).rejects.toBeInstanceOf(ZodError)
   })
 })
 
@@ -220,17 +211,16 @@ describe('MssqlSysUsertableRepositoryAdapter.getForeignKeysById', () => {
     connectionControl.query.mockResolvedValue({ recordset: [] })
   })
 
-  // BUG CONOCIDO (ver TODO.md): el id viaja dentro del SQL y el input('id') queda sin usar.
-  // Este test fija el comportamiento actual; no debe corregirse acá.
-  it('debería interpolar hoy el id en el SQL aunque registre el input correspondiente', async () => {
+  it('debería parametrizar el id como @id y enlazarlo como entrada declarativa', async () => {
     connectionControl.query.mockResolvedValue({ recordset: [] })
 
-    const adapter = new MssqlSysUsertableRepositoryAdapter(connection, buildResolver())
+    const adapter = new MssqlSysUsertableRepositoryAdapter(queryRunner, buildResolver())
     await adapter.getForeignKeysById(10)
 
     const [stmt] = connectionControl.query.mock.calls[0]
-    expect(stmt).toContain('WHERE A.object_id = 10')
-    expect(stmt).not.toContain('@id')
+    expect(stmt).toContain('WHERE A.object_id = @id')
+    expect(stmt).not.toContain('${id}')
+    expect(stmt).not.toContain('A.object_id = 10')
     expect(connectionControl.input).toHaveBeenCalledWith('id', expect.anything(), 10)
   })
 })
@@ -249,7 +239,7 @@ describe('MssqlSysUsertableRepositoryAdapter resolución y conexión', () => {
     connectionControl.query.mockResolvedValue({ recordsets: [[], []] })
 
     const resolver = buildResolver()
-    const adapter = new MssqlSysUsertableRepositoryAdapter(connection, resolver)
+    const adapter = new MssqlSysUsertableRepositoryAdapter(queryRunner, resolver)
 
     await adapter.getColumnsById(10)
 
@@ -265,17 +255,18 @@ describe('MssqlSysUsertableRepositoryAdapter resolución y conexión', () => {
     const failure = new Error('sin sesión')
     const resolver: CurrentStoreContextResolver = { resolve: vi.fn(async () => Promise.reject(failure)) }
 
-    const adapter = new MssqlSysUsertableRepositoryAdapter(connection, resolver)
+    const adapter = new MssqlSysUsertableRepositoryAdapter(queryRunner, resolver)
 
     await expect(adapter.getColumnsById(10)).rejects.toBe(failure)
     expect(connectionControl.connect).not.toHaveBeenCalled()
   })
 
-  it('debería propagar el fallo de conexión envuelto en vez de tragárselo', async () => {
-    connectionControl.connect.mockRejectedValue(new Error('conexión rechazada'))
+  it('debería propagar crudo el fallo de conexión en vez de tragárselo', async () => {
+    const failure = new Error('conexión rechazada')
+    connectionControl.connect.mockRejectedValue(failure)
 
-    const adapter = new MssqlSysUsertableRepositoryAdapter(connection, buildResolver())
+    const adapter = new MssqlSysUsertableRepositoryAdapter(queryRunner, buildResolver())
 
-    await expect(adapter.getColumnsById(10)).rejects.toBeInstanceOf(DatabaseErrorMappingException)
+    await expect(adapter.getColumnsById(10)).rejects.toBe(failure)
   })
 })

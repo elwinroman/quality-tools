@@ -49,11 +49,23 @@ describe('CacheSessionCredentialStoreAdapter', () => {
     vi.mocked(cacheRepository.get).mockResolvedValue(JSON.stringify(credentials))
 
     await store.save(17, 'plain', credentials)
-    await expect(store.find(17, 'plain')).resolves.toEqual({ credentials, type: UserTypeEnum.External })
 
-    expect(cacheRepository.set).toHaveBeenCalledWith('auth:credentials:17:plain', JSON.stringify(credentials), 120)
-    expect(plainEncryptor.encrypt).toHaveBeenCalledTimes(2)
-    expect(plainDecryptor.decrypt).toHaveBeenCalledTimes(2)
+    const [key, payload, ttl] = vi.mocked(cacheRepository.set).mock.calls[0]
+    expect(key).toBe('auth:credentials:17:plain')
+    expect(ttl).toBe(120)
+    // La política de texto plano debe persistir cada campo con su valor real, sin reordenar ni intercambiar.
+    expect(JSON.parse(payload)).toEqual({
+      host: 'database.local',
+      database: 'quality',
+      user: 'analyst',
+      password: 'secret',
+    })
+
+    // Ida y vuelta: el descifrador plano devuelve exactamente las credenciales persistidas.
+    await expect(store.find(17, 'plain')).resolves.toEqual({
+      credentials: { host: 'database.local', database: 'quality', user: 'analyst', password: 'secret' },
+      type: UserTypeEnum.External,
+    })
   })
 
   it('debería cargar y desencriptar las credenciales de usuario externo a través de dependencias inyectadas', async () => {

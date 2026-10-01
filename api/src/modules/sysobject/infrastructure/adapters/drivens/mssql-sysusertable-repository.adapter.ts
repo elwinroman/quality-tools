@@ -1,7 +1,6 @@
 import { CurrentStoreContextResolver } from '@auth/domain/ports/drivens/current-store-context-resolver.port'
-import { MSSQLConnection } from '@core/store/mssql-connection'
+import { MSSQLExecutor } from '@core/store/mssql-query-runner'
 import { decodeRow, decodeRows } from '@core/utils/decode-recordset.util'
-import { wrapDatabaseError } from '@core/utils/wrap-database-error.util'
 import { ForSysUsertableRepositoryPort } from '@sysobject/domain/ports/drivens/for-sysusertable-repository.port'
 import { Column, ExtendedProperty, ForeignKey, Index, UsertableSysObject } from '@sysobject/domain/schemas/usertable'
 import sql from 'mssql'
@@ -23,18 +22,14 @@ import {
 
 export class MssqlSysUsertableRepositoryAdapter implements ForSysUsertableRepositoryPort {
   constructor(
-    private readonly connection: MSSQLConnection,
+    private readonly executor: MSSQLExecutor,
     private readonly currentStoreContextResolver: CurrentStoreContextResolver,
   ) {}
 
   async getBySchemaAndName(schema: string, name: string): Promise<UsertableSysObject | null> {
     const { store } = await this.currentStoreContextResolver.resolve()
 
-    try {
-      const conn = await this.connection.connect(store.credentials, store.type)
-      const request = conn.request()
-
-      const stmt = `
+    const stmt = `
         SELECT  
           A.object_id,  
           A.name, 
@@ -51,28 +46,27 @@ export class MssqlSysUsertableRepositoryAdapter implements ForSysUsertableReposi
           AND A.name = @name
       `
 
-      request.input('schema', sql.VarChar(128), schema)
-      request.input('name', sql.VarChar(128), name)
-      const res = await request.query(stmt)
+    const res = await this.executor.query({
+      credentials: store.credentials,
+      userType: store.type,
+      statement: stmt,
+      parameters: [
+        { name: 'schema', type: sql.VarChar(128), value: schema },
+        { name: 'name', type: sql.VarChar(128), value: name },
+      ],
+    })
 
-      const row = decodeRow(res.recordset, UsertableSysObjectRowSchema)
+    const row = decodeRow(res.recordset, UsertableSysObjectRowSchema)
 
-      if (!row) return null
+    if (!row) return null
 
-      return usertableSysObjectRowMapper(row)
-    } catch (err) {
-      throw wrapDatabaseError(err)
-    }
+    return usertableSysObjectRowMapper(row)
   }
 
   async getColumnsById(id: number): Promise<Column[]> {
     const { store } = await this.currentStoreContextResolver.resolve()
 
-    try {
-      const conn = await this.connection.connect(store.credentials, store.type)
-      const request = conn.request()
-
-      const stmt = `
+    const stmt = `
         --======================================================================
         -- Obtener columnas => recordset[0]
         --======================================================================
@@ -104,31 +98,28 @@ export class MssqlSysUsertableRepositoryAdapter implements ForSysUsertableReposi
         WHERE B.class = 1 -- (1: OBJECT_OR_COLUMN)
           AND A.object_id = @id
       `
-      request.input('id', sql.Int, id)
-      const res = await request.query(stmt)
+    const res = await this.executor.query({
+      credentials: store.credentials,
+      userType: store.type,
+      statement: stmt,
+      parameters: [{ name: 'id', type: sql.Int, value: id }],
+    })
 
-      // el batch devuelve dos recordsets; cada uno se valida antes de mapear
-      const [columnsRecordset, extendedPropertiesRecordset] = res.recordsets as unknown as [unknown[], unknown[]]
+    // el batch devuelve dos recordsets; cada uno se valida antes de mapear
+    const [columnsRecordset, extendedPropertiesRecordset] = res.recordsets as unknown as [unknown[], unknown[]]
 
-      const columnRows = decodeRows(columnsRecordset, ColumnRowSchema)
-      const extendedPropertyRows = decodeRows(extendedPropertiesRecordset, ColumnExtendedPropertyRowSchema)
+    const columnRows = decodeRows(columnsRecordset, ColumnRowSchema)
+    const extendedPropertyRows = decodeRows(extendedPropertiesRecordset, ColumnExtendedPropertyRowSchema)
 
-      return columnRows.map(row =>
-        columnRowMapper(row, extendedPropertyRows.filter(prop => prop.column_id === row.column_id).map(columnExtendedPropertyRowMapper)),
-      )
-    } catch (err) {
-      throw wrapDatabaseError(err)
-    }
+    return columnRows.map(row =>
+      columnRowMapper(row, extendedPropertyRows.filter(prop => prop.column_id === row.column_id).map(columnExtendedPropertyRowMapper)),
+    )
   }
 
   async getForeignKeysById(id: number): Promise<ForeignKey[]> {
     const { store } = await this.currentStoreContextResolver.resolve()
 
-    try {
-      const conn = await this.connection.connect(store.credentials, store.type)
-      const request = conn.request()
-
-      const stmt = `
+    const stmt = `
         SELECT 
           A.column_id,
           SCHEMA_NAME(C.schema_id) AS referenced_schema,
@@ -140,25 +131,22 @@ export class MssqlSysUsertableRepositoryAdapter implements ForSysUsertableReposi
         INNER JOIN sys.foreign_key_columns	B ON B.parent_column_id = A.column_id AND B.parent_object_id = A.object_id
         INNER JOIN sys.objects				      C ON C.object_id = B.referenced_object_id
         INNER JOIN sys.columns				      D ON D.column_id = B.referenced_column_id AND D.object_id = B.referenced_object_id
-        WHERE A.object_id = ${id}
+        WHERE A.object_id = @id
       `
-      request.input('id', sql.Int, id)
-      const res = await request.query(stmt)
+    const res = await this.executor.query({
+      credentials: store.credentials,
+      userType: store.type,
+      statement: stmt,
+      parameters: [{ name: 'id', type: sql.Int, value: id }],
+    })
 
-      return decodeRows(res.recordset, ForeignKeyRowSchema).map(foreignKeyRowMapper)
-    } catch (err) {
-      throw wrapDatabaseError(err)
-    }
+    return decodeRows(res.recordset, ForeignKeyRowSchema).map(foreignKeyRowMapper)
   }
 
   async getIndexesById(id: number): Promise<Index[]> {
     const { store } = await this.currentStoreContextResolver.resolve()
 
-    try {
-      const conn = await this.connection.connect(store.credentials, store.type)
-      const request = conn.request()
-
-      const stmt = `
+    const stmt = `
         SELECT
           C.name           AS index_name,
           C.type_desc,
@@ -178,48 +166,46 @@ export class MssqlSysUsertableRepositoryAdapter implements ForSysUsertableReposi
         WHERE A.object_id = @id
         ORDER BY C.name, B.key_ordinal
       `
-      request.input('id', sql.Int, id)
-      const res = await request.query(stmt)
+    const res = await this.executor.query({
+      credentials: store.credentials,
+      userType: store.type,
+      statement: stmt,
+      parameters: [{ name: 'id', type: sql.Int, value: id }],
+    })
 
-      const indexMap = new Map<string, Index>()
+    const indexMap = new Map<string, Index>()
 
-      for (const index of decodeRows(res.recordset, IndexRowSchema).map(indexRowMapper)) {
-        const existing = indexMap.get(index.name)
+    for (const index of decodeRows(res.recordset, IndexRowSchema).map(indexRowMapper)) {
+      const existing = indexMap.get(index.name)
 
-        if (existing) {
-          existing.columns.push(...index.columns)
-          continue
-        }
-
-        indexMap.set(index.name, index)
+      if (existing) {
+        existing.columns.push(...index.columns)
+        continue
       }
 
-      return [...indexMap.values()]
-    } catch (err) {
-      throw wrapDatabaseError(err)
+      indexMap.set(index.name, index)
     }
+
+    return [...indexMap.values()]
   }
 
   async getUsertableExtendedPropertieById(id: number): Promise<ExtendedProperty[]> {
     const { store } = await this.currentStoreContextResolver.resolve()
 
-    try {
-      const conn = await this.connection.connect(store.credentials, store.type)
-      const request = conn.request()
-
-      const stmt = `
+    const stmt = `
         SELECT 
           CAST(value AS NVARCHAR(200)) COLLATE Latin1_General_CI_AS_KS_WS AS value, 
           name 
         FROM sys.extended_properties
         WHERE major_id = @id AND minor_id = 0
       `
-      request.input('id', sql.Int, id)
-      const res = await request.query(stmt)
+    const res = await this.executor.query({
+      credentials: store.credentials,
+      userType: store.type,
+      statement: stmt,
+      parameters: [{ name: 'id', type: sql.Int, value: id }],
+    })
 
-      return decodeRows(res.recordset, UsertableExtendedPropertyRowSchema).map(usertableExtendedPropertyRowMapper)
-    } catch (err) {
-      throw wrapDatabaseError(err)
-    }
+    return decodeRows(res.recordset, UsertableExtendedPropertyRowSchema).map(usertableExtendedPropertyRowMapper)
   }
 }

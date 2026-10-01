@@ -9,6 +9,24 @@ import { InfrastructureError } from '@core/infrastructure-error.exception'
 import sql from 'mssql'
 
 /**
+ * Determina si un error proviene realmente de MSSQL.
+ *
+ * Usa `instanceof` contra las clases de node-mssql en lugar de comprobar la presencia de
+ * `code`, `message` y `name`: los errores del sistema (fs, net) también exponen `code`
+ * (ENOENT, ECONNREFUSED, ...) y serían clasificados como errores de base de datos por error.
+ */
+export function isMSSQLError(
+  err: unknown,
+): err is sql.RequestError | sql.PreparedStatementError | sql.TransactionError | sql.ConnectionError {
+  return (
+    err instanceof sql.RequestError ||
+    err instanceof sql.PreparedStatementError ||
+    err instanceof sql.TransactionError ||
+    err instanceof sql.ConnectionError
+  )
+}
+
+/**
  * Mapea un error de MSSQL a un error de dominio específico.
  *
  * La clasificación usa `instanceof`, de modo que una subclase de cualquiera de

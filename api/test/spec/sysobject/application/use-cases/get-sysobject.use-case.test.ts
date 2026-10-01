@@ -144,7 +144,21 @@ describe('GetSysObjectUseCase', () => {
         },
       ])
       expect(created[0].createdAt).toBe(sent[0].dateSearch)
-      expect(infoCalls).toHaveLength(1)
+      expect(infoCalls).toEqual([
+        {
+          message: '[sysobject] Objeto recuperado',
+          context: {
+            actionDetails: {
+              objectId: SYS_OBJECT.id,
+              objectName: SYS_OBJECT.name,
+              type: SYS_OBJECT.type,
+              schema: SYS_OBJECT.schemaName,
+              database: LOG_CONTEXT.databaseName,
+              rolesCount: ROLES.length,
+            },
+          },
+        },
+      ])
     })
   })
 })

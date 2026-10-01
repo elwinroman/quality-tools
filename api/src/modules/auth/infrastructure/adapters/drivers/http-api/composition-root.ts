@@ -19,7 +19,7 @@ import { CurrentStoreContextResolverAdapter } from '@auth/infrastructure/adapter
 import { ValkeyCacheRepository } from '@core/cache/valkey-cache-repository'
 import { createCredentialDecryptor } from '@core/crypto/create-credential-decryptor.factory'
 import { createCredentialEncryptor } from '@core/crypto/create-credential-encryptor.factory'
-import { mssqlConnection } from '@core/store/mssql-connection-instance'
+import { mssqlQueryRunner } from '@core/store/mssql-query-runner-instance'
 import { loggerContext } from '@observability/infrastructure/context/logger-context.adapter'
 import { logger } from '@observability/infrastructure/logging/logger-instance'
 
@@ -37,8 +37,8 @@ import { SwitchDatabaseController } from './switch-database/switch-database.cont
  *************************************/
 const compositionMock = () => {
   // DRIVENS
-  const storeRepositoty = new MssqlStoreRepositoryAdapter(mssqlConnection) // repositorio
-  const userRepository = new MssqlUserRepositoryAdapter(mssqlConnection) // repositorio
+  const storeRepositoty = new MssqlStoreRepositoryAdapter(mssqlQueryRunner) // repositorio
+  const userRepository = new MssqlUserRepositoryAdapter(mssqlQueryRunner, mssqlQueryRunner) // repositorio
   const cacheRepository = new ValkeyCacheRepository()
   const jwtTokenManager = new JwtTokenManagerAdapter()
   const tokenRevocationStore = new CacheTokenRevocationStoreAdapter(cacheRepository)

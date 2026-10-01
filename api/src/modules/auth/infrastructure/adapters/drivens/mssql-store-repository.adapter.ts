@@ -1,8 +1,7 @@
 import { ForStoreRepositoryPort } from '@auth/domain/ports/drivens'
 import { PermissionStore, StoreInfo } from '@auth/domain/schemas/store'
 import { UserTypeEnum } from '@core/store'
-import { MSSQLConnection } from '@core/store/mssql-connection'
-import { wrapDatabaseError } from '@core/utils'
+import { MSSQLExecutor } from '@core/store/mssql-query-runner'
 import { decodeRow, decodeRows } from '@core/utils/decode-recordset.util'
 import { StoreUserSchema } from '@shared/domain/store'
 
@@ -18,14 +17,10 @@ import {
 } from './store.mapper'
 
 export class MssqlStoreRepositoryAdapter implements ForStoreRepositoryPort {
-  constructor(private readonly connection: MSSQLConnection) {}
+  constructor(private readonly executor: MSSQLExecutor) {}
 
   async getDetails(credential: StoreUserSchema): Promise<StoreInfo> {
-    try {
-      const conn = await this.connection.connect(credential, UserTypeEnum.External)
-      const request = conn.request()
-
-      const stmt = `
+    const stmt = `
         SELECT
           name,
           cmptlevel,
@@ -34,25 +29,18 @@ export class MssqlStoreRepositoryAdapter implements ForStoreRepositoryPort {
         FROM sys.sysdatabases
         WHERE dbid = DB_ID()
       `
-      const res = await request.query(stmt)
+    const res = await this.executor.query({ credentials: credential, userType: UserTypeEnum.External, statement: stmt })
 
-      const row = decodeRow(res.recordset, StoreDetailsRowSchema)
+    const row = decodeRow(res.recordset, StoreDetailsRowSchema)
 
-      // la consulta siempre devuelve una fila para la base activa
-      if (!row) throw new Error('[auth] La consulta de detalles no devolvió filas.')
+    // la consulta siempre devuelve una fila para la base activa
+    if (!row) throw new Error('[auth] La consulta de detalles no devolvió filas.')
 
-      return storeDetailsRowMapper(row, PREPROD_DBNAME)
-    } catch (err: unknown) {
-      throw wrapDatabaseError(err)
-    }
+    return storeDetailsRowMapper(row, PREPROD_DBNAME)
   }
 
   async getPermission(credential: StoreUserSchema): Promise<PermissionStore> {
-    try {
-      const conn = await this.connection.connect(credential, UserTypeEnum.External)
-      const request = conn.request()
-
-      const stmt = `
+    const stmt = `
         SELECT viewdefinition_permission =
           CAST(
               CASE
@@ -67,40 +55,30 @@ export class MssqlStoreRepositoryAdapter implements ForStoreRepositoryPort {
               END
           AS bit)
       `
-      const res = await request.query(stmt)
+    const res = await this.executor.query({ credentials: credential, userType: UserTypeEnum.External, statement: stmt })
 
-      const row = decodeRow(res.recordset, StorePermissionRowSchema)
+    const row = decodeRow(res.recordset, StorePermissionRowSchema)
 
-      // la consulta siempre devuelve una fila
-      if (!row) throw new Error('[auth] La consulta de permisos no devolvió filas.')
+    // la consulta siempre devuelve una fila
+    if (!row) throw new Error('[auth] La consulta de permisos no devolvió filas.')
 
-      return storePermissionRowMapper(row)
-    } catch (err) {
-      throw wrapDatabaseError(err)
-    }
+    return storePermissionRowMapper(row)
   }
 
   async getDatabases(credential: StoreUserSchema): Promise<string[] | null> {
-    try {
-      const conn = await this.connection.connect(credential, UserTypeEnum.External)
-      const request = conn.request()
-
-      const stmt = `
+    const stmt = `
         SELECT name
         FROM sys.databases
         WHERE source_database_id IS NULL
           AND name NOT IN ('tempdb', 'model', 'msdb')
         ORDER BY name
       `
-      const res = await request.query(stmt)
+    const res = await this.executor.query({ credentials: credential, userType: UserTypeEnum.External, statement: stmt })
 
-      const rows = decodeRows(res.recordset, DatabaseNameRowSchema)
+    const rows = decodeRows(res.recordset, DatabaseNameRowSchema)
 
-      if (rows.length === 0) return null
+    if (rows.length === 0) return null
 
-      return rows.map(databaseNameRowMapper)
-    } catch (err) {
-      throw wrapDatabaseError(err)
-    }
+    return rows.map(databaseNameRowMapper)
   }
 }

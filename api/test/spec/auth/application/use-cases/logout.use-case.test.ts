@@ -176,7 +176,8 @@ describe('LogoutUseCase', () => {
       const useCase = new LogoutUseCase(tokenRevocationStore, createFakeTokenManager(), logger, loggerContext)
 
       await expect(useCase.execute(TOKENS)).resolves.toEqual({ message: 'Sesión cerrada correctamente.' })
-      expect(infoCalls).toHaveLength(1)
+      // El arreglo sólo captura nivel `info`: fija a la vez el nivel y el mensaje del evento.
+      expect(infoCalls).toEqual(['[auth] Sesión cerrada correctamente'])
     })
   })
 

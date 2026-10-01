@@ -61,7 +61,13 @@ describe('RegisterSearchLogUseCase', () => {
       await expect(useCase.execute(SEARCH_LOG)).resolves.toBeUndefined()
 
       expect(created).toEqual([SEARCH_LOG])
-      expect(infoCalls).toHaveLength(1)
+      // El arreglo sólo captura nivel `info`: fija a la vez el nivel, el mensaje y el payload del evento.
+      expect(infoCalls).toEqual([
+        {
+          message: '[sysobject] Log de búsqueda registrada en BD',
+          context: { actionDetails: { search: SEARCH_LOG } },
+        },
+      ])
     })
   })
 

@@ -117,7 +117,21 @@ describe('DeleteBusquedaRecienteUseCase', () => {
 
       expect(deleteCalls).toEqual([BUSQUEDA_ID])
       expect(result).toBe(`Se ha eliminado correctamente la búsqueda reciente con id '${BUSQUEDA_ID}'.`)
-      expect(infoCalls).toHaveLength(1)
+      expect(infoCalls).toEqual([
+        {
+          message: '[busqueda-reciente] Búsqueda reciente eliminada',
+          context: {
+            actionDetails: {
+              busquedaRecienteId: BUSQUEDA_ID,
+              userId: CONTEXT.idUser,
+              database: BUSQUEDA_DATABASE.toLowerCase(),
+              schema: 'dbo',
+              objectName: 'vw_orders',
+              type: TypeSysObjectEnum.VIEW,
+            },
+          },
+        },
+      ])
     })
   })
 

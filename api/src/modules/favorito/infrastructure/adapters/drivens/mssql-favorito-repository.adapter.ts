@@ -1,6 +1,5 @@
 import { DatabaseName, getStaticDatabaseCredentials } from '@core/store'
-import { MSSQLConnection } from '@core/store/mssql-connection'
-import { wrapDatabaseError } from '@core/utils'
+import { MSSQLExecutor, MSSQLParameter } from '@core/store/mssql-query-runner'
 import { decodeRow, decodeRows } from '@core/utils/decode-recordset.util'
 import { ForFavoritoRepositoryPort } from '@favorito/domain/ports/drivens/for-favorito-repository.port'
 import { Favorito, FavoritoFilterRepo, FavoritoRepoInput, FavoritoRepoResponse } from '@favorito/domain/schemas/favorito'
@@ -21,14 +20,10 @@ import {
 export class MSSQLFavoritoRepositoryAdapter implements ForFavoritoRepositoryPort {
   private db = getStaticDatabaseCredentials(DatabaseName.APP)
 
-  constructor(private readonly connection: MSSQLConnection) {}
+  constructor(private readonly executor: MSSQLExecutor) {}
 
   async createOrUpdate(favoritoRepoInput: FavoritoRepoInput): Promise<{ data: FavoritoRepoResponse } | null> {
-    try {
-      const conn = await this.connection.connect(this.db.credentials, this.db.type)
-      const request = conn.request()
-
-      const stmt = `
+    const stmt = `
         SET NOCOUNT ON;
 
         /********************************************************************
@@ -65,32 +60,53 @@ export class MSSQLFavoritoRepositoryAdapter implements ForFavoritoRepositoryPort
           AND cSchema       = @schema
           AND cNombreObjeto = @objectName;
       `
-      request.input('idUser', sql.Int, favoritoRepoInput.idUser)
-      request.input('schema', sql.VarChar(64), favoritoRepoInput.schema)
-      request.input('objectName', sql.VarChar(128), favoritoRepoInput.objectName)
-      request.input('type', sql.Char(2), favoritoRepoInput.type)
-      request.input('date', sql.DateTime, favoritoRepoInput.date)
-      request.input('isActive', sql.Bit, favoritoRepoInput.isActive)
+    const res = await this.executor.query<FavoritoRow>({
+      credentials: this.db.credentials,
+      userType: this.db.type,
+      statement: stmt,
+      parameters: [
+        { name: 'idUser', type: sql.Int, value: favoritoRepoInput.idUser },
+        { name: 'schema', type: sql.VarChar(64), value: favoritoRepoInput.schema },
+        { name: 'objectName', type: sql.VarChar(128), value: favoritoRepoInput.objectName },
+        { name: 'type', type: sql.Char(2), value: favoritoRepoInput.type },
+        { name: 'date', type: sql.DateTime, value: favoritoRepoInput.date },
+        { name: 'isActive', type: sql.Bit, value: favoritoRepoInput.isActive },
+      ],
+    })
 
-      const res = await request.query<FavoritoRow>(stmt)
+    // sin fila no hay nada que desactivar: es o-op legítimo
+    const favoritoRow = decodeRow(res.recordset, FavoritoRowSchema)
 
-      // sin fila no hay nada que desactivar: es o-op legítimo
-      const favoritoRow = decodeRow(res.recordset, FavoritoRowSchema)
+    if (!favoritoRow) return null
 
-      if (!favoritoRow) return null
-
-      return { data: favoritoRowMapper(favoritoRow) }
-    } catch (err) {
-      throw wrapDatabaseError(err)
-    }
+    return { data: favoritoRowMapper(favoritoRow) }
   }
 
   async findMany(filter: FavoritoFilterRepo, limit: number): Promise<{ data: FavoritoRepoResponse[]; meta: Meta }> {
-    try {
-      const conn = await this.connection.connect(this.db.credentials, this.db.type)
-      const request = conn.request()
+    // `filter.type` llega como la lista `IN` ya formateada por la capa de aplicación
+    // (p. ej. `'V'` o `'P', 'FN'`). Se desarma en sus valores para enlazarlos como
+    // parámetros: el texto de la sentencia no debe transportar datos.
+    const typeValues = filter.type
+      .split(',')
+      .map(value => value.trim().replace(/^'(.*)'$/, '$1'))
+      .filter(value => value.length > 0)
 
-      const stmt = `
+    // `IN ()` es SQL inválido: sin tipos no hay nada que la consulta pueda devolver.
+    if (typeValues.length === 0) {
+      return { data: [], meta: { total: 0, limit } }
+    }
+
+    const parameters: MSSQLParameter[] = [
+      { name: 'idUser', type: sql.Int, value: filter.idUser },
+      { name: 'limit', type: sql.Int, value: limit },
+    ]
+    const typePlaceholders = typeValues.map((value, index) => {
+      const name = `type${index}`
+      parameters.push({ name, type: sql.Char(2), value })
+      return `@${name}`
+    })
+
+    const stmt = `
         ;WITH FavoritosCTE AS (
           SELECT 
             idFavorito,
@@ -101,7 +117,7 @@ export class MSSQLFavoritoRepositoryAdapter implements ForFavoritoRepositoryPort
             lVigente
           FROM dbo.Favorito
           WHERE idUsuario = @idUser
-            AND cType     IN (${filter.type})
+            AND cType     IN (${typePlaceholders.join(', ')})
             AND lVigente  = 1
         ),
         TotalRegistrosCTE AS (
@@ -119,29 +135,24 @@ export class MSSQLFavoritoRepositoryAdapter implements ForFavoritoRepositoryPort
         CROSS JOIN TotalRegistrosCTE C
         ORDER BY A.dFecha DESC
       `
-      request.input('idUser', sql.Int, filter.idUser)
-      request.input('limit', sql.Int, limit)
+    const res = await this.executor.query<FavoritoListRow>({
+      credentials: this.db.credentials,
+      userType: this.db.type,
+      statement: stmt,
+      parameters,
+    })
+    const rows = decodeRows(res.recordset, FavoritoListRowSchema)
+    const data = rows.map(row => favoritoRowMapper(row))
 
-      const res = await request.query<FavoritoListRow>(stmt)
-      const rows = decodeRows(res.recordset, FavoritoListRowSchema)
-      const data = rows.map(row => favoritoRowMapper(row))
-
-      const meta = {
-        total: rows[0]?.nTotal ?? 0,
-        limit,
-      }
-      return { data, meta }
-    } catch (err) {
-      throw wrapDatabaseError(err)
+    const meta = {
+      total: rows[0]?.nTotal ?? 0,
+      limit,
     }
+    return { data, meta }
   }
 
   async getById(id: number): Promise<Favorito | null> {
-    try {
-      const conn = await this.connection.connect(this.db.credentials, this.db.type)
-      const request = conn.request()
-
-      const stmt = `
+    const stmt = `
         SELECT
           idFavorito,
           cSchema,
@@ -153,17 +164,17 @@ export class MSSQLFavoritoRepositoryAdapter implements ForFavoritoRepositoryPort
         FROM dbo.Favorito
         WHERE idFavorito = @id
       `
-      request.input('id', sql.Int, id)
+    const res = await this.executor.query<FavoritoEntityRow>({
+      credentials: this.db.credentials,
+      userType: this.db.type,
+      statement: stmt,
+      parameters: [{ name: 'id', type: sql.Int, value: id }],
+    })
 
-      const res = await request.query<FavoritoEntityRow>(stmt)
+    const row = decodeRow(res.recordset, FavoritoEntityRowSchema)
 
-      const row = decodeRow(res.recordset, FavoritoEntityRowSchema)
+    if (!row) return null
 
-      if (!row) return null
-
-      return favoritoEntityRowMapper(row)
-    } catch (err) {
-      throw wrapDatabaseError(err)
-    }
+    return favoritoEntityRowMapper(row)
   }
 }

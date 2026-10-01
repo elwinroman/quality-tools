@@ -202,7 +202,23 @@ describe('GetSysUsertableUseCase', () => {
           isActive: true,
         },
       ])
-      expect(infoCalls).toHaveLength(1)
+      expect(infoCalls).toEqual([
+        {
+          message: '[sysobject] Tabla de usuario recuperado',
+          context: {
+            actionDetails: {
+              objectId: USERTABLE.id,
+              objectName: USERTABLE.name,
+              type: USERTABLE.type,
+              schema: USERTABLE.schemaName,
+              database: LOG_CONTEXT.databaseName,
+              columnsCount: COLUMNS.length,
+              foreignKeysCount: FOREIGN_KEYS.length,
+              indexesCount: INDEXES.length,
+            },
+          },
+        },
+      ])
     })
 
     it('debería conservar las colecciones vacías cuando la tabla no tiene metadatos asociados', async () => {

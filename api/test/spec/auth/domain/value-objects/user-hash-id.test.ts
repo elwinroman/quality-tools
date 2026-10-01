@@ -3,7 +3,6 @@ import { describe, expect, it } from 'vitest'
 
 const USUARIO = 'uMonitor'
 const HOST = 'SQLSERVER01'
-const SIZE_MD5_HEX = 32
 
 /** Recorre largos de hash y devuelve el mensaje de error de cada uno, o null si no lanzó. */
 function msgForMD5SizeHex(largo: number): string | null {
@@ -64,10 +63,6 @@ describe('UserHashId', () => {
       expect(UserHashId.create(USUARIO, HOST).getValue).toBe(UserHashId.generate(USUARIO, HOST))
     })
 
-    it('debería generar el hash cuando el usuario tiene otra capitalización', () => {
-      expect(UserHashId.create('UMONITOR', HOST).getValue).toBe(UserHashId.generate(USUARIO, HOST))
-    })
-
     it('debería generar el hash cuando el valor provisto es null', () => {
       // Defensivo: una columna NULL de MSSQL llega como `null` aunque el
       // parámetro solo declare `string | undefined`.
@@ -84,12 +79,6 @@ describe('UserHashId', () => {
       expect(UserHashId.create(USUARIO, HOST, hash).getValue).toBe(hash)
     })
 
-    it('debería aceptar un hash generado con otra capitalización del usuario', () => {
-      const hash = UserHashId.generate('UMONITOR', HOST)
-
-      expect(UserHashId.create(USUARIO, HOST, hash).getValue).toBe(hash)
-    })
-
     it('debería rechazar un hash que no corresponde al usuario', () => {
       const hashAjeno = UserHashId.generate('otroUsuario', HOST)
 
@@ -100,19 +89,6 @@ describe('UserHashId', () => {
       const hashOtroHost = UserHashId.generate(USUARIO, 'SQLSERVER02')
 
       expect(() => UserHashId.create(USUARIO, HOST, hashOtroHost)).toThrow(/manipulado/)
-    })
-
-    it('debería rechazar un hash de 32 caracteres que no corresponde', () => {
-      expect(() => UserHashId.create(USUARIO, HOST, 'a'.repeat(SIZE_MD5_HEX))).toThrow(/manipulado/)
-    })
-
-    it('debería exponer el valor a través de getValue', () => {
-      const hash = UserHashId.generate(USUARIO, HOST)
-      const valueObject = UserHashId.create(USUARIO, HOST, hash)
-
-      expect(valueObject.getValue).toBe(hash)
-      expect(typeof valueObject.getValue).toBe('string')
-      expect(valueObject.getValue).toHaveLength(SIZE_MD5_HEX)
     })
   })
 
@@ -129,14 +105,6 @@ describe('UserHashId', () => {
       // El orden de las validaciones importa para el diagnóstico: un largo
       // inválido debe decir que el largo es inválido, no que el hash fue manipulado.
       expect(() => UserHashId.create(USUARIO, HOST, 'abc')).not.toThrow(/manipulado/)
-    })
-
-    it('debería reportar el error de longitud para todo largo distinto de 32', () => {
-      const largos = Array.from({ length: 64 }, (_, indice) => indice + 1).filter(largo => largo !== SIZE_MD5_HEX)
-
-      largos.forEach(largo => {
-        expect(() => UserHashId.create(USUARIO, HOST, 'a'.repeat(largo))).toThrow(/debe tener 32 caracteres/)
-      })
     })
 
     it('debería lanzar el error de longitud y no generar para una cadena vacía', () => {

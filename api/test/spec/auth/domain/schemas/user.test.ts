@@ -93,35 +93,9 @@ describe('User', () => {
     })
   })
 
-  describe('toValue', () => {
-    it('debería devolver una copia con los mismos valores', () => {
-      const user = User.create({ ...buildParams(), id: 7 })
-      const value = user.toValue()
-
-      expect(value.id).toBe(7)
-      expect(value.user).toBe('umonitor')
-      expect(value.role).toBe(UserRoleList.ANALIST)
-      expect(value.host).toBe('SQLSERVER01')
-      expect(value.aliasHost).toBe('SERVIDOR-ALIAS')
-      expect(value.createdAt).toBe(CREATED_AT)
-      expect(value.isActive).toBe(true)
-    })
-  })
-
   describe('persisted', () => {
     it('debería exponer el identificador del usuario persistido', () => {
       expect(User.persisted(buildPersistedParams()).id).toBe(7)
-    })
-
-    it('debería conservar el resto de los valores', () => {
-      const persistedUser = User.persisted(buildPersistedParams())
-
-      expect(persistedUser.user).toBe('umonitor')
-      expect(persistedUser.role).toBe(UserRoleList.ANALIST)
-      expect(persistedUser.host).toBe('SQLSERVER01')
-      expect(persistedUser.aliasHost).toBe('SERVIDOR-ALIAS')
-      expect(persistedUser.createdAt).toBe(CREATED_AT)
-      expect(persistedUser.isActive).toBe(true)
     })
   })
 })

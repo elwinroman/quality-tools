@@ -1,7 +1,7 @@
 import { CurrentStoreContextResolver } from '@auth/domain/ports/drivens/current-store-context-resolver.port'
-import { DatabaseErrorMappingException } from '@core/exceptions/store/database-error-mapping.exception'
 import { MSSQLConnection } from '@core/store/mssql-connection'
 import { UserTypeEnum } from '@core/store/mssql-database-connection'
+import { MSSQLQueryRunner } from '@core/store/mssql-query-runner'
 import { MSSQLSysObjectRepositoryAdapter } from '@favorito/infrastructure/adapters/drivens/mssql-sysobject-repository.adapter'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -22,6 +22,7 @@ const connectionControl = {
 }
 
 const connection: MSSQLConnection = { connect: connectionControl.connect }
+const queryRunner = new MSSQLQueryRunner(connection)
 
 describe('MSSQLSysObjectRepositoryAdapter.findIDsByNameAndSchema', () => {
   beforeEach(() => {
@@ -36,7 +37,7 @@ describe('MSSQLSysObjectRepositoryAdapter.findIDsByNameAndSchema', () => {
   it('debería enviar un nombre con apóstrofe como parámetro JSON en vez de interpolarlo en el SQL', async () => {
     connectionControl.query.mockResolvedValue({ recordset: [{ object_id: 7 }] })
 
-    const adapter = new MSSQLSysObjectRepositoryAdapter(connection, currentStoreContextResolver)
+    const adapter = new MSSQLSysObjectRepositoryAdapter(queryRunner, currentStoreContextResolver)
     const result = await adapter.findIDsByNameAndSchema([{ schema: "Ven'tas", name: "O'Brien" }])
 
     expect(result).toEqual([7])
@@ -55,7 +56,7 @@ describe('MSSQLSysObjectRepositoryAdapter.findIDsByNameAndSchema', () => {
   it('debería conservar el orden de entrada en el payload y en el ORDER BY', async () => {
     connectionControl.query.mockResolvedValue({ recordset: [{ object_id: 10 }, { object_id: null }] })
 
-    const adapter = new MSSQLSysObjectRepositoryAdapter(connection, currentStoreContextResolver)
+    const adapter = new MSSQLSysObjectRepositoryAdapter(queryRunner, currentStoreContextResolver)
     const result = await adapter.findIDsByNameAndSchema([
       { schema: 'dbo', name: 'primera' },
       { schema: 'dbo', name: 'segunda' },
@@ -75,7 +76,7 @@ describe('MSSQLSysObjectRepositoryAdapter.findIDsByNameAndSchema', () => {
   })
 
   it('debería devolver un arreglo vacío sin abrir conexión cuando no hay objetos', async () => {
-    const adapter = new MSSQLSysObjectRepositoryAdapter(connection, currentStoreContextResolver)
+    const adapter = new MSSQLSysObjectRepositoryAdapter(queryRunner, currentStoreContextResolver)
 
     const result = await adapter.findIDsByNameAndSchema([])
 
@@ -84,18 +85,19 @@ describe('MSSQLSysObjectRepositoryAdapter.findIDsByNameAndSchema', () => {
   })
 
   it('debería usar la conexión inyectada con las credenciales y el tipo resueltos', async () => {
-    const adapter = new MSSQLSysObjectRepositoryAdapter(connection, currentStoreContextResolver)
+    const adapter = new MSSQLSysObjectRepositoryAdapter(queryRunner, currentStoreContextResolver)
 
     await adapter.findIDsByNameAndSchema([{ schema: 'dbo', name: 'objeto' }])
 
     expect(connectionControl.connect).toHaveBeenCalledWith(credentials, UserTypeEnum.External)
   })
 
-  it('debería propagar el fallo de la conexión inyectada envuelto en DatabaseErrorMappingException', async () => {
-    connectionControl.connect.mockRejectedValue(new Error('conexión rechazada'))
+  it('debería propagar crudo el fallo de la conexión inyectada', async () => {
+    const failure = new Error('conexión rechazada')
+    connectionControl.connect.mockRejectedValue(failure)
 
-    const adapter = new MSSQLSysObjectRepositoryAdapter(connection, currentStoreContextResolver)
+    const adapter = new MSSQLSysObjectRepositoryAdapter(queryRunner, currentStoreContextResolver)
 
-    await expect(adapter.findIDsByNameAndSchema([{ schema: 'dbo', name: 'objeto' }])).rejects.toBeInstanceOf(DatabaseErrorMappingException)
+    await expect(adapter.findIDsByNameAndSchema([{ schema: 'dbo', name: 'objeto' }])).rejects.toBe(failure)
   })
 })

@@ -19,7 +19,7 @@ export class SwitchDatabaseUseCase {
     const preparedUpdate = await this.sessionCredentialStore.prepareSelectedDatabaseUpdate(userId, sessionId)
     const newCredentials: StoreUserSchema = { ...currentCredentials, database: newDatabase }
 
-    // valida conexión a la nueva BD (lanza DatabaseError si falla)
+    // valida conexión a la nueva BD (propaga el error crudo de MSSQL si falla; lo clasifica el middleware global)
     const details = await this.storeRepository.getDetails(newCredentials)
     const permissionStore = await this.storeRepository.getPermission(newCredentials)
 

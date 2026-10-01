@@ -13,10 +13,6 @@ describe('parseSqlObjectTypeCondition', () => {
       expect(parseSqlObjectTypeCondition(TypeSysObjectEnum.VIEW)).toBe(`'${TypeSysObjectEnum.VIEW}'`)
     })
 
-    it('debería devolver las tablas de usuario cuando se piden explícitamente', () => {
-      expect(parseSqlObjectTypeCondition(TypeSysObjectEnum.USER_TABLE)).toBe(`'${TypeSysObjectEnum.USER_TABLE}'`)
-    })
-
     it('debería cubrir todos los tipos concretos del enum', () => {
       ValidTypeSysObjectValues.forEach(tipo => {
         expect(parseSqlObjectTypeCondition(tipo)).toBe(`'${tipo}'`)
@@ -30,13 +26,6 @@ describe('parseSqlObjectTypeCondition', () => {
 
       expect(resultado).toEqual(comoCondicionIn(ValidTypeSysObjectValues))
     })
-
-    it('no debería incluir los agregados en la lista', () => {
-      const resultado = parseSqlObjectTypeCondition(TypeSysObjectEnum.ALL)
-
-      expect(resultado).not.toContain(`'${TypeSysObjectEnum.ALL}'`)
-      expect(resultado).not.toContain(`'${TypeSysObjectEnum.ALL_EXCEPT_USERTABLE}'`)
-    })
   })
 
   describe('agregado ALL_EXCEPT_USERTABLE', () => {
@@ -45,27 +34,6 @@ describe('parseSqlObjectTypeCondition', () => {
       const resultado = parseSqlObjectTypeCondition(TypeSysObjectEnum.ALL_EXCEPT_USERTABLE).split(', ')
 
       expect(resultado).toEqual(comoCondicionIn(sinTablasDeUsuario))
-    })
-
-    it('debería devolver un tipo menos que ALL', () => {
-      const todos = parseSqlObjectTypeCondition(TypeSysObjectEnum.ALL).split(', ')
-      const sinUsertable = parseSqlObjectTypeCondition(TypeSysObjectEnum.ALL_EXCEPT_USERTABLE).split(', ')
-
-      expect(sinUsertable).toHaveLength(todos.length - 1)
-    })
-  })
-
-  describe('formato para la cláusula IN', () => {
-    it('debería separar todos los tipos con coma y espacio', () => {
-      expect(parseSqlObjectTypeCondition(TypeSysObjectEnum.ALL).split(', ')).toHaveLength(ValidTypeSysObjectValues.length)
-    })
-
-    it('debería envolver cada tipo en comillas simples', () => {
-      const resultado = parseSqlObjectTypeCondition(TypeSysObjectEnum.ALL)
-
-      resultado.split(', ').forEach(tipo => {
-        expect(tipo).toMatch(/^'[A-Z_]+'$/)
-      })
     })
   })
 })

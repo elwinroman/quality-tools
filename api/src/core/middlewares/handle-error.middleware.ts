@@ -1,6 +1,6 @@
 import { BaseError } from '@core/exceptions/base-error'
 import { InfrastructureError } from '@core/infrastructure-error.exception'
-import { mapMSSQLError } from '@core/store/map-mssql-error'
+import { isMSSQLError, mapMSSQLError } from '@core/store/map-mssql-error'
 import { logger } from '@observability/infrastructure/logging/logger-instance'
 import { ApplicationError } from '@shared/application/application-error'
 import { SafeInternalServerErrorException, ValidationException } from '@shared/application/exceptions'
@@ -10,7 +10,6 @@ import { ZodError } from 'zod'
 
 import { NODE_ENV } from '@/config/enviroment'
 
-import { DatabaseError } from '../exceptions'
 import { sentryScopeError } from '../sentry/sentryScopeError'
 import { formatZodErrors } from '../utils/format-zod-errors.util'
 
@@ -22,18 +21,17 @@ import { formatZodErrors } from '../utils/format-zod-errors.util'
  *
  * Flujo:
  * - ZodError → ValidationException (422)
- * - DatabaseError → SafeInternalServerErrorException (500, enmascarado)
+ * - Error crudo de MSSQL (RequestError/ConnectionError/PreparedStatementError/TransactionError)
+ *   → excepción de infraestructura mapeada y SafeInternalServerErrorException (500, enmascarado).
+ *   El ejecutor ya no envuelve errores: la clasificación de errores de base de datos vive aquí.
  * - DomainError/ApplicationError → Se expone al cliente (status/code del error)
  * - InfrastructureError → SafeInternalServerErrorException (500, enmascarado)
- * - Otros → SafeInternalServerErrorException (500, fallback)
+ * - Otros → SafeInternalServerErrorException (500, fallback, enmascarado)
  */
 export function handleErrorMiddleware(err: unknown, req: Request, res: Response, _next: NextFunction) {
   let error: BaseError
   let invalidParams: unknown = undefined
 
-  if (err instanceof DatabaseError) {
-    console.log('Instancia del error: ', err.name)
-  }
   switch (true) {
     // Errores de validación (Zod)
     case err instanceof ZodError: {
@@ -44,10 +42,10 @@ export function handleErrorMiddleware(err: unknown, req: Request, res: Response,
       break
     }
 
-    // Errores de MSSQL (wrapper)
-    case err instanceof DatabaseError: {
+    // Errores crudos de MSSQL: el ejecutor no los transforma, la clasificación es global
+    case isMSSQLError(err): {
       sentryScopeError(err)
-      const infraError = mapMSSQLError(err.originalError)
+      const infraError = mapMSSQLError(err)
       logger.error(infraError.message, { err: infraError })
 
       // Enmascara detalles técnicos para el cliente
@@ -73,7 +71,7 @@ export function handleErrorMiddleware(err: unknown, req: Request, res: Response,
       break
     }
 
-    // Errores de infraestructura - SE ENMASCARAN
+    // Errores de infraestructura (incluye los fallos de base de datos no clasificados) - SE ENMASCARAN
     case err instanceof InfrastructureError:
       sentryScopeError(err)
       logger.error(err.message, { err })

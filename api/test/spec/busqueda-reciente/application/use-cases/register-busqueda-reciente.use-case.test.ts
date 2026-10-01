@@ -62,7 +62,21 @@ describe('RegisterBusquedaRecienteUseCase', () => {
       await expect(useCase.execute(BUSQUEDA_INPUT)).resolves.toBeUndefined()
 
       expect(received).toEqual([BUSQUEDA_INPUT])
-      expect(infoCalls).toHaveLength(1)
+      // El arreglo sólo captura nivel `info`: fija a la vez el nivel, el mensaje y el payload del evento.
+      expect(infoCalls).toEqual([
+        {
+          message: '[busqueda-reciente] Búsqueda reciente registrada',
+          context: {
+            actionDetails: {
+              userId: BUSQUEDA_INPUT.idUser,
+              database: BUSQUEDA_INPUT.database,
+              schema: BUSQUEDA_INPUT.schema,
+              objectName: BUSQUEDA_INPUT.objectName,
+              type: BUSQUEDA_INPUT.type,
+            },
+          },
+        },
+      ])
     })
   })
 

@@ -65,7 +65,8 @@ describe('CheckSessionUseCase', () => {
 
       await useCase.execute(CREDENTIALS)
 
-      expect(infoCalls).toHaveLength(1)
+      // El arreglo sólo captura nivel `info`: fija a la vez el nivel y el mensaje del evento.
+      expect(infoCalls).toEqual(['[auth] Sesión verificada'])
     })
   })
 })

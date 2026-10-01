@@ -1,7 +1,6 @@
 import { CurrentStoreContextResolver } from '@auth/domain/ports/drivens/current-store-context-resolver.port'
-import { MSSQLConnection } from '@core/store/mssql-connection'
+import { MSSQLExecutor } from '@core/store/mssql-query-runner'
 import { decodeRows } from '@core/utils/decode-recordset.util'
-import { wrapDatabaseError } from '@core/utils/wrap-database-error.util'
 import { ForSysObjectRepositoryPort, SysObject } from '@favorito/domain/ports/drivens/for-sysobject-repository.port'
 import sql from 'mssql'
 
@@ -9,7 +8,7 @@ import { sysobjectIdRowMapper, SysObjectIdRowSchema } from './sysobject.mapper'
 
 export class MSSQLSysObjectRepositoryAdapter implements ForSysObjectRepositoryPort {
   constructor(
-    private readonly connection: MSSQLConnection,
+    private readonly executor: MSSQLExecutor,
     private readonly currentStoreContextResolver: CurrentStoreContextResolver,
   ) {}
 
@@ -23,11 +22,7 @@ export class MSSQLSysObjectRepositoryAdapter implements ForSysObjectRepositoryPo
     // tope de 2100 parámetros de SQL Server, que rompería a un usuario con muchos favoritos
     const payload = sysObjects.map((row, index) => ({ id: index, schema: row.schema, name: row.name }))
 
-    try {
-      const conn = await this.connection.connect(store.credentials, store.type)
-      const request = conn.request()
-
-      const stmt = `
+    const stmt = `
         SELECT 
           OBJECT_ID(CONCAT(schema_name, '.', object_name)) AS object_id
         FROM OPENJSON(@objects)
@@ -39,12 +34,14 @@ export class MSSQLSysObjectRepositoryAdapter implements ForSysObjectRepositoryPo
         ORDER BY id ASC
       `
 
-      // `ORDER BY id ASC` sobre el índice de entrada conserva una fila por objeto en el orden original
-      const res = await request.input('objects', sql.NVarChar(sql.MAX), JSON.stringify(payload)).query(stmt)
+    // `ORDER BY id ASC` sobre el índice de entrada conserva una fila por objeto en el orden original
+    const res = await this.executor.query({
+      credentials: store.credentials,
+      userType: store.type,
+      statement: stmt,
+      parameters: [{ name: 'objects', type: sql.NVarChar(sql.MAX), value: JSON.stringify(payload) }],
+    })
 
-      return decodeRows(res.recordset, SysObjectIdRowSchema).map(sysobjectIdRowMapper)
-    } catch (err) {
-      throw wrapDatabaseError(err)
-    }
+    return decodeRows(res.recordset, SysObjectIdRowSchema).map(sysobjectIdRowMapper)
   }
 }
