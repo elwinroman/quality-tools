@@ -39,10 +39,10 @@ export function MenuSidebar({ className = '', isCollapsed = false, onToggleSideb
       }
     >
       {/* Navegación entre páginas: sólo con sesión, porque sus destinos son protegidos */}
-      {authContext && <SidebarNav className="shrink-0 px-4 py-2" />}
+      {authContext && <SidebarNav className="shrink-0" />}
 
       {/* Cuerpo propio de Aligment */}
-      <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto px-4 py-6 md:px-6">
+      <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
         <div className="flex flex-col gap-6">
           {/* Input */}
           <SearchAligment />

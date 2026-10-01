@@ -75,7 +75,7 @@ export function ObjectSidebar({
       header={<SidebarHeader showDatabase={showDatabase} isCollapsed={isCollapsed} onToggleSidebar={onToggleSidebar} />}
       footer={<SidebarFooter />}
     >
-      <div className="flex flex-col gap-4 px-2 py-4">
+      <div className="flex flex-col gap-4">
         {/* Navegación entre páginas */}
         {showNav && <SidebarNav className="shrink-0" onNavigate={onNavigate} />}
 

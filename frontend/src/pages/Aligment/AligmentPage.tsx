@@ -38,7 +38,7 @@ export function AligmentPage() {
       </aside>
 
       {/* Main content */}
-      <main className={`flex flex-1 flex-col transition-all duration-300 ease-in-out ${hideMenu ? 'w-full' : 'w-content-area'} `}>
+      <main className="flex min-w-0 flex-1 flex-col transition-all duration-300 ease-in-out">
         <HeaderEditor />
 
         {/* Editor code */}

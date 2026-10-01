@@ -1,5 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
-import { ImperativePanelHandle } from 'react-resizable-panels'
+import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 
@@ -7,18 +6,7 @@ import { FavoritoProvider } from '@/components/favoritos'
 import { DatabaseSwitchOverlay } from '@/components/loader'
 import { DialogSearchProvider } from '@/components/search/context/dialogSearchContext'
 import { ObjectSidebar } from '@/components/sidebar'
-import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup,
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  Tabs,
-  TabsContent,
-} from '@/components/ui'
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, Tabs, TabsContent } from '@/components/ui'
 import { AppRoutes } from '@/constants'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { parseQualifiedSysObjectName } from '@/utilities/sysobject-route.util'
@@ -33,7 +21,6 @@ export function SQLDefinitionPage() {
   const { qualifiedName } = useParams()
   const database = useAuthStore((state) => state.authContext?.database)
   const switchingDatabase = useAppStore((state) => state.switchingDatabase)
-  const leftPanelRef = useRef<ImperativePanelHandle>(null)
   const [isCollapsed, setIsCollapsed] = useState(false)
   const isDesktop = useMediaQuery('(min-width: 64rem)')
   const [drawerOpen, setDrawerOpen] = useState(false)
@@ -76,15 +63,7 @@ export function SQLDefinitionPage() {
     setActiveTab((currentTab) => (currentTab === TabOption.Compare ? TabOption.Script : currentTab))
   }, [sysobject])
 
-  const handleHidePanel = () => {
-    if (!leftPanelRef.current) return
-
-    const isCollapsedCurrent = leftPanelRef.current.isCollapsed()
-    setIsCollapsed(!isCollapsedCurrent)
-
-    if (isCollapsedCurrent) leftPanelRef.current.expand()
-    else leftPanelRef.current.collapse()
-  }
+  const handleHidePanel = () => setIsCollapsed((prev) => !prev)
 
   // El reveal del sidebar vive en el header del editor: en mobile abre el drawer, en desktop expande el panel
   const sidebarHidden = !isDesktop || isCollapsed
@@ -96,74 +75,57 @@ export function SQLDefinitionPage() {
   return (
     <section className="bg-background flex h-full w-full flex-col">
       <main className="relative h-full w-full overflow-hidden">
-        <section className="bg-background-paperchanel relative h-full w-full overflow-hidden">
+        <section className="bg-background relative flex h-full w-full overflow-hidden">
           <FavoritoProvider type="ALL_EXCEPT_USERTABLE">
             {/* El provider envuelve el panel y el drawer para que el header del editor también lo vea */}
             <DialogSearchProvider>
-              <ResizablePanelGroup
-                key={isDesktop ? 'desktop' : 'mobile'}
-                direction="horizontal"
-                onLayout={(sizes) => {
-                  const [leftSize] = sizes
-                  setIsCollapsed(leftSize === 0)
-                }}
+              {/* Sidebar izquierdo - full height. Por debajo de lg vive en el drawer, por eso se oculta. */}
+              <aside
+                className={`bg-background relative hidden h-full shrink-0 transition-all duration-300 ease-in-out lg:block ${isCollapsed ? 'w-0 overflow-hidden opacity-0' : 'w-sidebar opacity-100'}`}
               >
-                {/* Sidebar izquierdo - full height */}
-                <ResizablePanel
-                  minSize={isCollapsed ? 0 : 10}
-                  defaultSize={isDesktop ? 15 : 0}
-                  maxSize={15}
-                  className="max-w-[var(--width-sidebar)] transition-all"
-                  collapsible={true}
-                  collapsedSize={0}
-                  ref={leftPanelRef}
-                >
-                  {isDesktop && (
-                    <ObjectSidebar
-                      onToggleSidebar={handleHidePanel}
-                      isCollapsed={isCollapsed}
-                      scope={{
-                        searchType: 'ALL_EXCEPT_USERTABLE',
-                        route: AppRoutes.SQL_DEFINITION,
-                        activeObject: sysobject,
-                        refetch: fetchSysObjectByName,
-                      }}
-                    />
-                  )}
-                </ResizablePanel>
+                {isDesktop && (
+                  <ObjectSidebar
+                    onToggleSidebar={handleHidePanel}
+                    isCollapsed={isCollapsed}
+                    scope={{
+                      searchType: 'ALL_EXCEPT_USERTABLE',
+                      route: AppRoutes.SQL_DEFINITION,
+                      activeObject: sysobject,
+                      refetch: fetchSysObjectByName,
+                    }}
+                  />
+                )}
+              </aside>
 
-                <ResizableHandle className={!isDesktop || !isCollapsed ? 'pointer-events-none' : ''} withHandle={false} />
+              {/* Panel derecho: headers + editor */}
+              <div className="flex h-full min-w-0 flex-1 flex-col">
+                {/* Contenedor flex: las Tabs necesitan un padre de altura definida para resolver su flex-1 */}
+                <Tabs key={database} value={activeTab} onValueChange={setActiveTab} className="flex min-h-0 flex-1 flex-col">
+                  <HeaderEditor activeTab={activeTab} onOpenSidebar={sidebarHidden ? handleRevealSidebar : undefined} />
 
-                {/* Panel derecho: headers + editor */}
-                <ResizablePanel>
-                  {/* Contenedor flex: las Tabs necesitan un padre de altura definida para resolver su flex-1 */}
-                  <div className="flex h-full flex-col">
-                    <Tabs key={database} value={activeTab} onValueChange={setActiveTab} className="flex min-h-0 flex-1 flex-col">
-                      <HeaderEditor activeTab={activeTab} onOpenSidebar={sidebarHidden ? handleRevealSidebar : undefined} />
+                  <TabsContent value={TabOption.Overview} className="flex-1 overflow-hidden">
+                    <OverviewContent />
+                  </TabsContent>
 
-                      <TabsContent value={TabOption.Overview} className="flex-1 overflow-hidden">
-                        <OverviewContent />
-                      </TabsContent>
+                  <TabsContent value={TabOption.Script} className="flex-1 overflow-hidden">
+                    <EditorCode />
+                  </TabsContent>
 
-                      <TabsContent value={TabOption.Script} className="flex-1 overflow-hidden">
-                        <EditorCode />
-                      </TabsContent>
+                  <TabsContent value={TabOption.Dependencies} className="flex-1 overflow-hidden">
+                    <DependenciesContent />
+                  </TabsContent>
 
-                      <TabsContent value={TabOption.Dependencies} className="flex-1 overflow-hidden">
-                        <DependenciesContent />
-                      </TabsContent>
-
-                      <TabsContent value={TabOption.Compare} className="flex-1 overflow-hidden">
-                        <DiffScriptContent />
-                      </TabsContent>
-                    </Tabs>
-                  </div>
-                </ResizablePanel>
-              </ResizablePanelGroup>
+                  <TabsContent value={TabOption.Compare} className="flex-1 overflow-hidden">
+                    <DiffScriptContent />
+                  </TabsContent>
+                </Tabs>
+              </div>
 
               {/* Drawer lateral en mobile: el sidebar vive aquí por debajo del breakpoint lg */}
+              {/* modal={false}: el sidebar abre un Popover portado a body; en un Sheet modal
+                  Radix deja `pointer-events: none` en body y el select de base queda inusable */}
               {!isDesktop && (
-                <Sheet open={drawerOpen} onOpenChange={setDrawerOpen}>
+                <Sheet modal={false} open={drawerOpen} onOpenChange={setDrawerOpen}>
                   <SheetContent side="left" className="w-[85vw] max-w-xs p-0">
                     <SheetHeader className="sr-only">
                       <SheetTitle>Panel lateral</SheetTitle>

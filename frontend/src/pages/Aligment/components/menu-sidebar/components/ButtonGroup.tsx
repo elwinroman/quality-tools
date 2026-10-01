@@ -26,11 +26,11 @@ export function ButtonGroup() {
 
   return (
     <section className="flex w-full items-center gap-1.5">
-      <Button variant="default" size="xs" className="h-7 flex-1 px-3" onClick={handleClickConsultar} disabled={loading}>
+      <Button variant="default" size="xs" className="h-8 flex-1 px-3" onClick={handleClickConsultar} disabled={loading}>
         <span>Consultar</span>
       </Button>
 
-      <Button variant="ghost" size="xs" className="h-7 shrink-0 px-3" onClick={handleClickLimpiar} disabled={loading}>
+      <Button variant="ghost" size="xs" className="h-8 flex-1 px-3" onClick={handleClickLimpiar} disabled={loading}>
         <span>Limpiar</span>
       </Button>
     </section>
