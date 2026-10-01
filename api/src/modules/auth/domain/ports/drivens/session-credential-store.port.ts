@@ -17,10 +17,10 @@ export interface SelectedDatabaseUpdateResult {
 }
 
 /**
- * Difiera un reemplazo de la base de datos seleccionada después de capturar el
- * tiempo de vida restante de una sesión viva. La actualización preparada es
- * estado de una sola sesión: los llamadores validan la base de datos antes de
- * confirmar, y los fallos de confirmación se propagan.
+ * Difiera un reemplazo de la base de datos seleccionada después de verificar que
+ * la sesión sigue viva. La actualización preparada es estado de una sola sesión:
+ * los llamadores validan la base de datos antes de confirmar, y los fallos de
+ * confirmación se propagan.
  */
 export interface PreparedSelectedDatabaseUpdate {
   commit(credentials: StoreUserSchema): Promise<SelectedDatabaseUpdateResult>
@@ -35,9 +35,9 @@ export interface PreparedSelectedDatabaseUpdate {
  * Las credenciales guardadas viven durante el tiempo de vida configurado de la
  * sesión. Las lecturas devuelven copias en texto plano o `null` cuando no
  * existe sesión. Preparar una actualización debe rechazar sesiones expiradas o
- * inexistentes y preservar el tiempo de vida restante capturado cuando se
- * confirma el reemplazo. Los fallos de almacenamiento y de la transformación
- * configurada se propagan sin respaldo alternativo.
+ * inexistentes, y el almacenamiento conserva la expiración propia de la sesión
+ * cuando se confirma el reemplazo. Los fallos de almacenamiento y de la
+ * transformación configurada se propagan sin respaldo alternativo.
  */
 export interface SessionCredentialStore {
   save(userId: number, sessionId: string, credentials: StoreUserSchema): Promise<void>

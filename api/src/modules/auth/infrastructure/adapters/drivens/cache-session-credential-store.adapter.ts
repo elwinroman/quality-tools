@@ -36,6 +36,9 @@ export class CacheSessionCredentialStoreAdapter implements SessionCredentialStor
 
   async prepareSelectedDatabaseUpdate(userId: number, sessionId: string): Promise<PreparedSelectedDatabaseUpdate> {
     const key = this.buildKey(userId, sessionId)
+    // El TTL se lee únicamente para detectar sesiones expiradas o inexistentes
+    // (ttl <= 0). No se re-aplica: la confirmación conserva la expiración propia
+    // de la clave, de modo que el vencimiento no se desplaza.
     const remainingTtl = await this.cacheRepository.ttl(key)
     if (remainingTtl <= 0) throw new CacheCredentialNotFoundException(userId)
 
@@ -47,7 +50,7 @@ export class CacheSessionCredentialStoreAdapter implements SessionCredentialStor
       commit: async (credentials): Promise<SelectedDatabaseUpdateResult> => {
         if (expected === null) return { committed: false }
 
-        const committed = await this.cacheRepository.compareAndSet(key, expected, this.serialize(credentials), remainingTtl)
+        const committed = await this.cacheRepository.compareAndSet(key, expected, this.serialize(credentials))
 
         return { committed }
       },

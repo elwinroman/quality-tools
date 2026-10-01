@@ -41,27 +41,25 @@ describe('ValkeyCacheRepository', () => {
   })
 
   describe('compareAndSet', () => {
-    it('debería invocar el script Lua con la clave, la pre-imagen, el valor y el TTL, y devolver true en coincidencia', async () => {
+    it('debería invocar el script Lua con la clave, la pre-imagen y el valor, conservar el TTL y devolver true en coincidencia', async () => {
       client.eval.mockResolvedValueOnce(1)
 
-      await expect(repository.compareAndSet('session:1', 'pre-imagen', 'nuevo-valor', 87)).resolves.toBe(true)
+      await expect(repository.compareAndSet('session:1', 'pre-imagen', 'nuevo-valor')).resolves.toBe(true)
 
       expect(client.eval).toHaveBeenCalledTimes(1)
-      expect(client.eval).toHaveBeenCalledWith(
-        expect.stringContaining("redis.call('GET', KEYS[1])"),
-        1,
-        'session:1',
-        'pre-imagen',
-        'nuevo-valor',
-        87,
-      )
+      const [script, numKeys, key, expected, value] = client.eval.mock.calls[0] as [string, number, string, string, string]
+      expect(script).toContain("redis.call('GET', KEYS[1])")
+      // El reemplazo debe conservar la expiración propia de la clave, no fijar una nueva.
+      expect(script).toContain("redis.call('SET', KEYS[1], ARGV[2], 'KEEPTTL')")
+      expect(script).not.toContain("'EX'")
+      expect([numKeys, key, expected, value]).toEqual([1, 'session:1', 'pre-imagen', 'nuevo-valor'])
       expect(client.set).not.toHaveBeenCalled()
     })
 
     it('debería devolver false cuando el script no encuentra coincidencia o la clave no existe', async () => {
       client.eval.mockResolvedValueOnce(0)
 
-      await expect(repository.compareAndSet('session:1', 'desactualizada', 'nuevo-valor', 87)).resolves.toBe(false)
+      await expect(repository.compareAndSet('session:1', 'desactualizada', 'nuevo-valor')).resolves.toBe(false)
       expect(client.eval).toHaveBeenCalledTimes(1)
     })
   })

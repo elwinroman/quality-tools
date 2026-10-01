@@ -92,9 +92,9 @@ describe('CacheSessionCredentialStoreAdapter', () => {
     expect(credentialDecryptor.decrypt).not.toHaveBeenCalled()
   })
 
-  it('debería confirmar la base de datos seleccionada contra la pre-imagen y el TTL capturados durante la preparación', async () => {
+  it('debería confirmar la base de datos seleccionada contra la pre-imagen capturada durante la preparación', async () => {
     const preImage = '{"host":"database.local","database":"quality","user":"encrypted:analyst","password":"encrypted:secret"}'
-    vi.mocked(cacheRepository.ttl).mockResolvedValueOnce(87).mockResolvedValueOnce(12)
+    vi.mocked(cacheRepository.ttl).mockResolvedValueOnce(87)
     vi.mocked(cacheRepository.get).mockResolvedValueOnce(preImage)
     vi.mocked(cacheRepository.compareAndSet).mockResolvedValueOnce(true)
     const store = new CacheSessionCredentialStoreAdapter(cacheRepository, credentialEncryptor, credentialDecryptor, 120)
@@ -106,11 +106,11 @@ describe('CacheSessionCredentialStoreAdapter', () => {
     expect(cacheRepository.ttl).toHaveBeenCalledWith('auth:credentials:17:session-42')
     expect(cacheRepository.ttl).toHaveBeenCalledTimes(1)
     expect(cacheRepository.get).toHaveBeenCalledWith('auth:credentials:17:session-42')
+    // La confirmación ya no recibe un TTL: el almacenamiento conserva la expiración propia de la clave.
     expect(cacheRepository.compareAndSet).toHaveBeenCalledWith(
       'auth:credentials:17:session-42',
       preImage,
       '{"host":"database.local","database":"reporting","user":"encrypted:analyst","password":"encrypted:secret"}',
-      87,
     )
     expect(cacheRepository.set).not.toHaveBeenCalled()
   })
@@ -126,7 +126,7 @@ describe('CacheSessionCredentialStoreAdapter', () => {
 
     expect(result).toEqual({ committed: false })
     expect(cacheRepository.compareAndSet).toHaveBeenCalledTimes(1)
-    expect(cacheRepository.compareAndSet).toHaveBeenCalledWith('auth:credentials:17:session-42', 'blob-vigente', expect.any(String), 87)
+    expect(cacheRepository.compareAndSet).toHaveBeenCalledWith('auth:credentials:17:session-42', 'blob-vigente', expect.any(String))
     expect(cacheRepository.set).not.toHaveBeenCalled()
   })
 

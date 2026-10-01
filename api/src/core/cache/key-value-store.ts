@@ -14,12 +14,12 @@ export interface KeyValueStore {
   /**
    * Reemplaza `value` solo si la clave sigue conteniendo exactamente `expected`.
    * Devuelve true si el reemplazo ocurrió; false si la clave no existe o cambió.
-   * El TTL se (re)establece a `ttl` segundos solo en el éxito.
+   * El reemplazo conserva la expiración propia de la clave en el éxito.
    *
    * Una clave inexistente o expirada también devuelve false: es la señal
    * intencional de conflicto, nunca un éxito silencioso.
    */
-  compareAndSet(key: string, expected: string, value: string, ttl: number): Promise<boolean>
+  compareAndSet(key: string, expected: string, value: string): Promise<boolean>
 
   /** Recupera un valor de la caché utilizando una clave específica. */
   get(key: string): Promise<string | null>
