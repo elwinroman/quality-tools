@@ -39,9 +39,24 @@ export function SearchTrigger({ className }: Props) {
   }
 
   return (
-    <Button variant="myGhost" size="sm" className={cn('flex h-7 w-auto items-center gap-2 px-2', className)} onClick={handleClick}>
-      <SearchIcon size={16} className="text-muted shrink-0" />
-      <span className="text-xs whitespace-nowrap">Buscar</span>
+    <Button
+      variant="outline"
+      size="sm"
+      className={cn('group flex h-7 min-w-[112px] items-center justify-between gap-2 px-2', className)}
+      onClick={handleClick}
+    >
+      <span className="flex items-center gap-2">
+        <SearchIcon size={16} className="text-secondary shrink-0" />
+        <span className="text-secondary text-xs whitespace-nowrap">Buscar</span>
+      </span>
+
+      {/* El atajo se muestra al apuntar; sin hover disponible (táctil) queda siempre visible */}
+      <kbd
+        aria-hidden="true"
+        className="rounded-sm bg-black px-1 py-0.5 font-sans text-[10px] leading-none font-medium text-white opacity-0 transition-opacity group-hover:opacity-100 [@media(hover:none)]:opacity-100"
+      >
+        /
+      </kbd>
     </Button>
   )
 }
