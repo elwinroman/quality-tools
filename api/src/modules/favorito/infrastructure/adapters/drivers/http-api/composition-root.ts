@@ -8,8 +8,8 @@ import { FavoritoManagerService } from '@favorito/application/favorito-manager.s
 import { GetAllFavoritosUseCase } from '@favorito/application/use-cases/get-all-favorito.use-case'
 import { RegisterFavoritoUseCase } from '@favorito/application/use-cases/register-favorito.use-case'
 import { MSSQLFavoritoRepositoryAdapter } from '@favorito/infrastructure/adapters/drivens/mssql-favorito-repository.adapter'
-import { MSSQLSysObjectRepositoryAdapter } from '@favorito/infrastructure/adapters/drivens/mssql-sysobject-repository.adapter'
 import { logger } from '@observability/infrastructure/logging/logger-instance'
+import { MssqlSysObjectIdRepositoryAdapter } from '@shared/infrastructure/adapters/drivens/mssql-sysobject-id-repository.adapter'
 
 import { JWT_REFRESH_TOKEN_TTL } from '@/config/enviroment'
 
@@ -32,7 +32,7 @@ const compositionRoot = () => {
     JWT_REFRESH_TOKEN_TTL,
   )
   const currentStoreContextResolver = new CurrentStoreContextResolverAdapter(sessionCredentialStore)
-  const sysobjectRepository = new MSSQLSysObjectRepositoryAdapter(mssqlQueryRunner, currentStoreContextResolver)
+  const sysobjectRepository = new MssqlSysObjectIdRepositoryAdapter(mssqlQueryRunner, currentStoreContextResolver)
 
   // USE CASES
   const registerFavoritoUC = new RegisterFavoritoUseCase(repository, logger)

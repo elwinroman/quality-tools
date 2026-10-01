@@ -1,4 +1,4 @@
-import { SysObjectIdRow, sysobjectIdRowMapper, SysObjectIdRowSchema } from '@favorito/infrastructure/adapters/drivens/sysobject.mapper'
+import { SysObjectIdRow, sysobjectIdRowMapper, SysObjectIdRowSchema } from '@shared/infrastructure/adapters/drivens/sysobject-id.mapper'
 import { describe, expect, it } from 'vitest'
 
 function buildRow(overrides: Partial<SysObjectIdRow> = {}): SysObjectIdRow {

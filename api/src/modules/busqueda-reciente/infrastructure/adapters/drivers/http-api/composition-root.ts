@@ -2,13 +2,13 @@ import { CacheSessionCredentialStoreAdapter } from '@auth/infrastructure/adapter
 import { CurrentStoreContextResolverAdapter } from '@auth/infrastructure/adapters/drivens/current-store-context-resolver.adapter'
 import { BusquedaRecienteHttpManagerService } from '@busqueda-reciente/application/busqueda-reciente-http-manager.service'
 import { DeleteBusquedaRecienteUseCase, GetAllBusquedasRecientesUseCase } from '@busqueda-reciente/application/use-cases'
-import { MssqlSysObjectRepositoryAdapter } from '@busqueda-reciente/infrastructure/adapters/drivens/mssql-sysobject-repository.adapter'
 import { ValkeyCacheBusquedaRecienteRepositoryAdapter } from '@busqueda-reciente/infrastructure/adapters/drivens/valkey-busqueda-reciente-repository.adapter'
 import { ValkeyCacheRepository } from '@core/cache/valkey-cache-repository'
 import { createCredentialDecryptor } from '@core/crypto/create-credential-decryptor.factory'
 import { createCredentialEncryptor } from '@core/crypto/create-credential-encryptor.factory'
 import { mssqlQueryRunner } from '@core/store/mssql-query-runner-instance'
 import { logger } from '@observability/infrastructure/logging/logger-instance'
+import { MssqlSysObjectIdRepositoryAdapter } from '@shared/infrastructure/adapters/drivens/mssql-sysobject-id-repository.adapter'
 
 import { JWT_REFRESH_TOKEN_TTL } from '@/config/enviroment'
 
@@ -31,7 +31,7 @@ const compositionRoot = () => {
     JWT_REFRESH_TOKEN_TTL,
   )
   const currentStoreContextResolver = new CurrentStoreContextResolverAdapter(sessionCredentialStore)
-  const sysobjectRepository = new MssqlSysObjectRepositoryAdapter(mssqlQueryRunner, currentStoreContextResolver)
+  const sysobjectRepository = new MssqlSysObjectIdRepositoryAdapter(mssqlQueryRunner, currentStoreContextResolver)
 
   // USE CASES
   const deleteBusquedaRecienteUC = new DeleteBusquedaRecienteUseCase(brRepository, logger)

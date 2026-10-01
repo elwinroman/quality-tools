@@ -1,18 +1,36 @@
-import { CurrentStoreContextResolver } from '@auth/domain/ports/drivens/current-store-context-resolver.port'
-import { MSSQLExecutor } from '@core/store/mssql-query-runner'
+import type { CurrentStoreContextResolver } from '@auth/domain/ports/drivens/current-store-context-resolver.port'
+import type { MSSQLExecutor } from '@core/store/mssql-query-runner'
 import { decodeRows } from '@core/utils/decode-recordset.util'
-import { ForSysObjectRepositoryPort, SysObject } from '@favorito/domain/ports/drivens/for-sysobject-repository.port'
 import sql from 'mssql'
 
-import { sysobjectIdRowMapper, SysObjectIdRowSchema } from './sysobject.mapper'
+import { sysobjectIdRowMapper, SysObjectIdRowSchema } from './sysobject-id.mapper'
 
-export class MSSQLSysObjectRepositoryAdapter implements ForSysObjectRepositoryPort {
+/**
+ * Entrada del lookup: cualquier objeto identificado por esquema y nombre.
+ * Es estructuralmente compatible con el `SysObject` de cada contexto sin acoplarse a ninguno,
+ * porque un contexto no debe depender del dominio del otro.
+ */
+export interface SysObjectIdentifier {
+  schema: string
+  name: string
+}
+
+/**
+ * Contrato compartido del repositorio que resuelve IDs de objetos por esquema y nombre.
+ * Cada contexto conserva su propio puerto de dominio; este adaptador satisface a ambos
+ * por compatibilidad estructural.
+ */
+export interface ForSysObjectIdRepositoryPort {
+  findIDsByNameAndSchema(objects: SysObjectIdentifier[]): Promise<(number | null)[]>
+}
+
+export class MssqlSysObjectIdRepositoryAdapter implements ForSysObjectIdRepositoryPort {
   constructor(
     private readonly executor: MSSQLExecutor,
     private readonly currentStoreContextResolver: CurrentStoreContextResolver,
   ) {}
 
-  async findIDsByNameAndSchema(sysObjects: SysObject[]): Promise<(number | null)[]> {
+  async findIDsByNameAndSchema(sysObjects: SysObjectIdentifier[]): Promise<(number | null)[]> {
     // con cero objetos no hay nada que resolver: se evita abrir conexión y el lote `VALUES ;` inválido
     if (sysObjects.length === 0) return []
 
