@@ -39,7 +39,7 @@ export class HttpAuthenticatorService implements ForHttpAuthenticatingPort {
 
   async checkSession(
     credentials: StoreUserSchema,
-  ): Promise<{ databaseConnection: string; viewdefinitionPermission: boolean; checkedAt: Date | string }> {
+  ): Promise<{ databaseConnection: string; viewdefinitionPermission: boolean; checkedAt: Date | string; database: string }> {
     return this.checkSessionUC.execute(credentials)
   }
 

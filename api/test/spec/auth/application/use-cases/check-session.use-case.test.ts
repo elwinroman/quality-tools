@@ -56,6 +56,17 @@ describe('CheckSessionUseCase', () => {
       expect(status.databaseConnection).toBe('connected')
       expect(status.viewdefinitionPermission).toBe(true)
       expect(status.checkedAt).toBeInstanceOf(Date)
+      expect(status.database).toBe('QualityTools')
+    })
+
+    it('debería exponer la base de datos activa recibida en las credenciales', async () => {
+      const storeRepository = createFakeStoreRepository()
+      const useCase = new CheckSessionUseCase(storeRepository, createFakeLogger().logger)
+      const credentials: StoreUserSchema = { ...CREDENTIALS, database: 'OtraBase' }
+
+      const status = await useCase.execute(credentials)
+
+      expect(status.database).toBe('OtraBase')
     })
 
     it('debería registrar la verificación de sesión', async () => {

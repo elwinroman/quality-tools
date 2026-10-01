@@ -42,7 +42,7 @@ export function SwitchDatabase({ className = '' }: Props) {
   const resetUserTable = useUserTableStore((state) => state.reset)
 
   const { callEndpoint: callListDatabases, loading: loadingDatabases } = useFetchAndLoad<string[]>()
-  const { callEndpoint: callSwitchDatabase } = useFetchAndLoad()
+  const { callEndpoint: callSwitchDatabase } = useFetchAndLoad<string>()
 
   const [databases, setDatabases] = useState<string[]>([])
   const [open, setOpen] = useState(false)
@@ -67,13 +67,18 @@ export function SwitchDatabase({ className = '' }: Props) {
     updateSwitchingDatabase(db)
     setOpen(false)
     try {
-      await callSwitchDatabase(switchDatabaseService(db))
+      const response = await callSwitchDatabase(switchDatabaseService(db))
       if (location.pathname.startsWith(AppRoutes.SQL_DEFINITION)) navigate(AppRoutes.SQL_DEFINITION, { replace: true })
       if (location.pathname.startsWith(AppRoutes.USERTABLE)) navigate(AppRoutes.USERTABLE, { replace: true })
       clearSysObject(null)
       resetUserTable()
-      updateDatabase(db)
-      toast.success('Success', { description: `Base de datos cambiada. Conectado a '${db}'.` })
+
+      // refleja la base de datos que el servidor dejó activa, no la solicitada por el cliente
+      const activeDatabase = response.data
+      if (activeDatabase) {
+        updateDatabase(activeDatabase)
+        toast.success('Success', { description: `Base de datos cambiada. Conectado a '${activeDatabase}'.` })
+      }
     } catch {
       toast.error('Error', { description: `Acceso denegado. No tienes permisos para acceder a '${db}'.` })
     } finally {

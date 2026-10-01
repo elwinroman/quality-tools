@@ -3,11 +3,19 @@ import { registry } from '@core/swagger/openapi-registry'
 import { errorResponses, SuccessListResponseSchema, SuccessResponseSchema } from '@core/swagger/schemas'
 import { z } from 'zod'
 
+import { CheckSessionDataSchema } from './check-session/check-session.dto'
 import { ListDatabasesSchema } from './list-databases/list-databases.dto'
 import { LoginUserSchema } from './login/login.http-dto'
 import { SwitchDatabaseSchema } from './switch-database/switch-database.dto'
 
 extendZodWithOpenApi(z)
+
+const CheckSessionResponseSchema = z
+  .object({
+    correlationId: z.string().uuid(),
+    data: CheckSessionDataSchema,
+  })
+  .openapi('CheckSessionResponse')
 
 // POST /api/v1/auth/login
 registry.registerPath({
@@ -70,13 +78,14 @@ registry.registerPath({
   path: '/api/v1/auth/check-session',
   tags: ['Auth'],
   summary: 'Verificar sesión activa',
-  description: 'Valida que el access token sea válido y comprueba la conexión de la base de datos activa de la sesión.',
+  description:
+    'Valida que el access token sea válido y comprueba la conexión de la base de datos activa de la sesión. Retorna `database` con la base de datos activa resuelta por el servidor.',
   security: [{ BearerAuth: [] }],
   request: {},
   responses: {
     200: {
       description: 'Sesión activa',
-      content: { 'application/json': { schema: SuccessResponseSchema } },
+      content: { 'application/json': { schema: CheckSessionResponseSchema } },
     },
     ...errorResponses('TokenExpiredException', 'NotProvidedTokenException', 'CacheCredentialNotFoundException', 'UnauthorizedException'),
   },

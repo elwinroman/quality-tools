@@ -1,7 +1,7 @@
 import { checkSessionAdapter, CheckSessionResponse, createAuthenticatedUserAdapter } from '@/adapters'
 import api from '@/interceptors/auth-token.interceptor'
 import { AxiosCall, Credential } from '@/models'
-import { AuthenticatedUserApiResponse, CheckSessionApiResponse, ListDatabasesApiResponse } from '@/models/api'
+import { AuthenticatedUserApiResponse, CheckSessionApiResponse, ListDatabasesApiResponse, SwitchDatabaseApiResponse } from '@/models/api'
 import { AuthenticatedUser } from '@/models/auth'
 import { loadAbort } from '@/utilities'
 
@@ -84,11 +84,19 @@ export const listDatabasesAuthenticatedService = (): AxiosCall<string[]> => {
   return { call: adapterCall, controller }
 }
 
-export const switchDatabaseService = (database: string): AxiosCall<void> => {
+export const switchDatabaseService = (database: string): AxiosCall<string> => {
   const controller = loadAbort()
 
+  // retorna el nombre que el servidor dejó como base de datos activa (puede diferir del solicitado)
+  const adapterCall = api
+    .patch<SwitchDatabaseApiResponse>('/auth/switch-database', { database }, { signal: controller.signal })
+    .then((response) => ({
+      ...response,
+      data: response.data.data.name,
+    }))
+
   return {
-    call: api.patch('/auth/switch-database', { database }, { signal: controller.signal }),
+    call: adapterCall,
     controller,
   }
 }
