@@ -6,6 +6,7 @@ import {
   AvatarImage,
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -69,23 +70,32 @@ export function LoginUsername({ className = '' }: Props) {
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="center" sideOffset={10} collisionPadding={16} className="w-56">
-        <DropdownMenuLabel>Mi cuenta SQL</DropdownMenuLabel>
+        {/* Grupo de la cuenta: quién está conectado y por qué host entró */}
+        <DropdownMenuGroup>
+          <DropdownMenuLabel>
+            Mi cuenta SQL
+            {/* Alias del host con el que se inició la sesión */}
+            <span className="text-secondary block truncate text-xs font-normal">{authContext.originalServer}</span>
+          </DropdownMenuLabel>
+        </DropdownMenuGroup>
+
         <DropdownMenuSeparator />
 
-        {/* Tema: conserva el switch original para no agrandar la card */}
-        <DropdownMenuItem className="justify-between gap-2" onSelect={(event) => event.preventDefault()}>
-          <span>Tema</span>
-          <ThemeToggle />
-        </DropdownMenuItem>
+        {/* Grupo de acciones: tema y cierre de sesión */}
+        <DropdownMenuGroup>
+          {/* Tema: conserva el switch original para no agrandar la card */}
+          <DropdownMenuItem className="justify-between gap-2" onSelect={(event) => event.preventDefault()}>
+            <span>Tema</span>
+            <ThemeToggle />
+          </DropdownMenuItem>
 
-        <DropdownMenuSeparator />
-
-        <DropdownMenuItem asChild>
-          <button type="button" onClick={closeSession} className="w-full justify-between gap-2">
-            <span>Cerrar sesión</span>
-            <User size={14} />
-          </button>
-        </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <button type="button" onClick={closeSession} className="w-full justify-between gap-2">
+              <span>Cerrar sesión</span>
+              <User size={14} />
+            </button>
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>
   )
