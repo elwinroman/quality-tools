@@ -1,8 +1,8 @@
 /**
- * Applies the credential transformation policy selected at composition when
- * loading persisted values. The policy may be pass-through or cryptographic;
- * returned credentials remain sensitive, and configured transformation
- * failures propagate to the caller.
+ * Aplica la política de transformación de credenciales seleccionada en la
+ * composición al cargar valores persistidos. La política puede ser de paso
+ * directo o criptográfica; las credenciales devueltas siguen siendo sensibles,
+ * y los fallos de la transformación configurada se propagan al llamador.
  */
 export interface CredentialDecryptor {
   decrypt(value: string): string

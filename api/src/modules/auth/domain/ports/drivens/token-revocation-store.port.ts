@@ -5,11 +5,13 @@ export interface RevocableToken {
 }
 
 /**
- * Owns token-revocation semantics independently of the persistence technology.
+ * Es responsable de la semántica de revocación de tokens, con independencia de
+ * la tecnología de persistencia.
  *
- * Revocations remain effective for the supplied remaining token lifetime. The
- * store must preserve token identity metadata for operational compatibility,
- * treat any persisted marker as revoked, and propagate persistence failures.
+ * Las revocaciones siguen vigentes durante el tiempo de vida restante
+ * proporcionado del token. El store debe preservar los metadatos de identidad
+ * del token por compatibilidad operativa, tratar cualquier marcador persistido
+ * como revocado y propagar los fallos de persistencia.
  */
 export interface TokenRevocationStore {
   isRevoked(jti: string): Promise<boolean>

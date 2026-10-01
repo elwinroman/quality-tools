@@ -30,7 +30,7 @@ export const formatSQLDataType = (type: string, maxLenght: number, precision: nu
 
   if (normalizedType === SQLDataTypes.NUMERIC || normalizedType === SQLDataTypes.DECIMAL) return `${normalizedType}(${precision}, ${scale})`
 
-  // float(n) only takes precision, from 1 to 53 bits; the scale belongs to numeric/decimal.
+  // float(n) solo toma precisión, de 1 a 53 bits; la escala pertenece a numeric/decimal.
   if (normalizedType === SQLDataTypes.FLOAT) return `${normalizedType}(${precision})`
 
   if (normalizedType === SQLDataTypes.BINARY || normalizedType === SQLDataTypes.VARBINARY)

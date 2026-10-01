@@ -2,9 +2,10 @@ import { UserType } from '@core/store/mssql-database-connection'
 import { StoreUserSchema } from '@shared/domain/store'
 
 /**
- * Provides one authenticated request's identity and usable store credentials.
- * Credentials are plaintext copies scoped to the caller and must not be
- * mutated into shared session state or retained beyond the operation.
+ * Provee la identidad de una petición autenticada y credenciales de store
+ * utilizables. Las credenciales son copias en texto plano acotadas al llamador
+ * y no deben mutarse hacia estado de sesión compartido ni retenerse más allá
+ * de la operación.
  */
 export interface StoreAuthContext {
   authContext: {
@@ -20,11 +21,13 @@ export interface StoreAuthContext {
 }
 
 /**
- * Owns resolution of the current request identity and its session-bound store.
+ * Es responsable de resolver la identidad de la petición actual y su store
+ * ligado a la sesión.
  *
- * Resolution requires an authenticated context with a session identifier and
- * live session credentials. Missing context or credentials reject the
- * operation; storage and decryption failures propagate to the caller.
+ * La resolución requiere un contexto autenticado con un identificador de
+ * sesión y credenciales de sesión vivas. Un contexto o credenciales faltantes
+ * rechazan la operación; los fallos de almacenamiento y descifrado se propagan
+ * al llamador.
  */
 export interface CurrentStoreContextResolver {
   resolve(): Promise<StoreAuthContext>

@@ -1,11 +1,11 @@
 /**
- * Low-level key/value gateway owned by infrastructure.
+ * Pasarela clave/valor de bajo nivel, propiedad de la infraestructura.
  *
- * This is NOT an application-facing port. Features must depend on their own
- * semantic ports (for example `SessionCredentialStore` or
- * `TokenRevocationStore`) instead of reaching for this generic storage
- * contract. Only infrastructure components and composition roots may depend
- * on it.
+ * Este NO es un puerto orientado a la aplicación. Las funcionalidades deben
+ * depender de sus propios puertos semánticos (por ejemplo
+ * `SessionCredentialStore` o `TokenRevocationStore`) en lugar de recurrir a
+ * este contrato de almacenamiento genérico. Solo los componentes de
+ * infraestructura y las raíces de composición pueden depender de él.
  */
 export interface KeyValueStore {
   /** Almacena un valor en la caché con una clave específica y un tiempo de vida opcional (default: 3600s). */

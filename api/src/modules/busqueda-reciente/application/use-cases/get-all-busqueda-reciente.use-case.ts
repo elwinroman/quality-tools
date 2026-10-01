@@ -34,7 +34,7 @@ export class GetAllBusquedasRecientesUseCase {
     const objects = data.map(row => ({ schema: row.schema, name: row.objectName }))
     const objectIds = await this.sysobjectRepository.findIDsByNameAndSchema(objects)
 
-    // the port contract promises one id per object, but a broken adapter must fail loud instead of assigning undefined
+    // el contrato del puerto promete un id por objeto, pero un adaptador roto debe fallar de forma visible en lugar de asignar undefined
     if (objectIds.length !== objects.length) {
       throw new SysobjectIdsInconsistencyException(objects.length, objectIds.length)
     }

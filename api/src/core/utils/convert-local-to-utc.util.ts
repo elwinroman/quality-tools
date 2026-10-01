@@ -28,9 +28,9 @@ export function convertLocalToUTC(date: unknown, timeZone: string): Date {
 }
 
 /**
- * Anchors a timezone-less ISO 8601 string to UTC. The value is a wall clock, so
- * letting it be parsed as a host-local instant would make the result depend on
- * the timezone of the machine running the process.
+ * Ancla a UTC una cadena ISO 8601 sin zona horaria. El valor es un reloj de pared,
+ * por lo que permitir que se interprete como un instante local del host haría que
+ * el resultado dependiera de la zona horaria de la máquina que ejecuta el proceso.
  */
 function anchorISOToUTC(value: string): string {
   const trimmed = value.trim()

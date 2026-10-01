@@ -1,15 +1,16 @@
 import { z } from 'zod'
 
 /**
- * Strict integer schema for HTTP DTOs.
+ * Esquema de entero estricto para DTOs HTTP.
  *
- * Accepts only a real integer number or a string matching /^-?\d+$/.
- * Unlike z.coerce.number(), it rejects what Number() would otherwise
- * coerce: booleans, arrays, hex strings, exponent strings, decimal
- * strings, whitespace-padded strings, empty strings, null and undefined.
+ * Acepta solo un número entero real o una cadena que coincida con /^-?\d+$/.
+ * A diferencia de z.coerce.number(), rechaza lo que Number() de otro modo
+ * coercionaría: booleanos, arrays, cadenas hexadecimales, cadenas con
+ * exponente, cadenas decimales, cadenas con espacios, cadenas vacías, null y
+ * undefined.
  *
- * Range policy stays with each consumer, which can chain bounds with
- * strictIntegerSchema.pipe(z.number().min(...).max(...)).
+ * La política de rangos queda en cada consumidor, que puede encadenar límites
+ * con strictIntegerSchema.pipe(z.number().min(...).max(...)).
  */
 export const strictIntegerSchema = z.union(
   [
