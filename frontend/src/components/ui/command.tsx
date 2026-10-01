@@ -7,7 +7,7 @@ function Command({ className, ...props }: React.ComponentProps<typeof CommandPri
   return (
     <CommandPrimitive
       data-slot="command"
-      className={cn('flex h-full w-full flex-col overflow-hidden rounded-sm bg-background-paperchanel text-popover-foreground', className)}
+      className={cn('bg-background text-popover-foreground flex h-full w-full flex-col overflow-hidden rounded-sm', className)}
       {...props}
     />
   )
@@ -40,9 +40,7 @@ function CommandList({ className, ...props }: React.ComponentProps<typeof Comman
 }
 
 function CommandEmpty({ className, ...props }: React.ComponentProps<typeof CommandPrimitive.Empty>) {
-  return (
-    <CommandPrimitive.Empty data-slot="command-empty" className={cn('py-6 text-center text-sm text-muted', className)} {...props} />
-  )
+  return <CommandPrimitive.Empty data-slot="command-empty" className={cn('text-muted py-6 text-center text-sm', className)} {...props} />
 }
 
 function CommandGroup({ className, ...props }: React.ComponentProps<typeof CommandPrimitive.Group>) {
@@ -50,7 +48,7 @@ function CommandGroup({ className, ...props }: React.ComponentProps<typeof Comma
     <CommandPrimitive.Group
       data-slot="command-group"
       className={cn(
-        'overflow-hidden text-foreground [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted',
+        'text-foreground [&_[cmdk-group-heading]]:text-muted overflow-hidden [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium',
         className,
       )}
       {...props}
