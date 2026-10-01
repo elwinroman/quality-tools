@@ -1,3 +1,4 @@
+import { SelectedDatabaseConflictException } from '@auth/application/exceptions/selected-database-conflict.exception'
 import { ForStoreRepositoryPort, SessionCredentialStore } from '@auth/domain/ports/drivens'
 import { PermissionStore, StoreInfo } from '@auth/domain/schemas/store'
 import { Logger } from '@observability/domain/logger'
@@ -23,10 +24,12 @@ export class SwitchDatabaseUseCase {
     const details = await this.storeRepository.getDetails(newCredentials)
     const permissionStore = await this.storeRepository.getPermission(newCredentials)
 
-    await preparedUpdate.commit({
+    const commitResult = await preparedUpdate.commit({
       ...currentCredentials,
       database: details.name,
     })
+
+    if (!commitResult.committed) throw new SelectedDatabaseConflictException()
 
     this.logger.info(`[auth] Base de datos cambiada a '${details.name}'`, {
       actionDetails: {

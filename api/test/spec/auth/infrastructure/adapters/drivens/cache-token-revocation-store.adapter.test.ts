@@ -5,6 +5,7 @@ import { describe, expect, it, vi } from 'vitest'
 function createCacheRepository(overrides: Partial<KeyValueStore> = {}): KeyValueStore {
   return {
     set: vi.fn(async () => undefined),
+    compareAndSet: vi.fn(async () => false),
     get: vi.fn(async () => null),
     delete: vi.fn(async () => undefined),
     ttl: vi.fn(async () => -2),

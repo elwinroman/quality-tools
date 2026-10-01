@@ -11,6 +11,16 @@ export interface KeyValueStore {
   /** Almacena un valor en la caché con una clave específica y un tiempo de vida opcional (default: 3600s). */
   set(key: string, value: string, ttl?: number): Promise<void>
 
+  /**
+   * Reemplaza `value` solo si la clave sigue conteniendo exactamente `expected`.
+   * Devuelve true si el reemplazo ocurrió; false si la clave no existe o cambió.
+   * El TTL se (re)establece a `ttl` segundos solo en el éxito.
+   *
+   * Una clave inexistente o expirada también devuelve false: es la señal
+   * intencional de conflicto, nunca un éxito silencioso.
+   */
+  compareAndSet(key: string, expected: string, value: string, ttl: number): Promise<boolean>
+
   /** Recupera un valor de la caché utilizando una clave específica. */
   get(key: string): Promise<string | null>
 

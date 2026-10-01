@@ -7,6 +7,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 const { client } = vi.hoisted(() => ({
   client: {
     set: vi.fn(),
+    eval: vi.fn(),
     get: vi.fn(),
     del: vi.fn(),
     ttl: vi.fn(),
@@ -36,6 +37,32 @@ describe('ValkeyCacheRepository', () => {
 
       expect(client.set).toHaveBeenCalledTimes(1)
       expect(client.set).toHaveBeenCalledWith('session:1', 'valor', 'EX', 3600)
+    })
+  })
+
+  describe('compareAndSet', () => {
+    it('debería invocar el script Lua con la clave, la pre-imagen, el valor y el TTL, y devolver true en coincidencia', async () => {
+      client.eval.mockResolvedValueOnce(1)
+
+      await expect(repository.compareAndSet('session:1', 'pre-imagen', 'nuevo-valor', 87)).resolves.toBe(true)
+
+      expect(client.eval).toHaveBeenCalledTimes(1)
+      expect(client.eval).toHaveBeenCalledWith(
+        expect.stringContaining("redis.call('GET', KEYS[1])"),
+        1,
+        'session:1',
+        'pre-imagen',
+        'nuevo-valor',
+        87,
+      )
+      expect(client.set).not.toHaveBeenCalled()
+    })
+
+    it('debería devolver false cuando el script no encuentra coincidencia o la clave no existe', async () => {
+      client.eval.mockResolvedValueOnce(0)
+
+      await expect(repository.compareAndSet('session:1', 'desactualizada', 'nuevo-valor', 87)).resolves.toBe(false)
+      expect(client.eval).toHaveBeenCalledTimes(1)
     })
   })
 

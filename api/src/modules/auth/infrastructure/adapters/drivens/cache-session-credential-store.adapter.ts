@@ -1,5 +1,6 @@
 import {
   PreparedSelectedDatabaseUpdate,
+  SelectedDatabaseUpdateResult,
   SessionCredentials,
   SessionCredentialStore,
 } from '@auth/domain/ports/drivens/session-credential-store.port'
@@ -38,9 +39,17 @@ export class CacheSessionCredentialStoreAdapter implements SessionCredentialStor
     const remainingTtl = await this.cacheRepository.ttl(key)
     if (remainingTtl <= 0) throw new CacheCredentialNotFoundException(userId)
 
+    // Pre-imagen cruda del blob para el reemplazo condicional: debe compararse
+    // literalmente contra lo almacenado, no contra una re-serializacion.
+    const expected = await this.cacheRepository.get(key)
+
     return {
-      commit: async credentials => {
-        await this.cacheRepository.set(key, this.serialize(credentials), remainingTtl)
+      commit: async (credentials): Promise<SelectedDatabaseUpdateResult> => {
+        if (expected === null) return { committed: false }
+
+        const committed = await this.cacheRepository.compareAndSet(key, expected, this.serialize(credentials), remainingTtl)
+
+        return { committed }
       },
     }
   }

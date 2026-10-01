@@ -53,7 +53,7 @@ function createSessionStore(overrides: Partial<SessionCredentialStore> = {}): Se
   return {
     save: vi.fn(async () => undefined),
     find: vi.fn(async () => null),
-    prepareSelectedDatabaseUpdate: vi.fn(async () => ({ commit: vi.fn(async () => undefined) })),
+    prepareSelectedDatabaseUpdate: vi.fn(async () => ({ commit: vi.fn(async () => ({ committed: true })) })),
     ...overrides,
   }
 }
@@ -206,6 +206,7 @@ describe('migración de casos de uso al almacén de credenciales de sesión', ()
   it.each([-2, -1, 0])('debería rechazar en switch-database TTL %i antes de llamar al repositorio de store', async ttl => {
     const cacheRepository: KeyValueStore = {
       set: vi.fn(async () => undefined),
+      compareAndSet: vi.fn(async () => false),
       get: vi.fn(async () => null),
       delete: vi.fn(async () => undefined),
       ttl: vi.fn(async () => ttl),
@@ -227,7 +228,7 @@ describe('migración de casos de uso al almacén de credenciales de sesión', ()
   })
 
   it('debería preparar en switch-database antes de la validación y confirmar la base de datos resuelta', async () => {
-    const commit = vi.fn(async () => undefined)
+    const commit = vi.fn(async () => ({ committed: true }))
     const prepare = vi.fn(async () => ({ commit }))
     const sessionCredentialStore = createSessionStore({ prepareSelectedDatabaseUpdate: prepare })
     const storeRepository = createStoreRepository()

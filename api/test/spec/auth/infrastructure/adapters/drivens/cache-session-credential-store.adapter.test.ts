@@ -9,6 +9,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 describe('CacheSessionCredentialStoreAdapter', () => {
   const cacheRepository: KeyValueStore = {
     set: vi.fn(),
+    compareAndSet: vi.fn(),
     get: vi.fn(),
     delete: vi.fn(),
     ttl: vi.fn(),
@@ -26,6 +27,8 @@ describe('CacheSessionCredentialStoreAdapter', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     vi.mocked(cacheRepository.ttl).mockReset()
+    vi.mocked(cacheRepository.get).mockReset()
+    vi.mocked(cacheRepository.compareAndSet).mockReset()
   })
 
   it('debería guardar la clave y el payload compatibles a nivel de bytes con la vida útil de refresh configurada', async () => {
@@ -89,20 +92,56 @@ describe('CacheSessionCredentialStoreAdapter', () => {
     expect(credentialDecryptor.decrypt).not.toHaveBeenCalled()
   })
 
-  it('debería confirmar la base de datos seleccionada con el TTL capturado durante la preparación', async () => {
+  it('debería confirmar la base de datos seleccionada contra la pre-imagen y el TTL capturados durante la preparación', async () => {
+    const preImage = '{"host":"database.local","database":"quality","user":"encrypted:analyst","password":"encrypted:secret"}'
     vi.mocked(cacheRepository.ttl).mockResolvedValueOnce(87).mockResolvedValueOnce(12)
+    vi.mocked(cacheRepository.get).mockResolvedValueOnce(preImage)
+    vi.mocked(cacheRepository.compareAndSet).mockResolvedValueOnce(true)
     const store = new CacheSessionCredentialStoreAdapter(cacheRepository, credentialEncryptor, credentialDecryptor, 120)
 
     const preparedUpdate = await store.prepareSelectedDatabaseUpdate(17, 'session-42')
-    await preparedUpdate.commit({ ...credentials, database: 'reporting' })
+    const result = await preparedUpdate.commit({ ...credentials, database: 'reporting' })
 
+    expect(result).toEqual({ committed: true })
     expect(cacheRepository.ttl).toHaveBeenCalledWith('auth:credentials:17:session-42')
     expect(cacheRepository.ttl).toHaveBeenCalledTimes(1)
-    expect(cacheRepository.set).toHaveBeenCalledWith(
+    expect(cacheRepository.get).toHaveBeenCalledWith('auth:credentials:17:session-42')
+    expect(cacheRepository.compareAndSet).toHaveBeenCalledWith(
       'auth:credentials:17:session-42',
+      preImage,
       '{"host":"database.local","database":"reporting","user":"encrypted:analyst","password":"encrypted:secret"}',
       87,
     )
+    expect(cacheRepository.set).not.toHaveBeenCalled()
+  })
+
+  it('debería reportar conflicto sin escribir cuando la pre-imagen cambió entre la preparación y la confirmación', async () => {
+    vi.mocked(cacheRepository.ttl).mockResolvedValueOnce(87)
+    vi.mocked(cacheRepository.get).mockResolvedValueOnce('blob-vigente')
+    vi.mocked(cacheRepository.compareAndSet).mockResolvedValueOnce(false)
+    const store = new CacheSessionCredentialStoreAdapter(cacheRepository, credentialEncryptor, credentialDecryptor, 120)
+
+    const preparedUpdate = await store.prepareSelectedDatabaseUpdate(17, 'session-42')
+    const result = await preparedUpdate.commit({ ...credentials, database: 'reporting' })
+
+    expect(result).toEqual({ committed: false })
+    expect(cacheRepository.compareAndSet).toHaveBeenCalledTimes(1)
+    expect(cacheRepository.compareAndSet).toHaveBeenCalledWith('auth:credentials:17:session-42', 'blob-vigente', expect.any(String), 87)
+    expect(cacheRepository.set).not.toHaveBeenCalled()
+  })
+
+  it('debería reportar conflicto cuando la clave ya no existe al preparar, sin escribir ni cifrar', async () => {
+    vi.mocked(cacheRepository.ttl).mockResolvedValueOnce(87)
+    vi.mocked(cacheRepository.get).mockResolvedValueOnce(null)
+    const store = new CacheSessionCredentialStoreAdapter(cacheRepository, credentialEncryptor, credentialDecryptor, 120)
+
+    const preparedUpdate = await store.prepareSelectedDatabaseUpdate(17, 'session-42')
+    const result = await preparedUpdate.commit({ ...credentials, database: 'reporting' })
+
+    expect(result).toEqual({ committed: false })
+    expect(cacheRepository.compareAndSet).not.toHaveBeenCalled()
+    expect(cacheRepository.set).not.toHaveBeenCalled()
+    expect(credentialEncryptor.encrypt).not.toHaveBeenCalled()
   })
 
   it.each([-2, -1, 0])('debería preservar la excepción de ausencia o sin expiración para TTL %i', async ttl => {

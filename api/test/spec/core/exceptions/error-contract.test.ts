@@ -1,4 +1,5 @@
 import { NotProvidedTokenException } from '@auth/application/exceptions/not-provided-token.exception'
+import { SelectedDatabaseConflictException } from '@auth/application/exceptions/selected-database-conflict.exception'
 import { TokenExpiredException } from '@auth/application/exceptions/token-expired.exception'
 import { UserAlreadyAuthenticatedException } from '@auth/application/exceptions/user-already-authenticated.exception'
 import { InvalidCredentialsException } from '@auth/domain/exceptions/invalid-credentials.exception'
@@ -349,6 +350,17 @@ const errorContractCases: ErrorContractCase[] = [
     type: 'UserAlreadyAuthenticatedException',
     detail: 'Ya tienes una sesión activa. Cierra la sesión actual antes de iniciar una nueva.',
     message: '[auth] Usuario ya autenticado',
+  },
+  {
+    name: 'SelectedDatabaseConflictException',
+    layer: 'application',
+    create: () => new SelectedDatabaseConflictException(),
+    status: 409,
+    errorCode: 2002,
+    title: 'Cambio de base de datos en conflicto',
+    type: 'SelectedDatabaseConflictException',
+    detail: 'La sesión cambió en otra pestaña o dispositivo antes de confirmar el cambio. Vuelve a intentar el cambio de base de datos.',
+    message: '[auth] Conflicto al cambiar de base de datos: la sesión fue modificada durante la operación',
   },
 ]
 

@@ -35,6 +35,11 @@ function createFakeCache() {
       setCalls.push({ key, ttl })
       store.set(key, value)
     },
+    compareAndSet: async (key, expected, value) => {
+      if (store.get(key) !== expected) return false
+      store.set(key, value)
+      return true
+    },
     get: async key => store.get(key) ?? null,
     delete: async key => {
       store.delete(key)

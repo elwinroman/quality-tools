@@ -34,7 +34,7 @@ function createFakeSessionCredentialStore(overrides: Partial<SessionCredentialSt
   return {
     save: async () => undefined,
     find: async () => null,
-    prepareSelectedDatabaseUpdate: async () => ({ commit: async () => undefined }),
+    prepareSelectedDatabaseUpdate: async () => ({ commit: async () => ({ committed: true }) }),
     ...overrides,
   }
 }
