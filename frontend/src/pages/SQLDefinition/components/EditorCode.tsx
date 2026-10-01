@@ -1,10 +1,10 @@
 import Editor from '@monaco-editor/react'
-import { Monaco } from '@monaco-editor/react'
 import { useEffect } from 'react'
 
 import { CircleLoader } from '@/components/loader'
-import { BaseMonacoEditorOptions, MonacoThemes } from '@/constants'
-import { ensureBuiltinTheme, getFormattedCodeForViewMode } from '@/utilities'
+import { BaseMonacoEditorOptions } from '@/constants'
+import { useEditorTheme } from '@/constants/monaco-themes/use-editor-theme'
+import { getFormattedCodeForViewMode } from '@/utilities'
 import { useAppStore, useEditorOptionsStore } from '@/zustand'
 
 import { useSysObjectStore } from '../store/sysobject.store'
@@ -25,15 +25,8 @@ export function EditorCode() {
     updateCurrentEditorCode(code)
   }, [code])
 
-  // cargar temas (estilos) de monaco
-  const handleBeforeMount = (monaco: Monaco) => {
-    for (const [keyTheme, valueTheme] of Object.entries(MonacoThemes)) {
-      monaco.editor.defineTheme(keyTheme, {
-        ...valueTheme.json,
-        base: ensureBuiltinTheme(valueTheme.json.base),
-      })
-    }
-  }
+  // define y aplica el tema seleccionado (carga perezosa, compartida)
+  const { handleBeforeMount } = useEditorTheme(theme)
 
   const fullOptions = { ...BaseMonacoEditorOptions, renderWhitespace, fontSize, minimap, stickyScroll, guides }
 

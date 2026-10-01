@@ -1,12 +1,12 @@
 import { useSearchContext } from '@aligment/hooks'
 import { useAligmentStore } from '@aligment/zustand/aligment.store'
 import Editor from '@monaco-editor/react'
-import { Monaco } from '@monaco-editor/react'
 
 import { CircleLoader } from '@/components/loader'
-import { BaseMonacoEditorOptions, MonacoThemes } from '@/constants'
+import { BaseMonacoEditorOptions } from '@/constants'
+import { useEditorTheme } from '@/constants/monaco-themes/use-editor-theme'
 import { EDITOR_BANNER } from '@/enviroment/enviroment'
-import { ensureBuiltinTheme, getFormattedCodeForViewMode } from '@/utilities'
+import { getFormattedCodeForViewMode } from '@/utilities'
 import { useAppStore, useEditorOptionsStore } from '@/zustand'
 
 export function EditorCodeAligment() {
@@ -25,15 +25,8 @@ export function EditorCodeAligment() {
   // guarda siempre el código calculado del editor (para copiar)
   updateCurrentEditorCode(code)
 
-  // cargar temas (estilos) de monaco
-  const handleBeforeMount = (monaco: Monaco) => {
-    for (const [keyTheme, valueTheme] of Object.entries(MonacoThemes)) {
-      monaco.editor.defineTheme(keyTheme, {
-        ...valueTheme.json,
-        base: ensureBuiltinTheme(valueTheme.json.base),
-      })
-    }
-  }
+  // define y aplica el tema seleccionado (carga perezosa, compartida)
+  const { handleBeforeMount } = useEditorTheme(theme)
 
   const fullOptions = { ...BaseMonacoEditorOptions, renderWhitespace, fontSize, minimap, stickyScroll, guides }
 

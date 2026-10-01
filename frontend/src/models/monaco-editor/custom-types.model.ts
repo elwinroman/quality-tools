@@ -7,7 +7,7 @@ import { MonacoThemes } from '@/constants'
  * de los temas disponibles en `MonacoThemes`.
  *
  * Ejemplos de valores válidos:
- * `'dracula' | 'amy' | 'githubdark' | 'vibrantink' | ...`
+ * `'dracula' | 'amy' | 'github-dark' | 'vibrant-ink' | 'oceanic-next' | ...`
  */
 export type IMonacoTheme = keyof typeof MonacoThemes
 

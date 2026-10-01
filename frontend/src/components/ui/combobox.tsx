@@ -30,7 +30,7 @@ function ComboboxInput({
       <ComboboxPrimitive.Trigger
         data-slot="combobox-trigger"
         disabled={disabled}
-        className="text-muted absolute top-0 right-0 flex h-10 w-9 items-center justify-center disabled:cursor-not-allowed disabled:opacity-50"
+        className="text-muted absolute inset-y-0 right-0 flex w-9 items-center justify-center disabled:cursor-not-allowed disabled:opacity-50"
       >
         <ChevronDownIcon className="h-4 w-4 opacity-50" />
       </ComboboxPrimitive.Trigger>
@@ -60,7 +60,7 @@ function ComboboxContent({
         <ComboboxPrimitive.Popup
           data-slot="combobox-content"
           className={cn(
-            'mix-colored-background bg-background-paperchanel text-popover-foreground w-[var(--anchor-width)] min-w-[var(--anchor-width)] overflow-hidden rounded-sm border shadow-md outline-hidden',
+            'bg-background text-popover-foreground w-[var(--anchor-width)] min-w-[var(--anchor-width)] overflow-hidden rounded-sm border shadow-md outline-hidden',
             'data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95',
             className,
           )}
