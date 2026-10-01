@@ -19,10 +19,10 @@ export function EditorTab({ value, label, icon: Icon, disabled }: Props) {
     <TabsTrigger
       value={value}
       disabled={disabled}
-      className="group border-border hover:bg-action-hover data-[state=active]:bg-action-hover data-[state=active]:text-primary h-7 gap-1.5 rounded-sm border px-2 text-xs shadow-none transition-colors data-[state=active]:shadow-none"
+      className="group hover:bg-action-hover data-[state=active]:bg-action-hover data-[state=active]:text-primary h-8 gap-2 rounded-sm px-2.5 text-xs shadow-none transition-colors data-[state=active]:shadow-none"
     >
       <Icon
-        size={12}
+        size={14}
         className="text-secondary group-hover:text-primary group-data-[state=active]:text-primary shrink-0 transition-colors"
       />
 

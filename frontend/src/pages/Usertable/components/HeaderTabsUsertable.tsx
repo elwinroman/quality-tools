@@ -11,9 +11,10 @@ export function HeaderTabsUsertable() {
 
   return (
     <TabsList className="h-auto gap-1 rounded-none bg-transparent p-0">
-      <EditorTab value={TabOption.Structure} label="Esquema" icon={TableProperties} disabled={!object} />
+      {/* Esquema nunca se deshabilita: es el tab por defecto y muestra el estado vacío */}
+      <EditorTab value={TabOption.Structure} label="Esquema" icon={TableProperties} />
 
-      <EditorTab value={TabOption.Overview} label="Overview" icon={LayoutDashboard} />
+      <EditorTab value={TabOption.Overview} label="Overview" icon={LayoutDashboard} disabled={!object} />
 
       <EditorTab value={TabOption.Indexes} label="Índices" icon={Rows3} disabled={!object} />
     </TabsList>

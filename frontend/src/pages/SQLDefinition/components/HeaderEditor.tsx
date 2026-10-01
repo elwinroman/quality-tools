@@ -48,8 +48,9 @@ export function HeaderEditor({ activeTab, onOpenSidebar }: Props) {
   }
 
   return (
-    <header className="bg-background flex h-14 items-center justify-between px-4">
-      <div className="flex min-w-0 items-center gap-2">
+    // En mobile el contenido no entra: en vez de solaparse, el header scrollea en horizontal
+    <header className="bg-background flex h-14 items-center justify-between px-4 max-lg:overflow-x-auto max-lg:[scrollbar-width:none] max-lg:[&::-webkit-scrollbar]:hidden">
+      <div className="flex min-w-0 items-center gap-4 max-lg:min-w-max">
         {onOpenSidebar && <HeaderSidebarToggle onClick={onOpenSidebar} />}
 
         {sysobject ? (
@@ -72,26 +73,29 @@ export function HeaderEditor({ activeTab, onOpenSidebar }: Props) {
         </div>
       )}
 
-      <div className="flex items-center gap-1">
+      {/* El buscador abre el modal global: va solo, separado de las acciones del objeto */}
+      <div className="flex items-center gap-5 max-lg:shrink-0">
         <SearchTrigger />
 
-        <RefreshObjectButton onClick={handleRefresh} disabled={!sysobject || isLoadingObject} label="Refrescar objeto" />
+        <div className="flex items-center gap-1">
+          <RefreshObjectButton onClick={handleRefresh} disabled={!sysobject || isLoadingObject} label="Refrescar objeto" />
 
-        {isComparing && (
-          <>
-            <NormalizeWhitespaceToggle />
-            <SideBySideToggle />
-          </>
-        )}
+          {isComparing && (
+            <>
+              <NormalizeWhitespaceToggle />
+              <SideBySideToggle />
+            </>
+          )}
 
-        <EditorOptions
-          object={{ schema: sysobject?.schemaName ?? '', name: sysobject?.name ?? '', type: sysobject?.type ?? '' }}
-          code={currentEditorCode}
-          viewMode={viewMode}
-          onViewModeChange={updateViewMode}
-          showObjectActions={!isComparing}
-          showViewMode={showViewMode}
-        />
+          <EditorOptions
+            object={{ schema: sysobject?.schemaName ?? '', name: sysobject?.name ?? '', type: sysobject?.type ?? '' }}
+            code={currentEditorCode}
+            viewMode={viewMode}
+            onViewModeChange={updateViewMode}
+            showObjectActions={!isComparing}
+            showViewMode={showViewMode}
+          />
+        </div>
       </div>
     </header>
   )

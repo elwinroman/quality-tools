@@ -35,8 +35,9 @@ export function HeaderUsertable({ onOpenSidebar }: Props) {
   }
 
   return (
-    <header className="bg-background flex h-14 items-center justify-between px-4">
-      <div className="flex min-w-0 items-center gap-2">
+    // En mobile el contenido no entra: en vez de solaparse, el header scrollea en horizontal
+    <header className="bg-background flex h-14 items-center justify-between px-4 max-lg:overflow-x-auto max-lg:[scrollbar-width:none] max-lg:[&::-webkit-scrollbar]:hidden">
+      <div className="flex min-w-0 items-center gap-2 max-lg:min-w-max">
         {onOpenSidebar && <HeaderSidebarToggle onClick={onOpenSidebar} />}
 
         {hasObject ? (
@@ -52,10 +53,13 @@ export function HeaderUsertable({ onOpenSidebar }: Props) {
         <HeaderTabsUsertable />
       </div>
 
-      <div className="flex items-center gap-1">
+      {/* El buscador abre el modal global: va solo, separado de las acciones del objeto */}
+      <div className="flex items-center gap-5 max-lg:shrink-0">
         <SearchTrigger />
 
-        <RefreshObjectButton onClick={handleRefresh} disabled={!object || loading} label="Refrescar tabla" />
+        <div className="flex items-center gap-1">
+          <RefreshObjectButton onClick={handleRefresh} disabled={!object || loading} label="Refrescar tabla" />
+        </div>
       </div>
     </header>
   )
