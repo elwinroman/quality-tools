@@ -103,7 +103,7 @@ export function SwitchDatabase({ className = '' }: Props) {
           variant="ghost"
           disabled={Boolean(switchingDatabase)}
           className={cn(
-            'text-secondary hover:bg-action-hover/80 hover:text-primary focus:bg-action-hover/80 h-8 max-w-[240px] justify-start gap-1.5 rounded-sm bg-transparent px-2 py-1 text-sm font-normal shadow-none disabled:cursor-wait disabled:opacity-100',
+            'text-primary hover:bg-action-hover/80 hover:text-primary focus:bg-action-hover/80 h-8 max-w-[240px] justify-start gap-1.5 rounded-sm bg-transparent px-2 py-1 text-sm font-normal shadow-none disabled:cursor-wait disabled:opacity-100',
             switchingDatabase && 'bg-action-hover/80 text-primary',
             className,
           )}
@@ -118,9 +118,10 @@ export function SwitchDatabase({ className = '' }: Props) {
           )}
         </Button>
       </PopoverTrigger>
+      {/* z-[60]: por encima del overlay del drawer mobile (z-50), que si no lo tapa */}
       <PopoverContent
         align="start"
-        className="mix-colored-background bg-background-paperchanel w-[clamp(180px,20vw,260px)] overflow-hidden border-none p-0 shadow-xl ring-1 shadow-black/20 ring-white/5"
+        className="bg-background z-[60] w-[clamp(180px,20vw,260px)] overflow-hidden border-none p-0 shadow-xl ring-1 shadow-black/20 ring-white/5"
       >
         <Command>
           <CommandInput placeholder={loadingDatabases ? 'Cargando bases...' : 'Buscar base de datos...'} />
@@ -138,9 +139,10 @@ export function SwitchDatabase({ className = '' }: Props) {
           <CommandList>
             <CommandEmpty>{loadingDatabases ? 'Cargando...' : 'No se encontraron bases de datos'}</CommandEmpty>
             <CommandGroup heading="Base de datos actual">
-              <CommandItem value={authContext.database} className="text-xs" disabled>
-                <Check className="text-primary h-4 w-4" />
+              <CommandItem value={authContext.database} className="justify-between text-xs" disabled>
                 <span className="truncate">{authContext.database}</span>
+
+                <Check className="text-primary h-4 w-4" />
               </CommandItem>
             </CommandGroup>
             <CommandSeparator />
@@ -155,12 +157,12 @@ export function SwitchDatabase({ className = '' }: Props) {
                     onSelect={() => handleValueChange(db)}
                     disabled={Boolean(switchingDatabase)}
                   >
-                    {switchingDatabase === db ? (
+                    {/* Sin check reservado: el popover se cierra al elegir, así que los
+                        nombres arrancan alineados con el título del grupo. */}
+                    {switchingDatabase === db && (
                       <span className="text-primary relative h-4 w-4 shrink-0" aria-label="Cambiando base de datos">
                         <CircleLoader visible size={14} color="currentColor" />
                       </span>
-                    ) : (
-                      <Check className={cn('h-4 w-4 opacity-0', db === authContext.database && 'opacity-100')} />
                     )}
                     <span className="truncate text-xs">{db}</span>
                   </CommandItem>
