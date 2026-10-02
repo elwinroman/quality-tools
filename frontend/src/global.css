@@ -42,7 +42,23 @@
   --color-popover-foreground: hsl(var(--popover-foreground));
 
   --color-card: var(--card);
+  --color-card-foreground: hsl(var(--card-foreground));
   --color-card-strong: var(--card-strong);
+
+  --color-chart-1: hsl(var(--chart-1));
+  --color-chart-2: hsl(var(--chart-2));
+  --color-chart-3: hsl(var(--chart-3));
+  --color-chart-4: hsl(var(--chart-4));
+  --color-chart-5: hsl(var(--chart-5));
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: hsl(var(--sidebar-foreground));
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: hsl(var(--sidebar-accent-foreground));
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: hsl(var(--sidebar-ring));
 
   --color-action-hover: var(--action-hover);
   --color-action-disabled: var(--action-disabled);
@@ -92,6 +108,10 @@
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
 
     --width-sidebar: 300px;
     --width-content-area: calc(100% - var(--width-sidebar));
@@ -156,6 +176,7 @@
 
 @layer base {
   :root {
+    --baselayer: #ffffff;
     --background: #ffffff;
     --background-paper: #FFFFFF;
     --background-paper-channel: rgba(255,255,255,0.9);
@@ -164,6 +185,7 @@
     --background-default-channel: 255 255 255;
     --foreground: 222.2 84% 4.9%;
     --card: #fff;
+    --card-foreground: 222.2 84% 4.9%;
     --card-strong: #efefef;
     --popover: #f6f6f7;
     --popover-foreground: 222.2 84% 4.9%;
@@ -193,6 +215,15 @@
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
+
+    --sidebar: #fff;
+    --sidebar-foreground: 222.2 84% 4.9%;
+    --sidebar-primary: #1C252E;
+    --sidebar-primary-foreground: rgba(255, 255, 255, 90%);
+    --sidebar-accent: #e3e3e3;
+    --sidebar-accent-foreground: 222.2 47.4% 11.2%;
+    --sidebar-border: rgba(145,158,171,0.25);
+    --sidebar-ring: 222.2 84% 4.9%;
 
     /* Shadows */
     --custom-shadow-card: 0 0 2px 0 rgba(145 158 171 / 0.2),0 12px 24px -4px rgba(145 158 171 / 0.12);
@@ -246,6 +277,7 @@
   }
 
   .dark {
+    --baselayer: #141a21;
     --background: #141a21;
     --background-alternate: #1f2024;
     --background-paper: #1C252E;
@@ -254,6 +286,7 @@
     --background-default-channel: 20 26 33;
     --foreground: 210 40% 98%;
     --card: #1c252e;
+    --card-foreground: 210 40% 98%;
     --card-strong: #181919;
     --popover: rgb(10, 10, 10);
     --popover-foreground: 210 40% 98%;
@@ -278,6 +311,15 @@
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
+
+    --sidebar: #1c252e;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: #FFFFFF;
+    --sidebar-primary-foreground: #232226;
+    --sidebar-accent: #3d3f43;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: rgba(145,158,171,0.15);
+    --sidebar-ring: 212.7 26.8% 83.9%;
 
     /* Shadows */
     --custom-shadow-card: 0 0 2px 0 rgba(0 0 0 / 0.2),0 12px 24px -4px rgba(0 0 0 / 0.12);
