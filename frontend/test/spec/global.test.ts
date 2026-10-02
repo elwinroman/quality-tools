@@ -4,7 +4,7 @@ import path from 'node:path'
 import postcss from 'postcss'
 import { describe, expect, it } from 'vitest'
 
-const root = postcss.parse(fs.readFileSync(path.resolve(__dirname, 'global.css'), 'utf8'))
+const root = postcss.parse(fs.readFileSync(path.resolve(__dirname, '../../src/global.css'), 'utf8'))
 
 describe('coherencia de tokens en global.css', () => {
   it('debería referenciar en @theme solo variables definidas en la hoja de estilos', () => {
