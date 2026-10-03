@@ -1,4 +1,5 @@
 export * from './AplicationLogo'
+export * from './ContentTitle'
 export * from './LoginUsername'
 export * from './SwitchDatabase'
 export * from './ThemeToggle'

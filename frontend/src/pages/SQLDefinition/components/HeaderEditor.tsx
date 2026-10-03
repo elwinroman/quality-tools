@@ -1,6 +1,6 @@
 import { TriangleAlert } from 'lucide-react'
 
-import { EditorOptions, HeaderSidebarToggle, ObjectName, RefreshObjectButton } from '@/components/editor-header'
+import { EditorOptions, HeaderSidebarToggle, ObjectEditorHeader, ObjectName, RefreshObjectButton } from '@/components/editor-header'
 import { ToggleFavoritoButton, useFavoritoContext } from '@/components/favoritos'
 import { SearchTrigger } from '@/components/search/components/SearchTrigger'
 import { useEditorOptionsStore } from '@/zustand'
@@ -48,55 +48,57 @@ export function HeaderEditor({ activeTab, onOpenSidebar }: Props) {
   }
 
   return (
-    // En mobile el contenido no entra: en vez de solaparse, el header scrollea en horizontal
-    <header className="bg-background flex h-14 items-center justify-between px-4 max-lg:overflow-x-auto max-lg:[scrollbar-width:none] max-lg:[&::-webkit-scrollbar]:hidden">
-      <div className="flex min-w-0 items-center gap-4 max-lg:min-w-max">
-        {onOpenSidebar && <HeaderSidebarToggle onClick={onOpenSidebar} />}
+    <ObjectEditorHeader
+      left={
+        <div className="flex min-w-0 items-center gap-4 max-lg:min-w-max">
+          {onOpenSidebar && <HeaderSidebarToggle onClick={onOpenSidebar} />}
 
-        {sysobject ? (
-          <div className="flex min-w-0 items-center gap-1">
-            <ToggleFavoritoButton isFavorite={!!currentFavorito} onClick={handleToggleFavorito} />
+          {sysobject ? (
+            <div className="flex min-w-0 items-center gap-1">
+              <ToggleFavoritoButton isFavorite={!!currentFavorito} onClick={handleToggleFavorito} />
 
-            <ObjectName schemaName={sysobject.schemaName} name={sysobject.name} />
-          </div>
-        ) : (
-          <div className="SY flex h-11 items-center text-[13px]"></div>
-        )}
-
-        <HeaderTabs />
-      </div>
-
-      {isComparing && normalizeWhitespace && (
-        <div className="flex items-center gap-1 rounded px-2 py-0.5 text-[11px] font-medium text-amber-400/80">
-          <TriangleAlert size={11} />
-          <span>Vista modificada · whitespace normalizado</span>
-        </div>
-      )}
-
-      {/* El buscador abre el modal global: va solo, separado de las acciones del objeto */}
-      <div className="flex items-center gap-5 max-lg:shrink-0">
-        <SearchTrigger />
-
-        <div className="flex items-center gap-1">
-          <RefreshObjectButton onClick={handleRefresh} disabled={!sysobject || isLoadingObject} label="Refrescar objeto" />
-
-          {isComparing && (
-            <>
-              <NormalizeWhitespaceToggle />
-              <SideBySideToggle />
-            </>
+              <ObjectName schemaName={sysobject.schemaName} name={sysobject.name} />
+            </div>
+          ) : (
+            <div className="SY flex h-11 items-center text-[13px]"></div>
           )}
 
-          <EditorOptions
-            object={{ schema: sysobject?.schemaName ?? '', name: sysobject?.name ?? '', type: sysobject?.type ?? '' }}
-            code={currentEditorCode}
-            viewMode={viewMode}
-            onViewModeChange={updateViewMode}
-            showObjectActions={!isComparing}
-            showViewMode={showViewMode}
-          />
+          <HeaderTabs />
         </div>
-      </div>
-    </header>
+      }
+      notice={
+        isComparing && normalizeWhitespace ? (
+          <div className="flex items-center gap-1 rounded px-2 py-0.5 text-[11px] font-medium text-amber-400/80">
+            <TriangleAlert size={11} />
+            <span>Vista modificada · whitespace normalizado</span>
+          </div>
+        ) : undefined
+      }
+      actions={
+        <div className="flex items-center gap-5 max-lg:shrink-0">
+          <SearchTrigger />
+
+          <div className="flex items-center gap-1">
+            <RefreshObjectButton onClick={handleRefresh} disabled={!sysobject || isLoadingObject} label="Refrescar objeto" />
+
+            {isComparing && (
+              <>
+                <NormalizeWhitespaceToggle />
+                <SideBySideToggle />
+              </>
+            )}
+
+            <EditorOptions
+              object={{ schema: sysobject?.schemaName ?? '', name: sysobject?.name ?? '', type: sysobject?.type ?? '' }}
+              code={currentEditorCode}
+              viewMode={viewMode}
+              onViewModeChange={updateViewMode}
+              showObjectActions={!isComparing}
+              showViewMode={showViewMode}
+            />
+          </div>
+        </div>
+      }
+    />
   )
 }
