@@ -1,5 +1,5 @@
-import { type ColumnDef } from '@tanstack/react-table'
-import { ArrowDown, ArrowDownAZ, ArrowDownUp, ArrowDownZA, ArrowUp, Check, Filter } from 'lucide-react'
+import { type ColumnDef, type SortingState } from '@tanstack/react-table'
+import { ArrowDown, ArrowUp, Check, Filter } from 'lucide-react'
 
 import { Key } from '@/icons'
 
@@ -17,6 +17,15 @@ interface IndexRow {
 }
 
 export type { IndexRow }
+
+/** Opciones del dropdown de orden del tab Índices */
+export const indexSortOptions: { value: string; label: string; sorting: SortingState }[] = [
+  { value: 'original', label: 'Orden original', sorting: [] },
+  { value: 'name-asc', label: 'Nombre índice (A-Z)', sorting: [{ id: 'name', desc: false }] },
+  { value: 'name-desc', label: 'Nombre índice (Z-A)', sorting: [{ id: 'name', desc: true }] },
+  { value: 'type-asc', label: 'Tipo (A-Z)', sorting: [{ id: 'typeDesc', desc: false }] },
+  { value: 'type-desc', label: 'Tipo (Z-A)', sorting: [{ id: 'typeDesc', desc: true }] },
+]
 
 function ColumnChips({ columns }: { columns: UserTableIndexColumn[] }) {
   const keyColumns = columns.filter((c) => !c.isIncludedColumn).sort((a, b) => a.keyOrdinal - b.keyOrdinal)
@@ -54,30 +63,23 @@ export const IndexColumns: ColumnDef<IndexRow>[] = [
     accessorKey: 'name',
     size: 250,
     enableSorting: true,
-    header: ({ column }) => (
-      <button className="flex w-full items-center gap-2" onClick={column.getToggleSortingHandler()}>
-        <span>Nombre índice</span>
-        {{
-          asc: <ArrowDownAZ size={14} className="text-secondary" />,
-          desc: <ArrowDownZA size={14} className="text-secondary" />,
-        }[column.getIsSorted() as string] ?? <ArrowDownUp size={14} className="text-muted" />}
-      </button>
-    ),
+    sortingFn: (rowA, rowB, columnId) => {
+      const a = (rowA.getValue(columnId) as string).toLowerCase()
+      const b = (rowB.getValue(columnId) as string).toLowerCase()
+      return a.localeCompare(b)
+    },
+    filterFn: (row, columnId, filterValue) => {
+      const indexName = row.getValue(columnId) as string
+      return indexName.toLowerCase().includes(String(filterValue).toLowerCase())
+    },
+    header: 'Nombre índice',
     cell: ({ row }) => <span className="text-primary font-medium">{row.original.name}</span>,
   },
   {
     accessorKey: 'typeDesc',
     size: 160,
     enableSorting: true,
-    header: ({ column }) => (
-      <button className="flex w-full items-center gap-2" onClick={column.getToggleSortingHandler()}>
-        <span>Tipo</span>
-        {{
-          asc: <ArrowDownAZ size={14} className="text-secondary" />,
-          desc: <ArrowDownZA size={14} className="text-secondary" />,
-        }[column.getIsSorted() as string] ?? <ArrowDownUp size={14} className="text-muted" />}
-      </button>
-    ),
+    header: 'Tipo',
     cell: ({ row }) => (
       <span className="bg-background-neutral text-secondary w-fit rounded-sm px-1 py-0.5 text-center text-xs font-semibold whitespace-nowrap">
         {row.original.typeDesc}

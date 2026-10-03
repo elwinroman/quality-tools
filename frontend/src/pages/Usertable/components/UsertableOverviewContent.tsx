@@ -1,6 +1,6 @@
-import { format } from '@formkit/tempo'
-
-import { LOCAL_LANGUAJE } from '@/enviroment/enviroment'
+import { OverviewCard, OverviewCollapsible, OverviewDateValue, OverviewDefinitionList, OverviewStatCard } from '@/components/overview'
+import { RelationsSection, useRelationNavigation } from '@/components/relations'
+import { ContentTitle } from '@/components/shared'
 
 import { useUserTableStore } from '../store/usertable.store'
 
@@ -10,84 +10,74 @@ function toDate(value: string): Date {
   return new Date(`${year}-${month}-${day}`)
 }
 
-interface MetaRowProps {
-  label: string
-  value: React.ReactNode
-}
-
-function MetaRow({ label, value }: MetaRowProps) {
-  return (
-    <div className="flex items-center gap-4">
-      <span className="text-primary w-32 shrink-0 text-sm font-medium">{label}</span>
-      <span className="bg-background-neutral text-secondary rounded px-2 py-0.5 text-xs">{value}</span>
-    </div>
-  )
-}
-
 export function UsertableOverviewContent() {
   const object = useUserTableStore((state) => state.userTableObject)
   const columns = useUserTableStore((state) => state.userTableColumnList)
   const indexes = useUserTableStore((state) => state.userTableIndexList)
   const foreignKeys = useUserTableStore((state) => state.userTableForeignKeyList)
   const extendedProperties = useUserTableStore((state) => state.userTableExtendedPropertieList)
+  const dependencies = useUserTableStore((state) => state.dependencies)
+  const dependents = useUserTableStore((state) => state.dependents)
+  const isLoadingRelations = useUserTableStore((state) => state.isLoadingRelations)
+  const errorRelations = useUserTableStore((state) => state.errorRelations)
+  const fetchUserTableRelations = useUserTableStore((state) => state.fetchUserTableRelations)
+  const navigateToRelation = useRelationNavigation()
 
   if (!object) return null
 
   return (
-    <div className="flex h-full flex-col gap-5 overflow-auto p-6">
-      {/* Metadata */}
-      <section className="flex flex-col gap-2.5">
-        <MetaRow label="Schema" value={object.schemaName} />
-        <MetaRow label="Object ID" value={object.id} />
-        <MetaRow label="Tipo" value={`${object.typeDesc} (${object.type})`} />
-      </section>
+    <div className="flex h-full flex-col gap-3 overflow-auto p-4">
+      <ContentTitle>Overview</ContentTitle>
 
-      <div className="border-border border-t" />
+      {/* Tarjeta unica: metadata y relaciones, sin titulo de encabezado */}
+      <OverviewCard bodyClassName="p-0">
+        <div className="p-3">
+          <OverviewDefinitionList
+            items={[
+              { label: 'Tipo', value: `${object.typeDesc} (${object.type})`, spanFull: true },
+              { label: 'Schema', value: object.schemaName },
+              { label: 'Object ID', value: object.id },
+              { label: 'Creado', value: <OverviewDateValue date={toDate(object.createDate)} /> },
+              { label: 'Modificado', value: <OverviewDateValue date={toDate(object.modifyDate)} /> },
+            ]}
+          />
+        </div>
 
-      {/* Estadísticas */}
-      <section className="flex gap-2">
-        <div className="flex w-24 flex-col gap-0.5 rounded-lg border border-neutral-500/20 bg-neutral-500/10 p-2.5">
-          <span className="text-xs text-neutral-500/70">Columnas</span>
-          <span className="text-xl font-semibold text-neutral-500">{columns.length}</span>
+        {/* Relaciones: fila interna de la tarjeta, plegada y con carga perezosa al expandir */}
+        <div className="border-border border-t">
+          <OverviewCollapsible
+            title="Relaciones"
+            className="rounded-none border-0"
+            onExpand={() => {
+              void fetchUserTableRelations()
+            }}
+          >
+            <RelationsSection
+              dependencies={dependencies}
+              dependents={dependents}
+              isLoading={isLoadingRelations}
+              error={errorRelations}
+              onSelect={navigateToRelation}
+            />
+          </OverviewCollapsible>
         </div>
-        <div className="flex w-24 flex-col gap-0.5 rounded-lg border border-neutral-500/20 bg-neutral-500/10 p-2.5">
-          <span className="text-xs text-neutral-500/70">Índices</span>
-          <span className="text-xl font-semibold text-neutral-500">{indexes.length}</span>
-        </div>
-        <div className="flex w-24 flex-col gap-0.5 rounded-lg border border-neutral-500/20 bg-neutral-500/10 p-2.5">
-          <span className="text-xs text-neutral-500/70">Foreign keys</span>
-          <span className="text-xl font-semibold text-neutral-500">{foreignKeys.length}</span>
-        </div>
-      </section>
+      </OverviewCard>
 
-      {/* Propiedades extendidas */}
+      {/* Cuadros de estadistica */}
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <OverviewStatCard title="Columnas" count={columns.length} />
+        <OverviewStatCard title="Índices" count={indexes.length} />
+        <OverviewStatCard title="Foreign keys" count={foreignKeys.length} />
+      </div>
+
+      {/* Fila colapsable: propiedades extendidas */}
       {extendedProperties.length > 0 && (
-        <>
-          <div className="border-border border-t" />
-
-          <section className="flex flex-col gap-2">
-            <span className="text-secondary text-xs font-medium tracking-wide uppercase">Propiedades extendidas</span>
-
-            <div className="flex flex-col gap-2.5">
-              {extendedProperties.map((prop, i) => (
-                <MetaRow key={i} label={prop.propertyName} value={prop.propertyValue} />
-              ))}
-            </div>
-          </section>
-        </>
+        <OverviewCollapsible title="Propiedades extendidas" count={extendedProperties.length}>
+          <OverviewDefinitionList
+            items={extendedProperties.map((property) => ({ label: property.propertyName, value: property.propertyValue }))}
+          />
+        </OverviewCollapsible>
       )}
-
-      <div className="border-border border-t" />
-
-      {/* Fechas */}
-      <section className="flex flex-col gap-1.5">
-        <p className="text-secondary text-xs">
-          Creado el <span className="text-primary font-medium">{format(toDate(object.createDate), 'full', LOCAL_LANGUAJE)}</span>
-        </p>
-        <p className="text-secondary text-xs">
-          Modificado el <span className="text-primary font-medium">{format(toDate(object.modifyDate), 'full', LOCAL_LANGUAJE)}</span>
-        </p>
-      </section>
     </div>
   )
 }

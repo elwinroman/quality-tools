@@ -1,10 +1,12 @@
 import {
   type ColumnDef,
+  type ColumnFiltersState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
   getSortedRowModel,
   type SortingState,
+  type Table as ReactTable,
   useReactTable,
 } from '@tanstack/react-table'
 import { useMemo, useState } from 'react'
@@ -13,12 +15,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 
 import { useUserTableStore } from '../store/usertable.store'
 
-interface Props<TData> {
+interface DataTableProps<TData> {
   columns: ColumnDef<TData>[]
+  table: ReactTable<TData>
 }
 
-export function DataTable<TData>({ columns }: Props<TData>) {
+export function useSchemaTable<TData>({ columns }: Pick<DataTableProps<TData>, 'columns'>) {
   const [sorting, setSorting] = useState<SortingState>([])
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
 
   const columnList = useUserTableStore((state) => state.userTableColumnList)
   const indexes = useUserTableStore((state) => state.userTableIndexList)
@@ -44,7 +48,7 @@ export function DataTable<TData>({ columns }: Props<TData>) {
     })
   }, [columnList, foreignKeys, indexes])
 
-  const table = useReactTable({
+  return useReactTable({
     data: formattedData as TData[],
     columns,
     getCoreRowModel: getCoreRowModel(),
@@ -53,41 +57,47 @@ export function DataTable<TData>({ columns }: Props<TData>) {
     getFilteredRowModel: getFilteredRowModel(),
     state: {
       sorting,
+      columnFilters,
     },
+    onColumnFiltersChange: setColumnFilters,
   })
+}
 
+export function DataTable<TData>({ columns, table }: DataTableProps<TData>) {
   return (
-    <div className="border-b">
-      <Table>
-        <TableHeader>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map((header) => (
-                <TableHead key={header.id} style={{ width: `${header.getSize()}px` }}>
-                  {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-                </TableHead>
+    <Table className="min-w-[900px]">
+      <TableHeader className="[&_tr]:border-border">
+        {table.getHeaderGroups().map((headerGroup) => (
+          <TableRow key={headerGroup.id}>
+            {headerGroup.headers.map((header) => (
+              <TableHead
+                key={header.id}
+                className="text-secondary h-10 !bg-transparent px-3 text-left text-xs font-medium tracking-wide uppercase"
+                style={{ width: `${header.getSize()}px` }}
+              >
+                {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+              </TableHead>
+            ))}
+          </TableRow>
+        ))}
+      </TableHeader>
+      <TableBody>
+        {table.getRowModel().rows?.length ? (
+          table.getRowModel().rows.map((row) => (
+            <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
+              {row.getVisibleCells().map((cell) => (
+                <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
               ))}
             </TableRow>
-          ))}
-        </TableHeader>
-        <TableBody>
-          {table.getRowModel().rows?.length ? (
-            table.getRowModel().rows.map((row) => (
-              <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
-                ))}
-              </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell colSpan={columns.length} className="h-24 text-center">
-                Sin resultados.
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
-    </div>
+          ))
+        ) : (
+          <TableRow>
+            <TableCell colSpan={columns.length} className="h-24 text-center">
+              Sin resultados.
+            </TableCell>
+          </TableRow>
+        )}
+      </TableBody>
+    </Table>
   )
 }

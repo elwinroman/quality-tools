@@ -5,19 +5,22 @@ import { toast } from 'sonner'
 import { FavoritoProvider } from '@/components/favoritos'
 import { DatabaseSwitchOverlay } from '@/components/loader'
 import { DialogSearchProvider } from '@/components/search/context/dialogSearchContext'
+import { ContentTitle } from '@/components/shared'
 import { ObjectSidebar } from '@/components/sidebar'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, Tabs, TabsContent } from '@/components/ui'
 import { AppRoutes } from '@/constants'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
+import { usePersistentTab } from '@/hooks/usePersistentTab'
 import { cn } from '@/lib/utils'
 import { parseQualifiedSysObjectName } from '@/utilities/sysobject-route.util'
 import { useAppStore, useAuthStore } from '@/zustand'
 
-import { Columns } from './components/Columns'
-import { DataTable } from './components/DataTable'
+import { Columns, schemaSortOptions } from './components/Columns'
+import { DataTable, useSchemaTable } from './components/DataTable'
 import { HeaderUsertable } from './components/HeaderUsertable'
-import { IndexColumns } from './components/IndexColumns'
-import { IndexDataTable } from './components/IndexDataTable'
+import { IndexColumns, indexSortOptions } from './components/IndexColumns'
+import { IndexDataTable, useIndexTable } from './components/IndexDataTable'
+import { TableControls } from './components/TableControls'
 import { UsertableEmptyState } from './components/UsertableEmptyState'
 import { UsertableOverviewContent } from './components/UsertableOverviewContent'
 import { TabOption } from './constants/tab-options'
@@ -35,6 +38,16 @@ export function UsertablePage() {
   const fetchUserTableByName = useUserTableStore((state) => state.fetchUserTableByName)
   const error = useUserTableStore((state) => state.userTableError)
   const updateError = useUserTableStore((state) => state.updateUsertableError)
+  const columnCount = useUserTableStore((state) => state.userTableColumnList.length)
+  const indexCount = useUserTableStore((state) => state.userTableIndexList.length)
+  const tableDescription = useUserTableStore(
+    (state) =>
+      state.userTableExtendedPropertieList.find((property) => property.propertyName.toLowerCase() === 'ms_description')?.propertyValue,
+  )
+  const table = useSchemaTable({ columns: Columns })
+  const indexTable = useIndexTable({ columns: IndexColumns })
+  // Memoria del tab entre menús: se resetea al cambiar de objeto y usa Structure si el tab recordado no está disponible
+  const [activeTab, setActiveTab] = usePersistentTab('usertable', qualifiedName, TabOption.Structure, Boolean(object))
 
   useEffect(() => {
     if (switchingDatabase) return
@@ -96,7 +109,7 @@ export function UsertablePage() {
               {/* Panel derecho: headers + tabs content */}
               <div className="flex h-full min-w-0 flex-1 flex-col">
                 {/* Contenedor flex: las Tabs necesitan un padre de altura definida para resolver su flex-1 */}
-                <Tabs key={database} defaultValue={TabOption.Structure} className="flex min-h-0 flex-1 flex-col">
+                <Tabs key={database} value={activeTab} onValueChange={setActiveTab} className="flex min-h-0 flex-1 flex-col">
                   <HeaderUsertable onOpenSidebar={sidebarHidden ? handleRevealSidebar : undefined} />
 
                   {/* Tab Estructura: es el tab por defecto, por eso recibe el estado vacío */}
@@ -106,7 +119,26 @@ export function UsertablePage() {
                     ) : loading ? (
                       <div className="text-secondary flex h-full items-center justify-center text-sm">Cargando...</div>
                     ) : (
-                      <DataTable columns={Columns} />
+                      <div className="flex flex-col gap-3">
+                        <div className="flex flex-col gap-1">
+                          <ContentTitle>Esquema</ContentTitle>
+                          {tableDescription && (
+                            <p className="text-secondary text-sm leading-relaxed whitespace-pre-wrap">{tableDescription}</p>
+                          )}
+                        </div>
+                        <TableControls
+                          count={columnCount}
+                          countLabel="columnas"
+                          filterColumnId="nombre"
+                          searchLabel="Buscar columna"
+                          sortButtonLabel="Ordenar columnas"
+                          sortOptions={schemaSortOptions}
+                          table={table}
+                        />
+                        <section className="border-border overflow-hidden rounded-sm border">
+                          <DataTable columns={Columns} table={table} />
+                        </section>
+                      </div>
                     )}
                   </TabsContent>
 
@@ -120,7 +152,21 @@ export function UsertablePage() {
                     {loading ? (
                       <div className="text-secondary flex h-full items-center justify-center text-sm">Cargando...</div>
                     ) : (
-                      <IndexDataTable columns={IndexColumns} />
+                      <div className="flex flex-col gap-3">
+                        <ContentTitle>Índices</ContentTitle>
+                        <TableControls
+                          count={indexCount}
+                          countLabel="índices"
+                          filterColumnId="name"
+                          searchLabel="Buscar índice"
+                          sortButtonLabel="Ordenar índices"
+                          sortOptions={indexSortOptions}
+                          table={indexTable}
+                        />
+                        <section className="border-border overflow-hidden rounded-sm border">
+                          <IndexDataTable columns={IndexColumns} table={indexTable} />
+                        </section>
+                      </div>
                     )}
                   </TabsContent>
                 </Tabs>
