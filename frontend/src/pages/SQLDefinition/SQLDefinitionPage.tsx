@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 
@@ -9,10 +9,11 @@ import { ObjectSidebar } from '@/components/sidebar'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, Tabs, TabsContent } from '@/components/ui'
 import { AppRoutes } from '@/constants'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
+import { usePersistentTab } from '@/hooks/usePersistentTab'
 import { parseQualifiedSysObjectName } from '@/utilities/sysobject-route.util'
 import { useAppStore, useAuthStore } from '@/zustand'
 
-import { DependenciesContent, EditorCode, HeaderEditor, OverviewContent } from './components'
+import { EditorCode, HeaderEditor, OverviewContent } from './components'
 import { DiffScriptContent } from './components/diff-script-content/DiffScriptContent'
 import { TabOption } from './constants/tabs-options'
 import { useSysObjectStore } from './store/sysobject.store'
@@ -24,11 +25,12 @@ export function SQLDefinitionPage() {
   const [isCollapsed, setIsCollapsed] = useState(false)
   const isDesktop = useMediaQuery('(min-width: 64rem)')
   const [drawerOpen, setDrawerOpen] = useState(false)
-  const [activeTab, setActiveTab] = useState(TabOption.Script)
   const sysobject = useSysObjectStore((state) => state.sysobject)
   const fetchSysObjectByName = useSysObjectStore((state) => state.fetchSysObjectByName)
   const error = useSysObjectStore((state) => state.errorObject)
   const updateError = useSysObjectStore((state) => state.updateErrorObject)
+  // Memoria del tab entre menús: se resetea al cambiar de objeto y usa Script si el tab recordado no está disponible
+  const [activeTab, setActiveTab] = usePersistentTab('sqldefinition', qualifiedName, TabOption.Script, Boolean(sysobject))
 
   useEffect(() => {
     if (switchingDatabase) return
@@ -37,7 +39,6 @@ export function SQLDefinitionPage() {
     if (!parsedName) return
 
     const { schemaName, objectName } = parsedName
-    setActiveTab(TabOption.Script)
     if (sysobject?.schemaName === schemaName && sysobject.name === objectName) return
 
     fetchSysObjectByName(schemaName, objectName)
@@ -54,11 +55,21 @@ export function SQLDefinitionPage() {
     if (isDesktop) setDrawerOpen(false)
   }, [isDesktop])
 
+  // Invalidación de Compare: el ref con el valor del mount hace que el effect
+  // salte en el primer commit y solo corra cuando el valor cambia de verdad.
+  // Sin eso, un Compare recordado en el slot se pisaría siempre al volver al menú.
+  const previousDatabase = useRef(database)
+  const previousSysobject = useRef(sysobject)
+
   useEffect(() => {
+    if (previousDatabase.current === database) return
+    previousDatabase.current = database
     setActiveTab((currentTab) => (currentTab === TabOption.Compare ? TabOption.Script : currentTab))
   }, [database])
 
   useEffect(() => {
+    if (previousSysobject.current === sysobject) return
+    previousSysobject.current = sysobject
     if (!sysobject) return
     setActiveTab((currentTab) => (currentTab === TabOption.Compare ? TabOption.Script : currentTab))
   }, [sysobject])
@@ -109,10 +120,6 @@ export function SQLDefinitionPage() {
 
                   <TabsContent value={TabOption.Script} className="flex-1 overflow-hidden">
                     <EditorCode />
-                  </TabsContent>
-
-                  <TabsContent value={TabOption.Dependencies} className="flex-1 overflow-hidden">
-                    <DependenciesContent />
                   </TabsContent>
 
                   <TabsContent value={TabOption.Compare} className="flex-1 overflow-hidden">
