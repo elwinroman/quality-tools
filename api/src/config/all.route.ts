@@ -6,6 +6,7 @@ import { Router } from 'express'
 
 import { favoritoRouter } from '@/modules/favorito/infrastructure/adapters/drivers/http-api/favorito.router'
 import { healthRouter } from '@/modules/health/infrastructure/adapters/drivers/http/health.router'
+import { performanceRouter } from '@/modules/performance/infrastructure/adapters/drivers/http/performance.router'
 
 export function createAllRouter(): Router {
   const router = Router()
@@ -15,6 +16,7 @@ export function createAllRouter(): Router {
   router.use('/api/v1/sysobject', sysObjectRouter())
   router.use('/api/v1/busqueda-reciente', busquedaRecienteRouter())
   router.use('/api/v1/favorito', favoritoRouter())
+  router.use('/api/v1/performance', performanceRouter())
 
   return router
 }
