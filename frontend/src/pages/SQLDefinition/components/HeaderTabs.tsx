@@ -1,4 +1,4 @@
-import { FileCode, GitCompareArrows, LayoutDashboard } from 'lucide-react'
+import { CodeXml, GitCompare, Info } from 'lucide-react'
 
 import { EditorTab } from '@/components/editor-header'
 import { TabsList } from '@/components/ui'
@@ -11,11 +11,11 @@ export function HeaderTabs() {
 
   return (
     <TabsList className="h-auto gap-1 rounded-none bg-transparent p-0">
-      <EditorTab value={TabOption.Script} label="Script" icon={FileCode} />
+      <EditorTab value={TabOption.Script} label="Script" icon={CodeXml} />
 
-      <EditorTab value={TabOption.Overview} label="Overview" icon={LayoutDashboard} disabled={!sysobject} />
+      <EditorTab value={TabOption.Overview} label="Overview" icon={Info} disabled={!sysobject} />
 
-      <EditorTab value={TabOption.Compare} label="Comparar" icon={GitCompareArrows} disabled={!sysobject} />
+      <EditorTab value={TabOption.Compare} label="Comparar" icon={GitCompare} disabled={!sysobject} accent="gentlePink" />
     </TabsList>
   )
 }
