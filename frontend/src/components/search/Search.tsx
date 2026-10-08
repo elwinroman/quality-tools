@@ -64,7 +64,7 @@ export function Search() {
     <>
       <Dialog modal={false} open={open} onOpenChange={handleOpenChange}>
         <DialogContent
-          className="bg-background shadow-custom-dialog flex h-[60%] flex-col gap-1 overflow-hidden p-0 sm:max-w-2xl"
+          className="bg-background-card shadow-custom-dialog flex h-[60%] flex-col gap-1 overflow-hidden p-0 sm:max-w-2xl"
           showCloseButton={false}
         >
           <DialogHeader className="py-1">
