@@ -113,7 +113,7 @@ export function UsertablePage() {
                   <HeaderUsertable onOpenSidebar={sidebarHidden ? handleRevealSidebar : undefined} />
 
                   {/* Tab Estructura: es el tab por defecto, por eso recibe el estado vacío */}
-                  <TabsContent value={TabOption.Structure} className={cn('flex-1 overflow-auto', object && !loading && 'px-4 py-4')}>
+                  <TabsContent value={TabOption.Structure} className={cn('flex-1 overflow-auto', object && !loading && 'px-5 py-5')}>
                     {!object ? (
                       <UsertableEmptyState />
                     ) : loading ? (
@@ -148,7 +148,7 @@ export function UsertablePage() {
                   </TabsContent>
 
                   {/* Tab Índices */}
-                  <TabsContent value={TabOption.Indexes} className="flex-1 overflow-auto px-4 py-4">
+                  <TabsContent value={TabOption.Indexes} className="flex-1 overflow-auto px-5 py-5">
                     {loading ? (
                       <div className="text-secondary flex h-full items-center justify-center text-sm">Cargando...</div>
                     ) : (

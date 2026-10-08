@@ -26,7 +26,7 @@ export function UsertableOverviewContent() {
   if (!object) return null
 
   return (
-    <div className="flex h-full flex-col gap-3 overflow-auto p-4">
+    <div className="flex h-full flex-col gap-3 overflow-auto p-5">
       <ContentTitle>Overview</ContentTitle>
 
       {/* Tarjeta unica: metadata y relaciones, sin titulo de encabezado */}

@@ -23,7 +23,7 @@ export function Sidebar({ header, children, footer, className }: Props) {
 
       {/* El padding del cuerpo se define acá y sólo acá: es el inset compartido por
           todos los sidebars, para que ninguna pantalla se vea distinta al navegar. */}
-      <div className="flex min-h-0 flex-1 flex-col gap-4 px-2.5 py-4">{children}</div>
+      <div className="flex min-h-0 flex-1 flex-col gap-4 px-3.5 py-4">{children}</div>
 
       {footer}
     </div>
