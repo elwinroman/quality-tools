@@ -4,7 +4,7 @@ import { DiffEditor } from '@monaco-editor/react'
 import { OctagonAlert } from 'lucide-react'
 
 import { CircleLoader } from '@/components/loader'
-import { BaseMonacoEditorOptions } from '@/constants'
+import { BaseMonacoEditorOptions, resolveEditorThemePreference } from '@/constants'
 import { useEditorTheme } from '@/constants/monaco-themes/use-editor-theme'
 import { EDITOR_BANNER } from '@/enviroment/enviroment'
 import { getFormattedCodeForViewMode } from '@/utilities'
@@ -18,10 +18,21 @@ const DIFF_EDITOR_BASE_OPTIONS = {
 } as const
 
 export function DiffEditorCode() {
-  const { renderWhitespace, fontSize, renderSideBySide, theme, normalizeWhitespace, guides, minimap, stickyScroll } = useEditorOptionsStore(
-    (state) => state,
-  )
+  const {
+    renderWhitespace,
+    fontSize,
+    renderSideBySide,
+    theme,
+    themeMode,
+    lightTheme,
+    darkTheme,
+    normalizeWhitespace,
+    guides,
+    minimap,
+    stickyScroll,
+  } = useEditorOptionsStore((state) => state)
   const isDark = useAppStore((state) => state.isDark)
+  const effectiveTheme = resolveEditorThemePreference({ theme, themeMode, lightTheme, darkTheme }, isDark)
   const authContext = useAuthStore((state) => state.authContext)
   const viewMode = useSysObjectStore((state) => state.viewMode)
   const sysobject = useSysObjectStore((state) => state.sysobject)
@@ -52,7 +63,7 @@ export function DiffEditorCode() {
   }
 
   // define y aplica el tema seleccionado (carga perezosa, compartida)
-  const { handleBeforeMount } = useEditorTheme(theme)
+  const { handleBeforeMount } = useEditorTheme(effectiveTheme)
 
   // inyección de componentes (header + copy) dentro del DiffEditor
   const { render: injectComponents } = useInjectionComponent({ originalCode, modifiedCode, renderSideBySide })
@@ -93,7 +104,7 @@ export function DiffEditorCode() {
         beforeMount={handleBeforeMount}
         onMount={injectComponents}
         language="sql"
-        theme={theme}
+        theme={effectiveTheme}
         original={originalCode}
         modified={modifiedCode}
         options={{ ...fullOptions }}

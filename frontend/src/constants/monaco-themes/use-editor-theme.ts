@@ -1,7 +1,21 @@
 import type { Monaco } from '@monaco-editor/react'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import { ensureThemeDefined, type IMonacoThemeId } from './monaco-themes'
+
+/**
+ * Contador global de solicitudes de tema.
+ *
+ * `monaco.editor.setTheme` es global al runtime de Monaco, no por instancia, y
+ * los tres editores (SQLDefinition, diff y Alignment) pueden estar montados a
+ * la vez. Por eso la proteccion de carrera no puede ser por hook: si cada
+ * instancia solo comparara su propia solicitud, la resolucion lenta de una
+ * instancia podria pisar el tema mas reciente pedido por otra.
+ */
+let latestThemeRequest = 0
+
+/** Ultimo tema aplicado con exito; evita repetir `setTheme` con el mismo valor. */
+let appliedTheme: IMonacoThemeId | null = null
 
 /**
  * Hook compartido por los editores de Monaco de la app.
@@ -15,12 +29,11 @@ import { ensureThemeDefined, type IMonacoThemeId } from './monaco-themes'
  * elegido quede definido y aplicado. Es un intercambio consciente a cambio de no
  * incluir los ~55 JSON de temas en el bundle inicial.
  *
- * La proteccion de carrera garantiza que, si el usuario cambia de tema varias
- * veces, solo la ultima resolucion solicitada aplique el tema.
+ * La proteccion de carrera es global: solo la ultima solicitud emitida por
+ * cualquier editor puede aplicar el tema.
  */
 export const useEditorTheme = (theme: IMonacoThemeId) => {
   const [monacoInstance, setMonacoInstance] = useState<Monaco | null>(null)
-  const latestRequest = useRef(0)
 
   const handleBeforeMount = useCallback((monaco: Monaco) => {
     setMonacoInstance(monaco)
@@ -29,15 +42,18 @@ export const useEditorTheme = (theme: IMonacoThemeId) => {
   useEffect(() => {
     if (!monacoInstance) return
 
-    const requestId = latestRequest.current + 1
-    latestRequest.current = requestId
+    latestThemeRequest += 1
+    const requestId = latestThemeRequest
     let cancelled = false
 
     ensureThemeDefined(monacoInstance, theme)
       .then(() => {
-        // Solo la ultima resolucion solicitada puede aplicar el tema.
-        if (cancelled || requestId !== latestRequest.current) return
+        // Solo la ultima solicitud global puede aplicar el tema.
+        if (cancelled || requestId !== latestThemeRequest) return
+        if (appliedTheme === theme) return
+
         monacoInstance.editor.setTheme(theme)
+        appliedTheme = theme
       })
       .catch((error) => {
         console.error(`[Monaco Theme] No se pudo cargar el tema "${theme}".`, error)

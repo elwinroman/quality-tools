@@ -1,55 +1,94 @@
-import { Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput, ComboboxItem, ComboboxList } from '@/components/ui'
-import { MonacoThemes } from '@/constants'
-import { IMonacoTheme } from '@/models'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui'
+import { EDITOR_THEME_LABELS, EDITOR_THEME_MODE, type IMonacoThemeId, MonacoThemes } from '@/constants'
 import { useEditorOptionsStore } from '@/zustand'
 
-/** Opcion del selector: el slug del tema como valor y su nombre como etiqueta. */
-type ThemeOption = {
-  value: IMonacoTheme
-  label: string
-}
-
-/** Todos los temas del registro, ordenados por nombre a mostrar. */
-const THEME_OPTIONS: ThemeOption[] = Object.entries(MonacoThemes)
-  .map(([value, theme]) => ({ value: value as IMonacoTheme, label: theme.name }))
+const THEME_OPTIONS = Object.entries(MonacoThemes)
+  .map(([value, theme]) => ({ value: value as IMonacoThemeId, label: theme.name }))
   .sort((a, b) => a.label.localeCompare(b.label))
 
-export function ThemeEditor() {
-  const updateTheme = useEditorOptionsStore((state) => state.updateTheme)
-  const theme = useEditorOptionsStore((state) => state.theme)
+const MODE_OPTIONS = [
+  { value: EDITOR_THEME_MODE.syncWithApp, label: EDITOR_THEME_LABELS.syncWithApp },
+  { value: EDITOR_THEME_MODE.single, label: EDITOR_THEME_LABELS.single },
+  { value: EDITOR_THEME_MODE.separate, label: EDITOR_THEME_LABELS.separate },
+] as const
 
-  const selectedTheme = THEME_OPTIONS.find((option) => option.value === theme) ?? null
+/** El panel usa una escala compacta, no la altura h-10 del trigger por defecto. */
+const SELECT_TRIGGER_CLASS = 'h-7 w-[170px] px-2 text-xs'
+
+interface SelectRowProps {
+  label: string
+  value: string
+  options: readonly { value: string; label: string }[]
+  onChange: (value: string) => void
+}
+
+/**
+ * Fila de etiqueta mas Select de shadcn.
+ *
+ * El titulo no se envuelve en un `<label>`: el trigger de Radix ya es un boton, que
+ * es labelable, asi que un label envolvente le roba el nombre accesible y puede
+ * activar el control dos veces. En su lugar el trigger recibe `aria-label`.
+ */
+function SelectRow({ label, value, options, onChange }: SelectRowProps) {
+  return (
+    <div className="text-primary/70 flex items-center justify-between gap-2 text-xs">
+      <span>{label}</span>
+
+      <Select value={value} onValueChange={onChange}>
+        <SelectTrigger className={SELECT_TRIGGER_CLASS} aria-label={label}>
+          <SelectValue />
+        </SelectTrigger>
+
+        <SelectContent>
+          {options.map((option) => (
+            <SelectItem key={option.value} value={option.value}>
+              {option.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
+  )
+}
+
+export function ThemeEditor() {
+  const { themeMode, theme, lightTheme, darkTheme, updateThemeMode, updateTheme, updateLightTheme, updateDarkTheme } =
+    useEditorOptionsStore((state) => state)
 
   return (
-    <Combobox
-      items={THEME_OPTIONS}
-      value={selectedTheme}
-      autoHighlight
-      onValueChange={(option) => {
-        if (option) updateTheme(option.value)
-      }}
-      isItemEqualToValue={(item, value) => item.value === value.value}
-    >
-      {/* Al enfocar se selecciona todo: el input muestra el tema activo, y sin esto
-          lo tipeado se concatenaria a ese nombre y el filtro no encontraria nada. */}
-      <ComboboxInput
-        className="h-7 w-[180px] text-xs"
-        placeholder="Editor theme"
-        aria-label="Editor theme"
-        title="Editor theme"
-        onFocus={(event) => event.currentTarget.select()}
-        onMouseUp={(event) => event.preventDefault()}
+    <div className="flex min-w-0 flex-col gap-2">
+      <SelectRow
+        label={EDITOR_THEME_LABELS.mode}
+        value={themeMode}
+        options={MODE_OPTIONS}
+        onChange={(value) => updateThemeMode(value as typeof themeMode)}
       />
-      <ComboboxContent>
-        <ComboboxEmpty>No themes found</ComboboxEmpty>
-        <ComboboxList>
-          {(option: ThemeOption) => (
-            <ComboboxItem key={option.value} value={option}>
-              {option.label}
-            </ComboboxItem>
-          )}
-        </ComboboxList>
-      </ComboboxContent>
-    </Combobox>
+
+      {themeMode === EDITOR_THEME_MODE.single && (
+        <SelectRow
+          label={EDITOR_THEME_LABELS.theme}
+          value={theme}
+          options={THEME_OPTIONS}
+          onChange={(value) => updateTheme(value as IMonacoThemeId)}
+        />
+      )}
+
+      {themeMode === EDITOR_THEME_MODE.separate && (
+        <>
+          <SelectRow
+            label={EDITOR_THEME_LABELS.lightTheme}
+            value={lightTheme}
+            options={THEME_OPTIONS}
+            onChange={(value) => updateLightTheme(value as IMonacoThemeId)}
+          />
+          <SelectRow
+            label={EDITOR_THEME_LABELS.darkTheme}
+            value={darkTheme}
+            options={THEME_OPTIONS}
+            onChange={(value) => updateDarkTheme(value as IMonacoThemeId)}
+          />
+        </>
+      )}
+    </div>
   )
 }

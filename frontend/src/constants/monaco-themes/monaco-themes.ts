@@ -2,21 +2,27 @@ import type { Monaco } from '@monaco-editor/react'
 
 import { ensureBuiltinTheme } from '@/utilities/ensure-builtin-theme.util'
 
+import { LocalThemes } from './local-themes'
 import { UpstreamThemes } from './upstream-themes.generated'
 
+export { LocalThemes } from './local-themes'
 export { type UpstreamThemeId, UpstreamThemes } from './upstream-themes.generated'
 
 /**
- * Registro publico con todos los temas empaquetados por `monaco-themes`.
+ * Registro publico con todos los temas disponibles en la app.
+ *
+ * Combina los temas propios de Quality Tools (`LocalThemes`, armonizados con el
+ * modo claro/oscuro de la aplicacion) con los temas empaquetados por
+ * `monaco-themes` (`UpstreamThemes`).
  *
  * Cada entrada expone `{ name, load }`: `name` es el nombre a mostrar y `load`
- * es un `import()` dinamico, de modo que cada tema se resuelve en su propio
- * chunk y el bundle inicial no carga los ~55 JSON.
+ * resuelve la definicion del tema. Los temas upstream se cargan con `import()`
+ * dinamico (chunk aparte), de modo que el bundle inicial no carga los ~55 JSON.
  */
-export const MonacoThemes = UpstreamThemes
+export const MonacoThemes = { ...LocalThemes, ...UpstreamThemes }
 
-/** Identificador canonico de un tema (slug del paquete, kebab-case). */
-export type IMonacoThemeId = keyof typeof UpstreamThemes
+/** Identificador canonico de un tema disponible en la aplicacion. */
+export type IMonacoThemeId = keyof typeof MonacoThemes
 
 /**
  * Datos de tema tal como los acepta `monaco.editor.defineTheme`.
@@ -47,7 +53,7 @@ const THEME_OVERRIDES: Partial<Record<IMonacoThemeId, ThemeOverride>> = {
 
 /** Carga el JSON del tema y le aplica los overrides locales. */
 const loadThemeDefinition = async (id: IMonacoThemeId): Promise<StandaloneThemeData> => {
-  const themeModule = await UpstreamThemes[id].load()
+  const themeModule = await MonacoThemes[id].load()
   const json = themeModule.default as unknown as StandaloneThemeData
   const override = THEME_OVERRIDES[id]
 
