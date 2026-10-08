@@ -406,14 +406,6 @@
     background-color: #424242; /* Color del fondo del track (gris claro) */
   }
   
-  input.theme-toggle-input:checked + .wrapper {
-    @apply bg-baselayer;
-  }
-  
-  input.theme-toggle-input:checked + .wrapper label {
-    @apply bg-card;
-  }
-  
   input.theme-toggle-input:checked + .wrapper label .circle {
     @apply left-full bg-black translate-x-[-110%] translate-y-[-50%];
   }

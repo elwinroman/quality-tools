@@ -1,4 +1,4 @@
-import { Code2, GitMerge, Table2 } from 'lucide-react'
+import { FileCode2, GitCompareArrows, TableProperties } from 'lucide-react'
 import { NavLink, useLocation } from 'react-router-dom'
 
 import { AppRoutes } from '@/constants'
@@ -21,7 +21,7 @@ export function SidebarNav({ className, onNavigate }: Props) {
     {
       id: 1,
       title: 'Definición SQL',
-      icon: Code2,
+      icon: FileCode2,
       href: sysobject
         ? buildQualifiedSysObjectPath(AppRoutes.SQL_DEFINITION, sysobject.schemaName, sysobject.name)
         : AppRoutes.SQL_DEFINITION,
@@ -30,7 +30,7 @@ export function SidebarNav({ className, onNavigate }: Props) {
     {
       id: 2,
       title: 'Tabla de usuario',
-      icon: Table2,
+      icon: TableProperties,
       href: userTableObject
         ? buildQualifiedSysObjectPath(AppRoutes.USERTABLE, userTableObject.schemaName, userTableObject.name)
         : AppRoutes.USERTABLE,
@@ -39,7 +39,7 @@ export function SidebarNav({ className, onNavigate }: Props) {
     {
       id: 3,
       title: 'Aligment',
-      icon: GitMerge,
+      icon: GitCompareArrows,
       href: AppRoutes.Aligment,
       activePath: AppRoutes.Aligment,
     },

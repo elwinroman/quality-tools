@@ -5,7 +5,7 @@ import { useDismissibleNotice } from '@/hooks/useDismissibleNotice'
 /**
  * Aviso de Aligment: de qué se trata la consulta y qué devuelve.
  *
- * Al cerrarlo queda recordado por unos días, así no reaparece en cada refresco.
+ * Al cerrarlo queda recordado por unas horas (4), así no reaparece en cada refresco.
  *
  * Lleva `dark` para forzar la paleta oscura en este subárbol: el aviso busca contrastar
  * con el sidebar en los dos temas, y así los tokens resuelven a sus valores oscuros sin

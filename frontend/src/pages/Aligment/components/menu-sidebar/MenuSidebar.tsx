@@ -1,10 +1,32 @@
 import { useSearchContext } from '@aligment/hooks'
+import { Info } from 'lucide-react'
 
 import { CircleLoader } from '@/components/loader'
 import { Sidebar, SidebarFooter, SidebarHeader, SidebarNav } from '@/components/sidebar'
+import { useDismissibleNotice } from '@/hooks/useDismissibleNotice'
 import { useAppStore, useAuthStore } from '@/zustand'
 
 import { ButtonGroup, InfoCard, SearchAligment } from './components'
+
+/**
+ * Botón que reabre el aviso de Aligment después de cerrarlo: usa el mismo key que
+ * `InfoCard`, así la reapertura la sincroniza el hook vía su evento de navegador.
+ */
+function ReopenInfoButton() {
+  const { reopen } = useDismissibleNotice('aligment-info')
+
+  return (
+    <button
+      type="button"
+      className="text-secondary hover:text-primary hover:bg-action-hover grid h-7 w-7 shrink-0 cursor-pointer place-content-center rounded-sm transition-colors"
+      onClick={reopen}
+      aria-label="Mostrar el aviso de alineación"
+      title="Mostrar el aviso de alineación"
+    >
+      <Info size={14} />
+    </button>
+  )
+}
 
 interface Props {
   className?: string
@@ -34,7 +56,7 @@ export function MenuSidebar({ className = '', isCollapsed = false, onToggleSideb
           {/* Aviso cerrable, pegado arriba del bloque de perfil */}
           <InfoCard />
 
-          <SidebarFooter />
+          <SidebarFooter footerAction={<ReopenInfoButton />} />
         </>
       }
     >

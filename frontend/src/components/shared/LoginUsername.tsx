@@ -19,14 +19,12 @@ import { useUserTableStore } from '@/pages/Usertable/store/usertable.store'
 import { logoutService } from '@/services'
 import { useAuthStore } from '@/zustand'
 
-import { ThemeToggle } from './ThemeToggle'
-
 interface Props {
   className?: string
 }
 
 /**
- * Perfil del usuario: avatar, nombre y las opciones de cuenta (tema, repositorio y cierre de sesión).
+ * Perfil del usuario: avatar, nombre y las opciones de cuenta (repositorio y cierre de sesión).
  *
  * No envuelve en `<li>` ni fija tamaños: cada consumidor decide cómo posicionarlo
  * (navbar, footer del sidebar, footer de Aligment).
@@ -81,14 +79,8 @@ export function LoginUsername({ className = '' }: Props) {
 
         <DropdownMenuSeparator />
 
-        {/* Grupo de acciones: tema y cierre de sesión */}
+        {/* Grupo de acciones: cierre de sesión */}
         <DropdownMenuGroup>
-          {/* Tema: conserva el switch original para no agrandar la card */}
-          <DropdownMenuItem className="justify-between gap-2" onSelect={(event) => event.preventDefault()}>
-            <span>Tema</span>
-            <ThemeToggle />
-          </DropdownMenuItem>
-
           <DropdownMenuItem asChild>
             <button type="button" onClick={closeSession} className="w-full justify-between gap-2">
               <span>Cerrar sesión</span>

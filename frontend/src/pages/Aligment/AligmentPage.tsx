@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { toast } from 'sonner'
 
+import { NEUTRAL_TOAST_CLASS } from '@/components/ui/sonner'
 import { Error500 } from '@/pages'
 import { useAuthStore } from '@/zustand'
 
@@ -18,7 +19,8 @@ export function AligmentPage() {
   const lastErrorRef = useRef(error)
   useEffect(() => {
     if (error && error !== lastErrorRef.current) {
-      toast.warning('Warning', {
+      toast('Información', {
+        className: NEUTRAL_TOAST_CLASS,
         description: error.detail,
         duration: 6000,
       })
