@@ -60,9 +60,9 @@ export function SearchAligment() {
           <InputWithIcon
             ref={inputRef}
             value={search}
-            startIcon={<Search size={22} className="text-muted" />}
+            startIcon={<Search size={22} className="text-gentle-pink-600 dark:text-gentle-pink-400" />}
             endIcon={icon}
-            placeholder="Search"
+            placeholder="Buscar objeto"
             onChange={handleChange}
             onKeyUp={handleKeyup}
             onFocus={() => setFocus(true)}

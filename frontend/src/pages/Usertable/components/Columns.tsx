@@ -57,10 +57,10 @@ export const Columns: ColumnDef<ColumnRow>[] = [
             <TooltipProvider>
               <Tooltip delayDuration={100}>
                 <TooltipTrigger>
-                  <Key size={14} className="text-amber-400" />
+                  <Key size={14} className="text-amber-700 dark:text-amber-400" />
                 </TooltipTrigger>
                 <TooltipContent>
-                  <span className="text-amber-400">primary key</span>
+                  <span className="text-amber-700 dark:text-amber-400">primary key</span>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -70,10 +70,10 @@ export const Columns: ColumnDef<ColumnRow>[] = [
             <TooltipProvider>
               <Tooltip delayDuration={100}>
                 <TooltipTrigger>
-                  <Key size={14} className="text-blue-400" />
+                  <Key size={14} className="text-blue-700 dark:text-blue-400" />
                 </TooltipTrigger>
                 <TooltipContent>
-                  <span className="text-blue-400">unique key</span>
+                  <span className="text-blue-700 dark:text-blue-400">unique key</span>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -99,7 +99,7 @@ export const Columns: ColumnDef<ColumnRow>[] = [
     header: 'Nulo',
     size: 20,
     cell: ({ row }) => {
-      return <>{row.original.nulo && <Check size={16} strokeWidth={3} className="text-emerald-500" />}</>
+      return <>{row.original.nulo && <Check size={16} strokeWidth={3} className="text-emerald-700 dark:text-emerald-500" />}</>
     },
   },
   {
@@ -117,7 +117,7 @@ export const Columns: ColumnDef<ColumnRow>[] = [
     cell: ({ row }) => {
       const { referencia } = row.original
       return (
-        <div className="flex min-w-[100px] flex-col gap-2 text-blue-400">
+        <div className="flex min-w-[100px] flex-col gap-2 text-blue-700 dark:text-blue-400">
           {referencia.map((item) => (
             <span key={`${item.columnId}-${item.referencedObject}`}>{`${item.referencedSchema}.${item.referencedObject}`}</span>
           ))}
@@ -147,7 +147,7 @@ export const Columns: ColumnDef<ColumnRow>[] = [
           {descripcion.length > 1 && (
             <Popover>
               <PopoverTrigger>
-                <i className="hover:bg-action-hover grid place-items-center rounded-sm p-1.5 text-red-400 transition-colors">
+                <i className="hover:bg-action-hover grid place-items-center rounded-sm p-1.5 text-red-700 transition-colors dark:text-red-400">
                   <MessageCircleWarning size={14} />
                 </i>
               </PopoverTrigger>

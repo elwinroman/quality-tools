@@ -45,7 +45,7 @@ export function RelationList({ title, description, items, emptyMessage, onSelect
       </div>
 
       {/* Titulo y descripcion fuera de la tarjeta; el contenido no lleva bordes de tabla */}
-      <OverviewCard bodyClassName="p-0" className="bg-background-paperchanel overflow-hidden">
+      <OverviewCard bodyClassName="p-0" className="overflow-hidden">
         {items.length === 0 ? (
           <div className="text-muted px-3 py-3 text-xs">{emptyMessage}</div>
         ) : (

@@ -13,10 +13,10 @@ interface OverviewCardProps {
   children: React.ReactNode
 }
 
-/** Cuadro del Overview: solo borde y encabezado opcional, sin superficie propia. */
+/** Cuadro del Overview con superficie elevada para separar el contenido del fondo de página. */
 export function OverviewCard({ title, meta, indicator, bodyClassName, className, children }: OverviewCardProps) {
   return (
-    <div className={cn('border-border rounded-sm border', className)}>
+    <div className={cn('bg-background-card border-border/70 rounded-sm border', className)}>
       {title !== undefined && (
         <div className="flex items-center justify-between gap-3 px-3 py-2">
           <span className="text-primary text-sm font-medium">{title}</span>

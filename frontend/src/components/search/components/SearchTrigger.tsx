@@ -42,12 +42,15 @@ export function SearchTrigger({ className }: Props) {
     <Button
       variant="outline"
       size="sm"
-      className={cn('group flex h-7 min-w-[112px] items-center justify-between gap-2 px-2', className)}
+      className={cn(
+        'group border-gentle-pink-500/60 bg-gentle-pink-100 text-gentle-pink-700 hover:border-gentle-pink-500 hover:bg-gentle-pink-200 hover:text-gentle-pink-800 dark:bg-gentle-pink-900/70 dark:text-gentle-pink-200 dark:hover:bg-gentle-pink-900 flex h-7 min-w-[112px] items-center justify-between gap-2 px-2',
+        className,
+      )}
       onClick={handleClick}
     >
       <span className="flex items-center gap-2">
-        <SearchIcon size={16} className="text-secondary shrink-0" />
-        <span className="text-secondary text-xs whitespace-nowrap">Buscar</span>
+        <SearchIcon size={16} className="shrink-0 text-current" />
+        <span className="text-xs whitespace-nowrap text-current">Buscar</span>
       </span>
 
       {/* El atajo se muestra al apuntar; sin hover disponible (táctil) queda siempre visible */}

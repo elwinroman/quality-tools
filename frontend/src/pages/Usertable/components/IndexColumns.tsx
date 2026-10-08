@@ -96,13 +96,15 @@ export const IndexColumns: ColumnDef<IndexRow>[] = [
     accessorKey: 'isPrimaryKey',
     size: 80,
     header: 'PK',
-    cell: ({ row }) => <>{row.original.isPrimaryKey && <Key size={14} className="text-amber-400" />}</>,
+    cell: ({ row }) => <>{row.original.isPrimaryKey && <Key size={14} className="text-amber-700 dark:text-amber-400" />}</>,
   },
   {
     accessorKey: 'isUnique',
     size: 80,
     header: 'Unique',
-    cell: ({ row }) => <>{row.original.isUnique && <Check size={16} strokeWidth={3} className="text-emerald-500" />}</>,
+    cell: ({ row }) => (
+      <>{row.original.isUnique && <Check size={16} strokeWidth={3} className="text-emerald-700 dark:text-emerald-500" />}</>
+    ),
   },
   {
     accessorKey: 'isDisabled',

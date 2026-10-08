@@ -28,7 +28,7 @@ export function LoginPage() {
           <h1 className="text-primary text-xl font-bold">Inicia sesión con tu cuenta</h1>
           <p className="text-secondary flex gap-1 text-sm">
             <span>¿Solo buscas objetos de producción?</span>
-            <Link to="/aligment" className="text-palette-primary-main hover:underline">
+            <Link to="/aligment" className="text-champagne-800 dark:text-champagne-300 hover:underline">
               Empieza aquí
             </Link>
           </p>

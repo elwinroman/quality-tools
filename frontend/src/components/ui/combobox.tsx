@@ -21,7 +21,7 @@ function ComboboxInput({
         data-slot="combobox-input"
         disabled={disabled}
         className={cn(
-          'bg-background-paperchanel ring-offset-background placeholder:text-muted flex h-10 w-full rounded-sm border border-gray-500/20 px-3 py-2 pr-9 text-xs outline-hidden disabled:cursor-not-allowed disabled:opacity-50',
+          'bg-background-paperchanel ring-offset-background placeholder:text-muted border-border flex h-10 w-full rounded-sm border px-3 py-2 pr-9 text-xs outline-hidden disabled:cursor-not-allowed disabled:opacity-50',
           leading && 'pl-9',
           className,
         )}
