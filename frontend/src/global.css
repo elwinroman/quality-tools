@@ -13,6 +13,7 @@
 
   --color-background: var(--background);
   --color-background-paper: var(--background-paper);
+  --color-background-card: var(--background-card);
   --color-background-alternate: var(--background-alternate);
   --color-background-paperchanel: var(--background-paper-channel);
   --color-background-neutral: var(--background-neutral);
@@ -26,6 +27,33 @@
   --color-secondary-foreground: hsl(var(--secondary-foreground));
 
   --color-spark: var(--spark);
+
+  --color-gentle-pink-50: #fff5fb;
+  --color-gentle-pink-100: #ffe6f4;
+  --color-gentle-pink-200: #ffcce8;
+  --color-gentle-pink-300: #ffb1dd;
+  --color-gentle-pink-400: #f095c8;
+  --color-gentle-pink-500: #c96aa2;
+  --color-gentle-pink-600: #a94f85;
+  --color-gentle-pink-700: #843b66;
+  --color-gentle-pink-800: #563040;
+  --color-gentle-pink-900: #2a1523;
+  --color-gentle-pink-950: #100a0f;
+
+  /* Escala champagne derivada del theme Gentleman-Cute de Gentle Shell, donde el
+     amarillo identidad es #E0C27A (champagne-400). Los pasos se generaron con el
+     mismo hue (42.4) variando luminosidad y saturacion, igual que la escala pink. */
+  --color-champagne-50: #fcf9f3;
+  --color-champagne-100: #f8f1e3;
+  --color-champagne-200: #f1e4c6;
+  --color-champagne-300: #e8d19c;
+  --color-champagne-400: #e0c27a;
+  --color-champagne-500: #d3ac50;
+  --color-champagne-600: #bd9432;
+  --color-champagne-700: #93742a;
+  --color-champagne-800: #6a5420;
+  --color-champagne-900: #413416;
+  --color-champagne-950: #251e0e;
 
   --color-destructive: hsl(var(--destructive));
   --color-destructive-foreground: hsl(var(--destructive-foreground));
@@ -45,12 +73,6 @@
   --color-card-foreground: hsl(var(--card-foreground));
   --color-card-strong: var(--card-strong);
 
-  --color-chart-1: hsl(var(--chart-1));
-  --color-chart-2: hsl(var(--chart-2));
-  --color-chart-3: hsl(var(--chart-3));
-  --color-chart-4: hsl(var(--chart-4));
-  --color-chart-5: hsl(var(--chart-5));
-
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: hsl(var(--sidebar-foreground));
   --color-sidebar-primary: var(--sidebar-primary);
@@ -62,8 +84,6 @@
 
   --color-action-hover: var(--action-hover);
   --color-action-disabled: var(--action-disabled);
-
-  --color-palette-diviver: var(--palette-divider);
 
   --color-palette-grey-50: var(--palette-grey-50);
   --color-palette-grey-100: var(--palette-grey-100);
@@ -123,9 +143,6 @@
   --shadow-custom-card: var(--custom-shadow-card);
   --shadow-custom-dropdown: var(--custom-shadow-dropdown);
   --shadow-custom-dialog: var(--custom-shadow-dialog);
-  
-  --color-palette-test: oklch(var(--palette-test));
-  --color-dusk: oklch(0.82 0.15 72.09);
 
   @keyframes accordion-down {
     from {
@@ -176,62 +193,55 @@
 
 @layer base {
   :root {
-    --baselayer: #ffffff;
-    --background: #ffffff;
-    --background-paper: #FFFFFF;
-    --background-paper-channel: rgba(255,255,255,0.9);
-    --background-alternate: #e3e3e3;
-    --background-neutral: #F4F6F8;
-    --background-default-channel: 255 255 255;
-    --foreground: 222.2 84% 4.9%;
-    --card: #fff;
-    --card-foreground: 222.2 84% 4.9%;
-    --card-strong: #efefef;
-    --popover: #f6f6f7;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: #1C252E; /* text-primary */
-    --primary-foreground: rgba(255, 255, 255, 90%);
-    --secondary: #637381; /* text-secondary */
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: #919EAB; /* text-disabled */
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --spark: rgba(35, 34, 38, 40%);
-    /* --accent: 210 40% 96.1%; */
-    /* --accent: #efefef; */
-    --accent: #e3e3e3;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --baselayer: #fbfaf8;
+    --background: #fbfaf8;
+    --background-paper: #fffefc;
+    --background-card: #fbf9f6;
+    --background-paper-channel: rgba(255,254,252,0.92);
+    --background-alternate: #f3efe9;
+    --background-neutral: #f7f5f1;
+    --background-default-channel: 251 250 248;
+    --foreground: 34 23% 9%;
+    --card: #fffefc;
+    --card-foreground: 34 23% 9%;
+    --card-strong: #eee9e0;
+    --popover: #fffefc;
+    --popover-foreground: 34 23% 9%;
+    --primary: #231f1b; /* text-primary */
+    --primary-foreground: #fffefc;
+    --secondary: #635E58; /* text-secondary */
+    --secondary-foreground: 34 23% 9%;
+    --muted: #71685D; /* text-disabled */
+    --muted-foreground: 33 10% 43%;
+    --spark: rgba(224,194,122,0.36);
+    --accent: #f1e4c2;
+    --accent-foreground: 34 23% 9%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
     --disabled: rgba(145 158 171 / 0.8);
 
-    /* --border: #e9ebec; */
-    --border: rgba(145,158,171,0.25);
+    --border: rgba(168,158,140,0.22);
 
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --input: 38 10% 90%;
+    --ring: 43 63% 57%;
     --radius: 0.5rem;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
 
-    --sidebar: #fff;
-    --sidebar-foreground: 222.2 84% 4.9%;
-    --sidebar-primary: #1C252E;
-    --sidebar-primary-foreground: rgba(255, 255, 255, 90%);
-    --sidebar-accent: #e3e3e3;
-    --sidebar-accent-foreground: 222.2 47.4% 11.2%;
-    --sidebar-border: rgba(145,158,171,0.25);
-    --sidebar-ring: 222.2 84% 4.9%;
+    --sidebar: #fffefc;
+    --sidebar-foreground: 34 23% 9%;
+    --sidebar-primary: #231f1b;
+    --sidebar-primary-foreground: #fffefc;
+    --sidebar-accent: #f1e4c2;
+    --sidebar-accent-foreground: 34 23% 9%;
+    --sidebar-border: rgba(168,158,140,0.20);
+    --sidebar-ring: 43 63% 57%;
 
     /* Shadows */
     --custom-shadow-card: 0 0 2px 0 rgba(145 158 171 / 0.2),0 12px 24px -4px rgba(145 158 171 / 0.12);
     --custom-shadow-dropdown: 0 0 2px 0 rgba(145 158 171 / 0.24),-20px 20px 40px -4px rgba(145 158 171 / 0.24);
     --custom-shadow-dialog: -40px 40px 80px -8px rgba(0 0 0 / 0.24);
 
-    --action-hover: rgba(145 158 171 / 0.13);
-    --action-disabled: rgba(145 158 171 / 0.24); 
+    --action-hover: rgba(168 158 140 / 0.14);
+    --action-disabled: rgba(117 106 94 / 0.26);
 
     /* Paleta de colores */
     --palette-primary-lighter: #FEF4D4;
@@ -273,63 +283,55 @@
     --palette-grey-700: #454F5B;
     --palette-grey-800: #1C252E;
     --palette-grey-900: #141A21;
-    --palette-test: 0.82 0.15 72.09;
   }
 
   .dark {
-    --baselayer: #141a21;
-    --background: #141a21;
-    --background-alternate: #1f2024;
-    --background-paper: #1C252E;
-    --background-paper-channel: rgba(28,37,46,0.9);
-    --background-neutral: #28323D;
-    --background-default-channel: 20 26 33;
-    --foreground: 210 40% 98%;
-    --card: #1c252e;
-    --card-foreground: 210 40% 98%;
-    --card-strong: #181919;
-    --popover: rgb(10, 10, 10);
-    --popover-foreground: 210 40% 98%;
-    --primary: #FFFFFF; /* text-primary */
-    --primary-foreground: #232226;
-    --secondary: #919EAB; /* text-secondary */
-    --secondary-foreground: 210 40% 98%;
-    --muted: #637381; /* text-disabled */
-    --muted-foreground: 215 20.2% 65.1%;
-    --spark: rgba(255,255,255,25%);
-    --accent: #3d3f43;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --disabled: rgba(145 158 171 / 0.8);
-    /* --border: rgba(255,255,255,6%); */
-    --border: rgba(145,158,171,0.15); /* border */
-    --input: 220 5% 25%;
-    --ring: 212.7 26.8% 83.9%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
+    --baselayer: #111114;
+    --background: #0f0f12;
+    --background-alternate: #211e25;
+    --background-paper: #1d1b21;
+    --background-card: #1a181e;
+    --background-paper-channel: rgba(29,27,33,0.92);
+    --background-neutral: #26232a;
+    --background-default-channel: 15 15 18;
+    --foreground: 36 30% 93%;
+    --card: #1d1b21;
+    --card-foreground: 36 30% 93%;
+    --card-strong: #28242b;
+    --popover: #1a171d;
+    --popover-foreground: 36 30% 93%;
+    --primary: #F4EFE8; /* text-primary */
+    --primary-foreground: #151419;
+    --secondary: #B6AAA0; /* text-secondary */
+    --secondary-foreground: 36 30% 93%;
+    --muted: #7f746b; /* text-disabled */
+    --muted-foreground: 31 13% 67%;
+    --spark: rgba(224,194,122,25%);
+    --accent: #2b2418;
+    --accent-foreground: 36 30% 93%;
+    --destructive: 350 100% 72%;
+    --destructive-foreground: 330 31% 95%;
+    --disabled: rgba(167 142 155 / 0.72);
+    --border: rgba(191,167,111,0.16); /* border */
+    --input: 36 14% 17%;
+    --ring: 43 63% 68%;
 
-    --sidebar: #1c252e;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: #FFFFFF;
-    --sidebar-primary-foreground: #232226;
-    --sidebar-accent: #3d3f43;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: rgba(145,158,171,0.15);
-    --sidebar-ring: 212.7 26.8% 83.9%;
+    --sidebar: #18171b;
+    --sidebar-foreground: 36 30% 93%;
+    --sidebar-primary: #F4EFE8;
+    --sidebar-primary-foreground: #151419;
+    --sidebar-accent: #2b2418;
+    --sidebar-accent-foreground: 36 30% 93%;
+    --sidebar-border: rgba(191,167,111,0.14);
+    --sidebar-ring: 43 63% 68%;
 
     /* Shadows */
     --custom-shadow-card: 0 0 2px 0 rgba(0 0 0 / 0.2),0 12px 24px -4px rgba(0 0 0 / 0.12);
     --custom-shadow-dropdown: 0 0 2px 0 rgba(0 0 0 / 0.24),-20px 20px 40px -4px rgba(0 0 0 / 0.24);
     --custom-shadow-dialog: -40px 40px 80px -8px rgba(0 0 0 / 0.24);
 
-    --action-hover: rgba(145 158 171 / 0.08);
-    --action-disabled: rgba(145 158 171 / 0.24); 
-
-    --palette-divider: rgba(145 158 171 / 0.2);
+    --action-hover: rgba(191 167 111 / 0.08);
+    --action-disabled: rgba(182 170 160 / 0.24);
   }
 }
 
@@ -394,16 +396,16 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    background-color: #686868; /* Color del scrollbar (gris de Tailwind) */
+    background-color: var(--muted); /* Color del scrollbar */
     /*border-radius: 4px; /* Bordes redondeados */
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background-color: #777777; /* Color más oscuro al pasar el mouse */
+    background-color: var(--secondary); /* Color más oscuro al pasar el mouse */
   }
 
   ::-webkit-scrollbar-track {
-    background-color: #424242; /* Color del fondo del track (gris claro) */
+    background-color: var(--background-neutral); /* Color del fondo del track */
   }
   
   input.theme-toggle-input:checked + .wrapper label .circle {
