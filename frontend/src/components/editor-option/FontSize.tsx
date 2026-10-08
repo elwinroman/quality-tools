@@ -2,6 +2,16 @@ import { AArrowDown, AArrowUp } from 'lucide-react'
 
 import { useEditorOptionsStore } from '@/zustand'
 
+/** Los tres botones comparten la misma superficie; solo cambia si muestran icono o valor. */
+const BUTTON_CLASS = 'text-primary hover:bg-action-hover grid w-7 place-content-center transition-colors'
+
+/**
+ * Control compacto de tamano de fuente.
+ *
+ * Lleva `shrink-0` porque su padre es una fila flex: sin eso se comprime y el
+ * contenido desborda en X. El borde vive en el contenedor y los separadores en el
+ * valor, para no dibujar lineas de 1px duplicadas entre las piezas.
+ */
 export function FontSize() {
   const fontSize = useEditorOptionsStore((state) => state.fontSize)
   const updateFontSize = useEditorOptionsStore((state) => state.updateFontSize)
@@ -17,27 +27,29 @@ export function FontSize() {
   }
 
   return (
-    <div className="flex h-7 flex-nowrap rounded-sm">
+    <div className="border-border bg-background-card flex h-7 shrink-0 items-stretch overflow-hidden rounded-sm border">
       <button
-        className="bg-background-paperchanel group rounded-l-sm border-y border-l border-gray-500/20 px-1.5 hover:bg-white/[0.08]"
+        type="button"
+        className={BUTTON_CLASS}
         onClick={handleClickDown}
+        aria-label="Reducir tamaño de fuente"
+        title="Reducir tamaño de fuente"
       >
-        <i className="text-primary group-hover:text-secondary">
-          <AArrowDown size={14} />
-        </i>
+        <AArrowDown size={14} />
       </button>
 
-      <div className="bg-background-neutral grid place-content-center border border-gray-500/20">
-        <span className="px-1.5 text-xs">{fontSize}</span>
+      <div className="border-border bg-background-neutral grid min-w-8 place-content-center border-x">
+        <span className="px-1.5 text-xs tabular-nums">{fontSize}</span>
       </div>
 
       <button
-        className="bg-background-paperchanel group rounded-r-sm border-y border-r border-gray-500/20 px-1.5 hover:bg-white/[0.08]"
+        type="button"
+        className={BUTTON_CLASS}
         onClick={handleClickUp}
+        aria-label="Aumentar tamaño de fuente"
+        title="Aumentar tamaño de fuente"
       >
-        <i className="text-primary group-hover:text-secondary">
-          <AArrowUp size={14} />
-        </i>
+        <AArrowUp size={14} />
       </button>
     </div>
   )

@@ -86,7 +86,7 @@ export function ConfigOptionEditor({ className = '' }: Props) {
         <TooltipProvider>
           <Tooltip delayDuration={100}>
             <TooltipTrigger asChild className="grid place-content-center">
-              <button className={`group h-7 rounded-sm px-2 not-disabled:hover:bg-white/[0.08] ${className}`}>
+              <button className={`group hover:bg-action-hover h-7 rounded-sm px-2 ${className}`}>
                 <Settings size={14} className="group-hover:text-secondary group-disabled:text-disabled text-primary" />
               </button>
             </TooltipTrigger>
@@ -99,7 +99,7 @@ export function ConfigOptionEditor({ className = '' }: Props) {
       </SheetTrigger>
 
       {/* Contenido */}
-      <SheetContent side="right" className="overflow-y-auto">
+      <SheetContent side="right" className="bg-background-card overflow-y-auto">
         <SheetHeader>
           <SheetTitle className="flex items-center justify-between">
             <span>Configuración de editor</span>
@@ -133,8 +133,12 @@ export function ConfigOptionEditor({ className = '' }: Props) {
           <SheetDescription>
             <div className="flex flex-col gap-5">
               <p>Ajusta las preferencias del editor según tus necesidades.</p>
-              <div className="flex justify-between gap-2">
-                <ThemeEditor />
+              <ThemeEditor />
+
+              {/* El control va en su propia fila, como el resto de los ajustes: compartir fila
+                  con el bloque de temas lo comprimia y desbordaba en X. */}
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-primary/70 text-xs">Tamaño de fuente</span>
                 <FontSize />
               </div>
 

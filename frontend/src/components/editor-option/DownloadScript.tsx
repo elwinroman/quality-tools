@@ -32,7 +32,7 @@ export function DownloadScript({ text, className = '', disabled = false, filenam
       <Tooltip delayDuration={100}>
         <TooltipTrigger asChild>
           <button
-            className={`group h-7 rounded-sm px-2 not-disabled:hover:bg-white/[0.08] ${className}`}
+            className={`group not-disabled:hover:bg-action-hover h-7 rounded-sm px-2 ${className}`}
             onClick={handleDownload}
             disabled={disabled} // Asignar el estado de deshabilitado
           >
