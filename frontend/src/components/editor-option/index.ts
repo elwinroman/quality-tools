@@ -1,6 +1,5 @@
 export * from './ConfigOptionEditor'
 export * from './CopyCode'
-export * from './DownloadScript'
 export * from './FontSize'
 export * from './GenerateCodeForDropObject'
 export * from './ThemeEditor'

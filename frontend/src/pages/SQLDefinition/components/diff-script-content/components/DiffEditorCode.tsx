@@ -3,7 +3,7 @@ import './styles/editor.style.css'
 import { DiffEditor } from '@monaco-editor/react'
 import { OctagonAlert } from 'lucide-react'
 
-import { CircleLoader } from '@/components/loader'
+import { ThemedCircleLoader } from '@/components/loader'
 import { BaseMonacoEditorOptions, resolveEditorThemePreference } from '@/constants'
 import { useEditorTheme } from '@/constants/monaco-themes/use-editor-theme'
 import { EDITOR_BANNER } from '@/enviroment/enviroment'
@@ -93,7 +93,7 @@ export function DiffEditorCode() {
   if (isLoadingProdObject) {
     return (
       <div className="flex h-full w-full items-center justify-center">
-        <CircleLoader visible={true} color={isDark ? 'white' : 'black'} />
+        <ThemedCircleLoader />
       </div>
     )
   }
@@ -108,7 +108,7 @@ export function DiffEditorCode() {
         original={originalCode}
         modified={modifiedCode}
         options={{ ...fullOptions }}
-        loading={<CircleLoader visible={true} color={isDark ? 'white' : 'black'} />}
+        loading={<ThemedCircleLoader />}
       />
     </div>
   )

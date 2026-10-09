@@ -5,9 +5,7 @@ import ReactDOM from 'react-dom/client'
 import { CopyCode } from '@/components/editor-option'
 import {
   DIFF_PANEL_LOCAL_BADGE,
-  DIFF_PANEL_LOCAL_LABEL,
   DIFF_PANEL_PRODUCTION_BADGE,
-  DIFF_PANEL_PRODUCTION_LABEL,
   DIFF_PANEL_READ_ONLY_HINT,
   DIFF_PANEL_SELECTOR,
   DIFF_PANEL_TONE,
@@ -62,23 +60,19 @@ const PANEL_TONES: Record<DiffPanelTone, { container: string; badge: string; ico
 
 interface PanelHeaderProps {
   tone: DiffPanelTone
-  label: string
   badge: string
   code: string
   database?: string
 }
 
-function PanelHeader({ tone, label, badge, code, database }: PanelHeaderProps) {
+function PanelHeader({ tone, badge, code, database }: PanelHeaderProps) {
   const { container, badge: badgeClass, icon: Icon, readOnly } = PANEL_TONES[tone]
 
   return (
     <div className={`${PANEL_HEADER_BASE} ${container}`}>
       <div className="flex items-center gap-2">
         <Icon size={14} aria-hidden />
-        <p>
-          <span className="pr-1">{label}</span>
-          <span>{database}</span>
-        </p>
+        {database && <span>{database}</span>}
         <span
           className={`inline-flex items-center gap-1 rounded-sm border px-1.5 text-[0.625rem] font-semibold tracking-wide ${badgeClass}`}
           title={readOnly ? DIFF_PANEL_READ_ONLY_HINT : undefined}
@@ -151,7 +145,6 @@ export function useInjectionComponent({ originalCode, modifiedCode, renderSideBy
       {
         root: originalRoot,
         tone: DIFF_PANEL_TONE.production,
-        label: DIFF_PANEL_PRODUCTION_LABEL,
         badge: DIFF_PANEL_PRODUCTION_BADGE,
         database: authContext?.prodDatabase,
         code: originalCode,
@@ -159,15 +152,14 @@ export function useInjectionComponent({ originalCode, modifiedCode, renderSideBy
       {
         root: modifiedRoot,
         tone: DIFF_PANEL_TONE.local,
-        label: DIFF_PANEL_LOCAL_LABEL,
         badge: DIFF_PANEL_LOCAL_BADGE,
         database: authContext?.database,
         code: modifiedCode,
       },
     ]
 
-    for (const { root, tone, label, badge, database, code } of panelConfigs) {
-      root.render(<>{renderSideBySide && <PanelHeader tone={tone} label={label} badge={badge} database={database} code={code} />}</>)
+    for (const { root, tone, badge, database, code } of panelConfigs) {
+      root.render(<>{renderSideBySide && <PanelHeader tone={tone} badge={badge} database={database} code={code} />}</>)
     }
   }
 

@@ -1,10 +1,10 @@
 import { useSearchContext } from '@aligment/hooks'
 import { Info } from 'lucide-react'
 
-import { CircleLoader } from '@/components/loader'
+import { ThemedCircleLoader } from '@/components/loader'
 import { Sidebar, SidebarFooter, SidebarHeader, SidebarNav } from '@/components/sidebar'
 import { useDismissibleNotice } from '@/hooks/useDismissibleNotice'
-import { useAppStore, useAuthStore } from '@/zustand'
+import { useAuthStore } from '@/zustand'
 
 import { ButtonGroup, InfoCard, SearchAligment } from './components'
 
@@ -44,7 +44,6 @@ interface Props {
  */
 export function MenuSidebar({ className = '', isCollapsed = false, onToggleSidebar }: Props) {
   const authContext = useAuthStore((state) => state.authContext)
-  const isDark = useAppStore((state) => state.isDark)
   const { loading } = useSearchContext()
 
   return (
@@ -75,7 +74,7 @@ export function MenuSidebar({ className = '', isCollapsed = false, onToggleSideb
           {/* Loader */}
           {loading && (
             <div className="relative mt-4">
-              <CircleLoader size={20} visible={true} color={isDark ? 'white' : 'black'} />
+              <ThemedCircleLoader size={20} />
             </div>
           )}
         </div>

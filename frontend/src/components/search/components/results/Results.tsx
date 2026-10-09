@@ -1,7 +1,6 @@
 import { useEffect, useLayoutEffect, useRef } from 'react'
 
-import { CircleLoader } from '@/components/loader'
-import { useAppStore } from '@/zustand'
+import { ThemedCircleLoader } from '@/components/loader'
 
 import { dialogSearchContext } from '../../context/dialogSearchContext'
 import { searchContext } from '../../context/searchContext'
@@ -14,7 +13,6 @@ export function Results() {
   const { suggestions, querySearch, loading: loadingSuggestions, type, activeIndex, updateActiveIndex } = searchContext()
   const { open, updateOpen } = dialogSearchContext()
   const { recents, getRecents, deleteRecent, loading: loadingRecents } = useRecents(type)
-  const isDark = useAppStore((state) => state.isDark)
   const resultsRef = useRef<HTMLDivElement | null>(null)
   const activeItemRef = useRef<HTMLLIElement | null>(null)
 
@@ -56,7 +54,7 @@ export function Results() {
 
   return (
     <div ref={resultsRef} className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
-      {(loadingSuggestions || loadingRecents) && <CircleLoader visible={true} color={isDark ? 'white' : 'black'} />}
+      {(loadingSuggestions || loadingRecents) && <ThemedCircleLoader />}
 
       {!loadingSuggestions && noResults && <p className="text-secondary mt-5 text-center">Sin resultados</p>}
 

@@ -392,12 +392,10 @@
 @layer utilities {
   ::-webkit-scrollbar {
     width: 14px; /* Ancho del scrollbar */
-    /*height: 8px; /* Altura del scrollbar horizontal */
   }
 
   ::-webkit-scrollbar-thumb {
     background-color: var(--muted); /* Color del scrollbar */
-    /*border-radius: 4px; /* Bordes redondeados */
   }
 
   ::-webkit-scrollbar-thumb:hover {

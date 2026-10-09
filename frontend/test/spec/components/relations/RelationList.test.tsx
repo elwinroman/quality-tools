@@ -26,10 +26,10 @@ describe('RelationList', () => {
 
     const navigableRow = screen.getByRole('button', { name: /TblBase/ })
     expect(navigableRow.querySelector('[class*="arrow-up-right"]')).not.toBeNull()
-    expect(navigableRow.querySelector('[class*="link2-off"]')).toBeNull()
+    expect(navigableRow.querySelector('[class*="link-2-off"]')).toBeNull()
 
     const unresolvedRow = screen.getByText('SinResolver').closest('div') as HTMLElement
-    expect(unresolvedRow.querySelector('[class*="link2-off"]')).not.toBeNull()
+    expect(unresolvedRow.querySelector('[class*="link-2-off"]')).not.toBeNull()
     expect(unresolvedRow.querySelector('[class*="arrow-up-right"]')).toBeNull()
 
     // Solo la fila navegable expone la flecha de "abre otra pantalla".

@@ -1,7 +1,7 @@
 import Editor from '@monaco-editor/react'
 import { useEffect } from 'react'
 
-import { CircleLoader } from '@/components/loader'
+import { ThemedCircleLoader } from '@/components/loader'
 import { BaseMonacoEditorOptions, resolveEditorThemePreference } from '@/constants'
 import { useEditorTheme } from '@/constants/monaco-themes/use-editor-theme'
 import { getFormattedCodeForViewMode } from '@/utilities'
@@ -36,7 +36,7 @@ export function EditorCode() {
   if (isLoadingObject) {
     return (
       <div className="flex h-full w-full items-center justify-center">
-        <CircleLoader visible={true} color={isDark ? 'white' : 'black'} />
+        <ThemedCircleLoader />
       </div>
     )
   }
@@ -54,7 +54,7 @@ export function EditorCode() {
         theme={effectiveTheme}
         value={code}
         options={{ ...fullOptions }}
-        loading={<CircleLoader visible={true} color={isDark ? 'white' : 'black'} />}
+        loading={<ThemedCircleLoader />}
       />
     </div>
   )

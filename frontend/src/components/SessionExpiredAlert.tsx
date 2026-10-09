@@ -10,7 +10,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-// import { resetAllStores } from '@/utilities'
 import { useAuthStore } from '@/zustand/auth.store'
 
 export function SessionExpiredAlert() {
@@ -19,7 +18,6 @@ export function SessionExpiredAlert() {
 
   const handleClick = () => {
     clearSession()
-    // resetAllStores()
     navigate('/login')
   }
 

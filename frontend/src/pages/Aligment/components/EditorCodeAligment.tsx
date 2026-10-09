@@ -2,7 +2,7 @@ import { useSearchContext } from '@aligment/hooks'
 import { useAligmentStore } from '@aligment/zustand/aligment.store'
 import Editor from '@monaco-editor/react'
 
-import { CircleLoader } from '@/components/loader'
+import { ThemedCircleLoader } from '@/components/loader'
 import { BaseMonacoEditorOptions, resolveEditorThemePreference } from '@/constants'
 import { useEditorTheme } from '@/constants/monaco-themes/use-editor-theme'
 import { EDITOR_BANNER } from '@/enviroment/enviroment'
@@ -43,7 +43,7 @@ export function EditorCodeAligment() {
         theme={effectiveTheme}
         value={!loading ? code : 'Buscando información, esto puede tardar unos segundos...'}
         options={{ ...fullOptions }}
-        loading={<CircleLoader visible={true} color={isDark ? 'white' : 'black'} />}
+        loading={<ThemedCircleLoader />}
       />
     </div>
   )

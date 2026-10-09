@@ -2,7 +2,7 @@ import Editor from '@monaco-editor/react'
 import { BrushCleaning } from 'lucide-react'
 import { useMemo } from 'react'
 
-import { CircleLoader } from '@/components/loader'
+import { ThemedCircleLoader } from '@/components/loader'
 import {
   Dialog,
   DialogContent,
@@ -171,7 +171,7 @@ export function GenerateCodeForDropObject({ object, className = '', disabled = f
               theme={effectiveTheme}
               value={codeString}
               options={editorOptions}
-              loading={<CircleLoader visible={true} color={isDark ? 'white' : 'black'} />}
+              loading={<ThemedCircleLoader />}
             />
           </div>
         </div>
