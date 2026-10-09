@@ -1,5 +1,5 @@
 import { HeaderSidebarToggle, ObjectEditorHeader, ObjectName, RefreshObjectButton } from '@/components/editor-header'
-import { ToggleFavoritoButton, useFavoritoContext } from '@/components/favoritos'
+import { FavoritoToggle } from '@/components/favoritos'
 import { SearchTrigger } from '@/components/search/components/SearchTrigger'
 
 import { useUserTableStore } from '../store/usertable.store'
@@ -13,20 +13,8 @@ export function HeaderUsertable({ onOpenSidebar }: Props) {
   const object = useUserTableStore((state) => state.userTableObject)
   const loading = useUserTableStore((state) => state.loading)
   const fetchUserTableByName = useUserTableStore((state) => state.fetchUserTableByName)
-  const { isFavorito, upsertFavorito, deleteFavorito } = useFavoritoContext()
 
   const hasObject = !!object?.name
-  const currentFavorito = hasObject ? isFavorito(object.name, object.schemaName) : undefined
-
-  const handleToggleFavorito = () => {
-    if (!hasObject) return
-
-    if (currentFavorito) {
-      deleteFavorito(currentFavorito.schema, currentFavorito.objectName, currentFavorito.type)
-    } else {
-      upsertFavorito(object.schemaName, object.name, object.type, true)
-    }
-  }
 
   const handleRefresh = () => {
     if (!object || loading) return
@@ -42,7 +30,7 @@ export function HeaderUsertable({ onOpenSidebar }: Props) {
 
           {hasObject ? (
             <div className="flex min-w-0 items-center gap-1">
-              <ToggleFavoritoButton isFavorite={!!currentFavorito} onClick={handleToggleFavorito} />
+              <FavoritoToggle object={{ schemaName: object.schemaName, name: object.name, type: object.type }} />
 
               <ObjectName schemaName={object.schemaName} name={object.name} />
             </div>

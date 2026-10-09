@@ -19,7 +19,61 @@ describe('RegisterFavoritoParamsSchema', () => {
         objectName: 'fn_total',
         type: tipo,
         isActive: true,
+        scope: 'global',
       })
+    })
+  })
+
+  describe('normalización de scope', () => {
+    it('debería defaultear a global cuando no se envía', () => {
+      expect(
+        RegisterFavoritoParamsSchema.parse({
+          schema: 'dbo',
+          objectName: 'fn_total',
+          type: TypeSysObjectEnum.VIEW,
+          isActive: true,
+        }).scope,
+      ).toBe('global')
+    })
+
+    it('debería aceptar los alcances global, server y database', () => {
+      const alcances = ['global', 'server', 'database'] as const
+
+      alcances.forEach(alcance => {
+        expect(
+          RegisterFavoritoParamsSchema.parse({
+            schema: 'dbo',
+            objectName: 'fn_total',
+            type: TypeSysObjectEnum.VIEW,
+            isActive: true,
+            scope: alcance,
+          }).scope,
+        ).toBe(alcance)
+      })
+    })
+
+    it('debería normalizar el alcance a minúsculas', () => {
+      expect(
+        RegisterFavoritoParamsSchema.parse({
+          schema: 'dbo',
+          objectName: 'fn_total',
+          type: TypeSysObjectEnum.VIEW,
+          isActive: true,
+          scope: 'GLOBAL',
+        }).scope,
+      ).toBe('global')
+    })
+
+    it('debería rechazar un alcance desconocido', () => {
+      const resultado = RegisterFavoritoParamsSchema.safeParse({
+        schema: 'dbo',
+        objectName: 'fn_total',
+        type: TypeSysObjectEnum.VIEW,
+        isActive: true,
+        scope: 'per-schema',
+      })
+
+      expect(resultado.success).toBe(false)
     })
   })
 
@@ -118,6 +172,7 @@ describe('RegisterFavoritoParamsSchema', () => {
         objectName: 'fn_total',
         type: TypeSysObjectEnum.VIEW,
         isActive: true,
+        scope: 'global',
       })
     })
   })
@@ -164,6 +219,7 @@ describe('RegisterFavoritoParamsSchema', () => {
         objectName: 'fn_total',
         type: TypeSysObjectEnum.VIEW,
         isActive: false,
+        scope: 'global',
       })
     })
   })

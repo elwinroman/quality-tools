@@ -1,5 +1,11 @@
 import { ForFavoritoRepositoryPort } from '@favorito/domain/ports/drivens/for-favorito-repository.port'
-import { FavoritoInput, FavoritoRepoResponse } from '@favorito/domain/schemas/favorito'
+import {
+  FavoriteScopeContext,
+  FavoriteScopeKind,
+  FavoritoInput,
+  FavoritoRepoResponse,
+  resolveFavoriteScope,
+} from '@favorito/domain/schemas/favorito'
 import { Logger } from '@observability/domain/logger'
 
 export class RegisterFavoritoUseCase {
@@ -8,11 +14,17 @@ export class RegisterFavoritoUseCase {
     private readonly logger: Logger,
   ) {}
 
-  async execute(favoritoInput: FavoritoInput): Promise<{ data: FavoritoRepoResponse | null; message: string }> {
+  async execute(
+    favoritoInput: FavoritoInput,
+    context: FavoriteScopeContext,
+    scopeKind: FavoriteScopeKind,
+  ): Promise<{ data: FavoritoRepoResponse | null; message: string }> {
     const objectRef = `${favoritoInput.schema}.${favoritoInput.objectName}`
+    const scope = resolveFavoriteScope(scopeKind, context)
 
     const newFavorito = await this.repository.createOrUpdate({
       ...favoritoInput,
+      scope,
       date: new Date(), // fecha actual
     })
 

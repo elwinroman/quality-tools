@@ -2,7 +2,7 @@ import { SysobjectIdsInconsistencyException } from '@core/exceptions/store/sysob
 import { GetAllFavoritosUseCase } from '@favorito/application/use-cases/get-all-favorito.use-case'
 import { ForFavoritoRepositoryPort } from '@favorito/domain/ports/drivens/for-favorito-repository.port'
 import { ForSysObjectRepositoryPort, SysObject } from '@favorito/domain/ports/drivens/for-sysobject-repository.port'
-import { FavoritoFilter, FavoritoRepoResponse } from '@favorito/domain/schemas/favorito'
+import { FavoriteScopeContext, FavoritoFilter, FavoritoRepoResponse } from '@favorito/domain/schemas/favorito'
 import { Logger } from '@observability/domain/logger'
 import { Meta } from '@shared/domain/schemas/meta'
 import { TypeSysObjectEnum } from '@sysobject/domain/schemas/sysobject'
@@ -45,9 +45,15 @@ function createFakeSysObjectRepository(overrides: Partial<ForSysObjectRepository
   }
 }
 
+const CONTEXT: FavoriteScopeContext = {
+  serverName: 'SRV_PROD',
+  databaseName: 'RRHH',
+}
+
 const FILTER: FavoritoFilter = {
   idUser: 7,
   type: TypeSysObjectEnum.VIEW,
+  context: CONTEXT,
 }
 
 const LIMIT = 10
@@ -60,6 +66,7 @@ function buildRow(overrides: Partial<FavoritoRepoResponse> = {}): FavoritoRepoRe
     type: TypeSysObjectEnum.VIEW,
     date: new Date('2026-01-01T00:00:00.000Z'),
     isActive: false,
+    scope: { serverName: 'SRV_PROD', databaseName: 'RRHH' },
     ...overrides,
   }
 }

@@ -27,6 +27,8 @@ vi.mock('@/components/favoritos/hooks/useFavoritos', () => ({
     upsertFavorito: () => {},
     deleteFavorito: () => {},
     isFavorito: () => undefined,
+    findFavorito: () => undefined,
+    moveFavorito: () => {},
     loading: false,
   }),
 }))

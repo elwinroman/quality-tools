@@ -1,5 +1,5 @@
 import type { CurrentStoreContextResolver } from '@auth/domain/ports/drivens/current-store-context-resolver.port'
-import type { MSSQLExecutor } from '@core/store/mssql-query-runner'
+import type { MSSQLExecutor, MSSQLParameter } from '@core/store/mssql-query-runner'
 import { decodeRows } from '@core/utils/decode-recordset.util'
 import sql from 'mssql'
 
@@ -36,28 +36,29 @@ export class MssqlSysObjectIdRepositoryAdapter implements ForSysObjectIdReposito
 
     const { store } = await this.currentStoreContextResolver.resolve()
 
-    // el arreglo completo viaja como UN solo parámetro JSON: sin interpolación de SQL y sin el
-    // tope de 2100 parámetros de SQL Server, que rompería a un usuario con muchos favoritos
-    const payload = sysObjects.map((row, index) => ({ id: index, schema: row.schema, name: row.name }))
+    // Los valores viajan como parámetros enlazados (nunca interpolados). Se arma una tabla `VALUES`
+    // en lugar de `OPENJSON ... WITH (...)`: esa construcción producía "Incorrect syntax near '$.id'"
+    // en el entorno, así que se evita depender de las funciones JSON. El ordinal conserva el orden de
+    // entrada. El tope de 2100 parámetros de SQL Server no se alcanza: la lista que llega acá es corta
+    // (2 parámetros por objeto).
+    const parameters: MSSQLParameter[] = sysObjects.flatMap((row, index) => [
+      { name: `schema${index}`, type: sql.VarChar(255), value: row.schema },
+      { name: `name${index}`, type: sql.VarChar(255), value: row.name },
+    ])
+    const valueRows = sysObjects.map((_, index) => `(${index}, @schema${index}, @name${index})`).join(', ')
 
     const stmt = `
-        SELECT 
-          OBJECT_ID(CONCAT(schema_name, '.', object_name)) AS object_id
-        FROM OPENJSON(@objects)
-        WITH (
-          id INT '$.id',
-          schema_name VARCHAR(255) '$.schema',
-          object_name VARCHAR(255) '$.name'
-        )
-        ORDER BY id ASC
+        SELECT OBJECT_ID(CONCAT(v.schema_name, '.', v.object_name)) AS object_id
+        FROM (VALUES ${valueRows}) AS v(ordinal, schema_name, object_name)
+        ORDER BY v.ordinal ASC
       `
 
-    // `ORDER BY id ASC` sobre el índice de entrada conserva una fila por objeto en el orden original
+    // `ORDER BY v.ordinal ASC` sobre el índice de entrada conserva una fila por objeto en el orden original
     const res = await this.executor.query({
       credentials: store.credentials,
       userType: store.type,
       statement: stmt,
-      parameters: [{ name: 'objects', type: sql.NVarChar(sql.MAX), value: JSON.stringify(payload) }],
+      parameters,
     })
 
     return decodeRows(res.recordset, SysObjectIdRowSchema).map(sysobjectIdRowMapper)

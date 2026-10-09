@@ -1,7 +1,7 @@
 import { TriangleAlert } from 'lucide-react'
 
 import { EditorOptions, HeaderSidebarToggle, ObjectEditorHeader, ObjectName, RefreshObjectButton } from '@/components/editor-header'
-import { ToggleFavoritoButton, useFavoritoContext } from '@/components/favoritos'
+import { FavoritoToggle } from '@/components/favoritos'
 import { SearchTrigger } from '@/components/search/components/SearchTrigger'
 import { useEditorOptionsStore } from '@/zustand'
 
@@ -24,22 +24,10 @@ export function HeaderEditor({ activeTab, onOpenSidebar }: Props) {
   const currentEditorCode = useSysObjectStore((state) => state.currentEditorCode)
   const fetchSysObjectByName = useSysObjectStore((state) => state.fetchSysObjectByName)
   const normalizeWhitespace = useEditorOptionsStore((state) => state.normalizeWhitespace)
-  const { isFavorito, upsertFavorito, deleteFavorito } = useFavoritoContext()
 
   const isComparing = activeTab === TabOption.Compare
   // La vista solo aplica a los tabs que muestran código
   const showViewMode = activeTab === TabOption.Script || isComparing
-  const currentFavorito = sysobject ? isFavorito(sysobject.name, sysobject.schemaName) : undefined
-
-  const handleToggleFavorito = () => {
-    if (!sysobject) return
-
-    if (currentFavorito) {
-      deleteFavorito(currentFavorito.schema, currentFavorito.objectName, currentFavorito.type)
-    } else {
-      upsertFavorito(sysobject.schemaName, sysobject.name, sysobject.type, true)
-    }
-  }
 
   const handleRefresh = () => {
     if (!sysobject || isLoadingObject) return
@@ -55,7 +43,7 @@ export function HeaderEditor({ activeTab, onOpenSidebar }: Props) {
 
           {sysobject ? (
             <div className="flex min-w-0 items-center gap-1">
-              <ToggleFavoritoButton isFavorite={!!currentFavorito} onClick={handleToggleFavorito} />
+              <FavoritoToggle object={{ schemaName: sysobject.schemaName, name: sysobject.name, type: sysobject.type }} />
 
               <ObjectName schemaName={sysobject.schemaName} name={sysobject.name} />
             </div>

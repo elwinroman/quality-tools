@@ -7,9 +7,11 @@ interface Props {
   title: string
   children: React.ReactNode
   defaultOpen?: boolean
+  /** Contenido opcional junto al título, p. ej. un contador de ítems. */
+  badge?: React.ReactNode
 }
 
-export function CollapsibleSection({ title, children, defaultOpen = true }: Props) {
+export function CollapsibleSection({ title, children, defaultOpen = true, badge }: Props) {
   const [isOpen, setIsOpen] = useState(defaultOpen)
 
   return (
@@ -20,7 +22,10 @@ export function CollapsibleSection({ title, children, defaultOpen = true }: Prop
         onClick={() => setIsOpen((prev) => !prev)}
       >
         {/* Color y hover de texto con la misma regla que los ítems de menú */}
-        <span className="text-primary/60 group-hover/section:text-primary text-sm font-semibold">{title}</span>
+        <span className="flex min-w-0 items-center gap-1.5">
+          <span className="text-primary/60 group-hover/section:text-primary truncate text-sm font-semibold">{title}</span>
+          {badge != null && <span className="text-secondary group-hover/section:text-primary shrink-0 text-[11px]">{badge}</span>}
+        </span>
         <ChevronRight
           size={14}
           className={cn(

@@ -10,9 +10,12 @@ export interface ForFavoritoRepositoryPort {
   /**
    * Crea un nuevo favorito o actualiza uno existente si ya fue registrado previamente
    * por el mismo usuario y con las mismas propiedades clave
-   * (usuario + esquema + nombre de objeto).
+   * (usuario + alcance + esquema + nombre de objeto).
    *
-   * @param favoritoRepoInput - Datos del favorito, incluyendo el estado deseado (`isActive`).
+   * El alcance llega ya resuelto: el adaptador hace find-or-create en `dbo.FavoriteScope`
+   * cuando el alcance no es global.
+   *
+   * @param favoritoRepoInput - Datos del favorito, incluyendo el alcance concreto y el estado deseado (`isActive`).
    * @returns Un objeto con los datos persistidos, o `null` si no se escribió nada: porque se
    *          pidió desactivar un favorito que no existía, o porque la escritura no afectó filas.
    */

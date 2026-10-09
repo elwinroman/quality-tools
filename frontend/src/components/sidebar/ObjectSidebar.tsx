@@ -1,7 +1,7 @@
-import type { ReactNode } from 'react'
+import { type ReactNode, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { FavoritosList, useFavoritoContext } from '@/components/favoritos'
+import { FavoritosNav, useFavoritoContext } from '@/components/favoritos'
 import { SearchProvider } from '@/components/search/context/searchContext'
 import { Search } from '@/components/search/Search'
 import { ApiSysObjectType } from '@/models/sysobject'
@@ -58,6 +58,7 @@ export function ObjectSidebar({
 }: Props) {
   const navigate = useNavigate()
   const { favoritos, deleteFavorito } = useFavoritoContext()
+  const [favoritesResetSignal, setFavoritesResetSignal] = useState(0)
 
   const navigateToObject = (schema: string, name: string) => {
     if (!scope) return
@@ -70,14 +71,26 @@ export function ObjectSidebar({
     navigate(buildQualifiedSysObjectPath(scope.route, schema, name))
   }
 
+  // Vuelve a la pantalla principal de favoritos al plegar el sidebar o navegar,
+  // para que no reaparezca a mitad del drill-down.
+  const handleToggleSidebar = () => {
+    setFavoritesResetSignal((signal) => signal + 1)
+    onToggleSidebar()
+  }
+
+  const handleNavigate = () => {
+    setFavoritesResetSignal((signal) => signal + 1)
+    onNavigate?.()
+  }
+
   return (
     <Sidebar
-      header={<SidebarHeader showDatabase={showDatabase} isCollapsed={isCollapsed} onToggleSidebar={onToggleSidebar} />}
+      header={<SidebarHeader showDatabase={showDatabase} isCollapsed={isCollapsed} onToggleSidebar={handleToggleSidebar} />}
       footer={<SidebarFooter />}
     >
       <div className="flex flex-col gap-4">
         {/* Navegación entre páginas */}
-        {showNav && <SidebarNav className="shrink-0" onNavigate={onNavigate} />}
+        {showNav && <SidebarNav className="shrink-0" onNavigate={handleNavigate} />}
 
         {/* Cuerpo propio de la página */}
         {children}
@@ -90,14 +103,15 @@ export function ObjectSidebar({
               <Search />
             </SearchProvider>
 
-            {/* Favoritos: grupo propio, con el mismo padding que el grupo de menús */}
+            {/* Favoritos: entrada que abre la pantalla de grupos (drill-down) */}
             <div className="flex min-h-0 flex-1 flex-col">
-              <FavoritosList
+              <FavoritosNav
                 favoritos={favoritos}
                 onDelete={deleteFavorito}
                 onSelect={navigateToObject}
                 activeObjectName={scope.activeObject?.name}
                 activeSchema={scope.activeObject?.schemaName}
+                resetSignal={favoritesResetSignal}
               />
             </div>
           </>

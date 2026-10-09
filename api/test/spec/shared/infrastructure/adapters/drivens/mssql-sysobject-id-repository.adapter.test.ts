@@ -30,11 +30,11 @@ describe('MssqlSysObjectIdRepositoryAdapter.findIDsByNameAndSchema', () => {
     connectionControl.connect.mockResolvedValue({
       request: () => ({ input: connectionControl.input, query: connectionControl.query }),
     })
-    connectionControl.input.mockReturnValue({ query: connectionControl.query })
+    connectionControl.input.mockReturnValue({ input: connectionControl.input, query: connectionControl.query })
     connectionControl.query.mockResolvedValue({ recordset: [] })
   })
 
-  it('debería enviar un nombre con apóstrofe como parámetro JSON en vez de interpolarlo en el SQL', async () => {
+  it('debería enviar un nombre con apóstrofe como parámetro enlazado en vez de interpolarlo en el SQL', async () => {
     connectionControl.query.mockResolvedValue({ recordset: [{ object_id: 7 }] })
 
     const adapter = new MssqlSysObjectIdRepositoryAdapter(queryRunner, currentStoreContextResolver)
@@ -44,16 +44,18 @@ describe('MssqlSysObjectIdRepositoryAdapter.findIDsByNameAndSchema', () => {
 
     const [stmt] = connectionControl.query.mock.calls[0]
     // el SQL es fijo: ni el apóstrofe ni los nombres crudos viajan dentro de la sentencia
-    expect(stmt).toContain('OPENJSON(@objects)')
+    expect(stmt).toContain('FROM (VALUES')
     expect(stmt).not.toContain("O'Brien")
     expect(stmt).not.toContain("Ven'tas")
 
-    const [paramName, , rawPayload] = connectionControl.input.mock.calls[0]
-    expect(paramName).toBe('objects')
-    expect(JSON.parse(rawPayload)).toEqual([{ id: 0, schema: "Ven'tas", name: "O'Brien" }])
+    const inputs = connectionControl.input.mock.calls
+    expect(inputs[0][0]).toBe('schema0')
+    expect(inputs[0][2]).toBe("Ven'tas")
+    expect(inputs[1][0]).toBe('name0')
+    expect(inputs[1][2]).toBe("O'Brien")
   })
 
-  it('debería conservar el orden de entrada en el payload y en el ORDER BY', async () => {
+  it('debería conservar el orden de entrada en los parámetros y en el ORDER BY', async () => {
     connectionControl.query.mockResolvedValue({ recordset: [{ object_id: 10 }, { object_id: null }] })
 
     const adapter = new MssqlSysObjectIdRepositoryAdapter(queryRunner, currentStoreContextResolver)
@@ -66,12 +68,14 @@ describe('MssqlSysObjectIdRepositoryAdapter.findIDsByNameAndSchema', () => {
     expect(result).toEqual([10, null])
 
     const [stmt] = connectionControl.query.mock.calls[0]
-    expect(stmt).toContain('ORDER BY id ASC')
+    expect(stmt).toContain('ORDER BY v.ordinal ASC')
 
-    const [, , rawPayload] = connectionControl.input.mock.calls[0]
-    expect(JSON.parse(rawPayload)).toEqual([
-      { id: 0, schema: 'dbo', name: 'primera' },
-      { id: 1, schema: 'dbo', name: 'segunda' },
+    const inputs = connectionControl.input.mock.calls.map(call => [call[0], call[2]])
+    expect(inputs).toEqual([
+      ['schema0', 'dbo'],
+      ['name0', 'primera'],
+      ['schema1', 'dbo'],
+      ['name1', 'segunda'],
     ])
   })
 

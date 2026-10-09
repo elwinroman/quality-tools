@@ -1,5 +1,6 @@
 import { CacheSessionCredentialStoreAdapter } from '@auth/infrastructure/adapters/drivens/cache-session-credential-store.adapter'
 import { CurrentStoreContextResolverAdapter } from '@auth/infrastructure/adapters/drivens/current-store-context-resolver.adapter'
+import { MssqlUserRepositoryAdapter } from '@auth/infrastructure/adapters/drivens/mssql-user-repository.adapter'
 import { ValkeyCacheRepository } from '@core/cache/valkey-cache-repository'
 import { createCredentialDecryptor } from '@core/crypto/create-credential-decryptor.factory'
 import { createCredentialEncryptor } from '@core/crypto/create-credential-encryptor.factory'
@@ -21,7 +22,7 @@ import { RegisterFavoritoController } from './controllers/register-favorito/regi
  *************************************/
 const compositionRoot = () => {
   // DRIVENS
-  const repository = new MSSQLFavoritoRepositoryAdapter(mssqlQueryRunner) // repositorio de favorito
+  const repository = new MSSQLFavoritoRepositoryAdapter(mssqlQueryRunner, mssqlQueryRunner) // repositorio de favorito
   const cacheRepository = new ValkeyCacheRepository()
   const credentialDecryptor = createCredentialDecryptor()
   const credentialEncryptor = createCredentialEncryptor()
@@ -33,6 +34,8 @@ const compositionRoot = () => {
   )
   const currentStoreContextResolver = new CurrentStoreContextResolverAdapter(sessionCredentialStore)
   const sysobjectRepository = new MssqlSysObjectIdRepositoryAdapter(mssqlQueryRunner, currentStoreContextResolver)
+  // El alcance necesita el server de instancia del usuario (cServer), resuelto desde dbo.Usuario.
+  const userRepository = new MssqlUserRepositoryAdapter(mssqlQueryRunner, mssqlQueryRunner)
 
   // USE CASES
   const registerFavoritoUC = new RegisterFavoritoUseCase(repository, logger)
@@ -42,8 +45,8 @@ const compositionRoot = () => {
   const service = new FavoritoManagerService(registerFavoritoUC, getAllFavoritosUC)
 
   // CONTROLLERS
-  const registerFavoritoController = new RegisterFavoritoController(service, currentStoreContextResolver)
-  const getAllFavoritosController = new GetAllFavoritosController(service, currentStoreContextResolver)
+  const registerFavoritoController = new RegisterFavoritoController(service, currentStoreContextResolver, userRepository)
+  const getAllFavoritosController = new GetAllFavoritosController(service, currentStoreContextResolver, userRepository)
 
   return { registerFavoritoController, getAllFavoritosController }
 }

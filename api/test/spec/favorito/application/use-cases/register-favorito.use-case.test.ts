@@ -1,6 +1,12 @@
 import { RegisterFavoritoUseCase } from '@favorito/application/use-cases/register-favorito.use-case'
 import { ForFavoritoRepositoryPort } from '@favorito/domain/ports/drivens/for-favorito-repository.port'
-import { FavoritoInput, FavoritoRepoInput, FavoritoRepoResponse } from '@favorito/domain/schemas/favorito'
+import {
+  FavoriteScope,
+  FavoriteScopeContext,
+  FavoritoInput,
+  FavoritoRepoInput,
+  FavoritoRepoResponse,
+} from '@favorito/domain/schemas/favorito'
 import { Logger } from '@observability/domain/logger'
 import { TypeSysObjectEnum } from '@sysobject/domain/schemas/sysobject'
 import { describe, expect, it } from 'vitest'
@@ -38,6 +44,15 @@ function createFakeRepository(overrides: Partial<ForFavoritoRepositoryPort> = {}
   }
 }
 
+const CONTEXT: FavoriteScopeContext = {
+  serverName: 'SRV_PROD',
+  databaseName: 'RRHH',
+}
+
+const GLOBAL_SCOPE: FavoriteScope = { serverName: null, databaseName: null }
+const SERVER_SCOPE: FavoriteScope = { serverName: 'SRV_PROD', databaseName: null }
+const DATABASE_SCOPE: FavoriteScope = { serverName: 'SRV_PROD', databaseName: 'RRHH' }
+
 const FAVORITO_INPUT: FavoritoInput = {
   idUser: 7,
   schema: 'dbo',
@@ -53,6 +68,7 @@ const REPOSITORY_RESPONSE: FavoritoRepoResponse = {
   type: FAVORITO_INPUT.type,
   date: new Date('2026-01-01T00:00:00.000Z'),
   isActive: true,
+  scope: DATABASE_SCOPE,
 }
 
 describe('RegisterFavoritoUseCase', () => {
@@ -68,10 +84,10 @@ describe('RegisterFavoritoUseCase', () => {
       const { logger, calls } = createFakeLogger()
       const useCase = new RegisterFavoritoUseCase(repository, logger)
 
-      const result = await useCase.execute(FAVORITO_INPUT)
+      const result = await useCase.execute(FAVORITO_INPUT, CONTEXT, 'database')
 
       expect(persisted).toHaveLength(1)
-      expect(persisted[0]).toMatchObject({ ...FAVORITO_INPUT, isActive: true })
+      expect(persisted[0]).toMatchObject({ ...FAVORITO_INPUT, isActive: true, scope: DATABASE_SCOPE })
       expect(persisted[0].date).toBeInstanceOf(Date)
       expect(result).toEqual({
         data: REPOSITORY_RESPONSE,
@@ -79,6 +95,53 @@ describe('RegisterFavoritoUseCase', () => {
       })
       expect(calls).toHaveLength(1)
       expect(calls[0].level).toBe('info')
+    })
+  })
+
+  describe('resolución de alcance', () => {
+    it('debería persistir ambos nombres en null cuando el alcance es global', async () => {
+      const persisted: FavoritoRepoInput[] = []
+      const repository = createFakeRepository({
+        createOrUpdate: async input => {
+          persisted.push(input)
+          return { data: { ...REPOSITORY_RESPONSE, scope: GLOBAL_SCOPE } }
+        },
+      })
+      const useCase = new RegisterFavoritoUseCase(repository, createFakeLogger().logger)
+
+      await useCase.execute(FAVORITO_INPUT, CONTEXT, 'global')
+
+      expect(persisted[0].scope).toEqual(GLOBAL_SCOPE)
+    })
+
+    it('debería conservar solo el servidor cuando el alcance es por servidor', async () => {
+      const persisted: FavoritoRepoInput[] = []
+      const repository = createFakeRepository({
+        createOrUpdate: async input => {
+          persisted.push(input)
+          return { data: { ...REPOSITORY_RESPONSE, scope: SERVER_SCOPE } }
+        },
+      })
+      const useCase = new RegisterFavoritoUseCase(repository, createFakeLogger().logger)
+
+      await useCase.execute(FAVORITO_INPUT, CONTEXT, 'server')
+
+      expect(persisted[0].scope).toEqual(SERVER_SCOPE)
+    })
+
+    it('debería conservar servidor y base cuando el alcance es por base', async () => {
+      const persisted: FavoritoRepoInput[] = []
+      const repository = createFakeRepository({
+        createOrUpdate: async input => {
+          persisted.push(input)
+          return { data: REPOSITORY_RESPONSE }
+        },
+      })
+      const useCase = new RegisterFavoritoUseCase(repository, createFakeLogger().logger)
+
+      await useCase.execute(FAVORITO_INPUT, CONTEXT, 'database')
+
+      expect(persisted[0].scope).toEqual(DATABASE_SCOPE)
     })
   })
 
@@ -98,10 +161,14 @@ describe('RegisterFavoritoUseCase', () => {
       const { logger, calls } = createFakeLogger()
       const useCase = new RegisterFavoritoUseCase(repository, logger)
 
-      const result = await useCase.execute({
-        ...FAVORITO_INPUT,
-        isActive: false,
-      })
+      const result = await useCase.execute(
+        {
+          ...FAVORITO_INPUT,
+          isActive: false,
+        },
+        CONTEXT,
+        'database',
+      )
 
       expect(persisted[0].isActive).toBe(false)
       expect(result).toEqual({
@@ -121,10 +188,14 @@ describe('RegisterFavoritoUseCase', () => {
       const { logger, calls } = createFakeLogger()
       const useCase = new RegisterFavoritoUseCase(repository, logger)
 
-      const result = await useCase.execute({
-        ...FAVORITO_INPUT,
-        isActive: false,
-      })
+      const result = await useCase.execute(
+        {
+          ...FAVORITO_INPUT,
+          isActive: false,
+        },
+        CONTEXT,
+        'database',
+      )
 
       expect(result).toEqual({
         data: null,
@@ -142,7 +213,7 @@ describe('RegisterFavoritoUseCase', () => {
       })
       const useCase = new RegisterFavoritoUseCase(repository, createFakeLogger().logger)
 
-      await expect(useCase.execute(FAVORITO_INPUT)).rejects.toThrow('Error al insertar o updatear un favorito')
+      await expect(useCase.execute(FAVORITO_INPUT, CONTEXT, 'database')).rejects.toThrow('Error al insertar o updatear un favorito')
     })
   })
 })

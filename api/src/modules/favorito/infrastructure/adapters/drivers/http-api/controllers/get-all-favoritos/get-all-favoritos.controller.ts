@@ -1,6 +1,7 @@
 import { CurrentStoreContextResolver } from '@auth/domain/ports/drivens/current-store-context-resolver.port'
+import { ForUserRepositoryPort } from '@auth/domain/ports/drivens/for-user-repository.port'
 import { ForFavoritoManagingPort } from '@favorito/domain/ports/drivers/for-favorito-managing.port'
-import { FavoritoFilter } from '@favorito/domain/schemas/favorito'
+import { FavoriteScopeContext, FavoritoFilter } from '@favorito/domain/schemas/favorito'
 import { TypeSysObject } from '@sysobject/domain/schemas/sysobject'
 import { NextFunction, Request, Response } from 'express'
 
@@ -10,6 +11,7 @@ export class GetAllFavoritosController {
   constructor(
     private readonly service: ForFavoritoManagingPort,
     private readonly currentStoreContextResolver: CurrentStoreContextResolver,
+    private readonly userRepository: ForUserRepositoryPort,
   ) {}
 
   async run(req: Request, res: Response, next: NextFunction) {
@@ -19,11 +21,23 @@ export class GetAllFavoritosController {
       const dto: GetAllFavoritosQuery = GetAllFavoritosQuerySchema.parse({ type, limit })
 
       // credenciales de usuario e idUser
-      const { authContext } = await this.currentStoreContextResolver.resolve()
+      const { authContext, store } = await this.currentStoreContextResolver.resolve()
+
+      // El contexto de alcance se resuelve server-side: servidor de la instancia del usuario
+      // (cServer / @@SERVERNAME) y la base del store activo de la sesión.
+      const user = await this.userRepository.getById(authContext.userId)
+
+      if (!user) throw new Error('No se pudo resolver el servidor del usuario autenticado')
+
+      const context: FavoriteScopeContext = {
+        serverName: user.host,
+        databaseName: store.credentials.database,
+      }
 
       const filter: FavoritoFilter = {
         type: dto.type as TypeSysObject,
         idUser: authContext.userId,
+        context,
       }
 
       const { data, meta } = await this.service.getAllFavoritos(filter, dto.limit)

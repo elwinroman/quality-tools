@@ -13,7 +13,18 @@ import { z } from 'zod'
  *
  * Hablan el vocabulario de la base (`cSchema`, `lVigente`), nunca el del dominio.
  * Es el único punto que conoce los dos, así que si el puerto cambia esto no compila.
+ *
+ * Las consultas proyectan también el alcance (`FavoriteScopeId`, `ServerName`,
+ * `DatabaseName`) desde `dbo.FavoriteScope`; el mapper lo traduce a `scope`.
  */
+
+// ── columnas de alcance compartidas ─────────────────────────────────────────
+
+const scopeColumns = {
+  FavoriteScopeId: z.number().int(),
+  ServerName: z.string().nullable(),
+  DatabaseName: z.string().nullable(),
+}
 
 // ── createOrUpdate ──────────────────────────────────────────────────────────
 
@@ -25,6 +36,7 @@ export const FavoritoRowSchema = z.object({
   cType: z.string().trim(),
   dFecha: z.date(),
   lVigente: z.boolean(),
+  ...scopeColumns,
 })
 
 export type FavoritoRow = z.infer<typeof FavoritoRowSchema>
@@ -37,6 +49,7 @@ export function favoritoRowMapper(row: FavoritoRow): FavoritoRepoResponse {
     type: row.cType,
     date: row.dFecha,
     isActive: row.lVigente,
+    scope: { serverName: row.ServerName, databaseName: row.DatabaseName },
   }
 }
 
@@ -71,5 +84,6 @@ export function favoritoEntityRowMapper(row: FavoritoEntityRow): Favorito {
     type: row.cType,
     date: row.dFecha,
     isActive: row.lVigente,
+    scope: { serverName: row.ServerName, databaseName: row.DatabaseName },
   }
 }

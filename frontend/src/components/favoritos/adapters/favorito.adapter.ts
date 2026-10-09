@@ -8,5 +8,7 @@ export const favoritoAdapter = (apiResponse: FavoritoApiResponse): Favorito[] =>
     schema: fav.schema,
     type: fav.type,
     date: fav.date,
+    // Respuestas previas al alcance no traen `scope`: se asume global.
+    scope: fav.scope ?? { serverName: null, databaseName: null },
   }))
 }
