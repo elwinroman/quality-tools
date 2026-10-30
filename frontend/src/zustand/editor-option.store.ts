@@ -7,7 +7,7 @@ import { IMonacoTheme } from '@/models'
 import { BearEditorOptionsState } from '@/models/zustand'
 
 /** Version actual de la forma persistida. Se incrementa al romper compatibilidad. */
-const PERSIST_VERSION = 2
+const PERSIST_VERSION = 3
 
 /** Tema por defecto cuando no hay una preferencia valida persistida. */
 const DEFAULT_THEME: IMonacoTheme = DEFAULT_EDITOR_THEME_PREFERENCE.theme
@@ -147,6 +147,11 @@ export const useEditorOptionsStore = create<BearEditorOptionsState>()(
         if (version >= PERSIST_VERSION) {
           return { ...migratedState, themeMode: isEditorThemeMode(state.themeMode) ? state.themeMode : DEFAULT_MODE }
         }
+
+        // v2 -> v3: se fuerza una vez "seguir la apariencia de la app" para que los
+        // usuarios existentes dejen de arrastrar un tema fijado en localStorage. La
+        // preferencia se puede volver a cambiar desde el panel despues de esta migracion.
+        if (version >= 2) return { ...migratedState, themeMode: DEFAULT_MODE }
 
         // v0/v1 solo guardaban un tema: si era valido se conserva tal cual en modo
         // unico (misma apariencia que el usuario ya tenia); si no habia una
