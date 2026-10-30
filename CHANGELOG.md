@@ -4,6 +4,85 @@ Todos los cambios relevantes del proyecto se documentan en este archivo.
 
 El formato está inspirado en [Keep a Changelog](https://keepachangelog.com/) y el versionado debe mantenerse alineado entre `APP_VERSION`, `api/package.json` y `frontend/package.json` al publicar una versión.
 
+## [2.1.0] - 2026-10-29
+
+### Título de la versión
+
+**Favoritos con alcance, trazas OTLP y despliegue seguro**
+
+### Resumen ejecutivo
+
+Esta versión incorpora favoritos con alcance global/servidor/base y su v2 de base de datos, un rediseño del frontend (navegación, temas, tabs y overviews), filtros de Query Store, cobertura de tests y CI para el frontend, y trazas OpenTelemetry con spans SQL legibles. El despliegue deja de recrear Valkey: exige que ya esté corriendo y reconstruye solo backend y frontend.
+
+### Highlights
+
+- **Favoritos con alcance:** el mismo objeto puede guardarse por alcance global, de servidor o de base, con unicidad por usuario + alcance + esquema + nombre y migración aditiva.
+- **Observabilidad de trazas:** exportación OTLP opcional, redacción de `db.user`, SQL normalizado y nombres de span por verbo y destino.
+- **Frontend renovado:** sidebar y header unificados, tabs persistentes, temas SQL/Monaco, overviews de SQL Definition y Usertable, buscadores y atajos.
+- **Calidad:** suite de tests del frontend con Vitest, workflow de CI para frontend y backend, y mayor cobertura de DTOs, casos de uso y contratos HTTP.
+- **Despliegue más seguro:** Valkey se trata como infraestructura preexistente y el deploy valida backend y frontend al finalizar.
+
+### Added
+
+- Favoritos con alcance global/servidor/base: tabla `dbo.FavoriteScope`, columnas y unicidad nuevas, endpoints y UI.
+- Script `api/db/v2/01_MD.sql` con el estado estructural completo del alcance.
+- Endpoint de opciones/filtros de Query Store y su consumo desde el frontend.
+- Trazas OpenTelemetry: `OTEL_TRACES_ENABLED`, endpoint OTLP de trazas, redacción de `db.user` y resumen de spans SQL.
+- Frontend: temas SQL y de editor, preferencia de tema, tabs persistentes, componentes compartidos de overview/relaciones/header, atajo `/` en buscadores y mejoras de sidebar.
+- Infraestructura de tests del frontend, workflow de CI y cobertura adicional de API.
+
+### Changed
+
+- Contrato de favoritos: `PUT /upsert` pasa a `PUT /`; el borrado se resuelve con el mismo upsert y se retira `DELETE /:id`.
+- Scripts de base de datos versionados en `api/db/v1/`; los nuevos cambios viven en `api/db/v2/`.
+- Ejecución MSSQL centralizada, conexión singleton y errores crudos clasificados; normalización de fechas UTC.
+- Autenticación: el servidor pasa a ser dueño de la base activa y se evita pisarla con cambios concurrentes; se preserva la expiración de sesión.
+- Despliegue: Valkey debe estar corriendo; `setup/02_build_and_deploy.sh` reconstruye solo backend y frontend con `--no-deps` y verifica el estado final.
+- Versión alineada a `2.1.0` en `APP_VERSION`, `api/package.json` y `frontend/package.json`.
+
+### Fixed
+
+- Navegación y búsqueda del frontend, colores de modo claro, switch de base en mobile y claves estables en búsquedas recientes.
+- Formato de `float`, coerción numérica de DTOs, rechazo de esquema/objeto vacíos y validación del hash de usuario.
+- Clasificación de errores de base de datos y traducción de errores de conexión en login.
+- Formato de fechas ISO sin zona horaria anclado a UTC.
+
+### Removed
+
+- Adaptadores, utilidades y repositorios duplicados o muertos, consolidados en contratos y gateways.
+- `DELETE /:id` de favoritos; el borrado se realiza con el upsert.
+
+### Security
+
+- Actualización de `mssql` a `11.0.2` por hardening de seguridad.
+- Endurecimiento de DTOs de entrada y validaciones de parámetros.
+- Revisión de permisos de los SP de metadatos: confirmar el retiro de `GRANT EXECUTE` a `Rol_QAConsulta` antes de desplegar.
+
+### Operational notes
+
+- Ejecutar `api/db/v2/01_MD.sql` antes del backend; es aditivo y no rompiente, pero requiere backup.
+- Valkey debe estar corriendo antes de `setup/02_build_and_deploy.sh`.
+- Mantener `OTEL_METRICS_ENABLED=true` para el dashboard de TPS; las trazas se habilitan con `OTEL_TRACES_ENABLED=true`.
+- En métricas HTTP, los `OPTIONS` ya no se cuentan y se retiraron los labels de recurso `host.*`/`process.*`.
+
+### Migration/upgrade checklist
+
+- [ ] Hacer backup de la base.
+- [ ] Ejecutar `api/db/v2/01_MD.sql`.
+- [ ] Confirmar el cambio de permisos de `api/db/v1/03_SP_Produccion.sql` con el DBA.
+- [ ] Configurar `OTEL_TRACES_ENABLED` y `OTEL_EXPORTER_OTLP_TRACES_ENDPOINT`; mantener `OTEL_METRICS_ENABLED=true`.
+- [ ] Verificar que Valkey esté corriendo antes del deploy.
+- [ ] Desplegar backend y frontend con el script actualizado.
+- [ ] Verificar login, cambio de base, favoritos, trazas y métricas.
+- [ ] Tag `v2.1.0` después del deploy.
+
+### Compatibility and breaking changes
+
+- **Favoritos:** consumidores de la API deben migrar de `PUT /upsert` a `PUT /` y del borrado por `DELETE /:id` al upsert.
+- **Base de datos:** los scripts cambian de ruta a `api/db/v1/` y se agrega `api/db/v2/`; el despliegue debe ejecutar la v2.
+- **Despliegue:** el script ya no crea Valkey; si no está corriendo, falla explícitamente.
+- **Métricas:** dashboards que filtren por `host.*`/`process.*` o cuenten `OPTIONS` deben ajustarse.
+
 ## [2.0.0] - 2026-07-14
 
 ### Título de la versión
