@@ -1,5 +1,5 @@
 import { RotateCcw, Settings, X } from 'lucide-react'
-import { MouseEvent } from 'react'
+import { MouseEvent, useState } from 'react'
 import { toast } from 'sonner'
 
 import { FontSize, ThemeEditor } from '@/components/editor-option'
@@ -21,6 +21,13 @@ const RenderWhitespaceOption = {
 } as const
 
 export function ConfigOptionEditor({ className = '' }: Props) {
+  const [openSelectCount, setOpenSelectCount] = useState(0)
+  const isSelectOpen = openSelectCount > 0
+
+  const handleSelectOpenChange = (open: boolean) => {
+    setOpenSelectCount((count) => Math.max(0, count + (open ? 1 : -1)))
+  }
+
   const { guides, stickyScroll, minimap, renderWhitespace } = useEditorOptionsStore((state) => state)
   const resetEditorOptions = useEditorOptionsStore((state) => state.resetEditorOptions)
   const updateRenderWhitespace = useEditorOptionsStore((state) => state.updateRenderWhitespace)
@@ -99,7 +106,24 @@ export function ConfigOptionEditor({ className = '' }: Props) {
       </SheetTrigger>
 
       {/* Contenido */}
-      <SheetContent side="right" className="bg-background-card overflow-y-auto">
+      <SheetContent
+        side="right"
+        className="bg-background-card overflow-y-auto"
+        // El Select de tema se renderiza en un portal fuera del Sheet. Sin esto,
+        // Radix lo trata como una interaccion externa y cierra el panel al abrir
+        // o elegir una opcion.
+        onInteractOutside={(event) => {
+          // Mientras un Select esta abierto, cualquier interaccion es del Select o de
+          // su portal: cerrar tambien el Sheet deja el panel inutilizable. El primer
+          // click cierra el Select; el siguiente, ya sin Select abierto, cierra el Sheet.
+          if (isSelectOpen) {
+            event.preventDefault()
+            return
+          }
+
+          if ((event.target as HTMLElement | null)?.closest('[data-radix-popper-content-wrapper]')) event.preventDefault()
+        }}
+      >
         <SheetHeader>
           <SheetTitle className="flex items-center justify-between">
             <span>Configuración de editor</span>
@@ -133,7 +157,7 @@ export function ConfigOptionEditor({ className = '' }: Props) {
           <SheetDescription>
             <div className="flex flex-col gap-5">
               <p>Ajusta las preferencias del editor según tus necesidades.</p>
-              <ThemeEditor />
+              <ThemeEditor onSelectOpenChange={handleSelectOpenChange} />
 
               {/* El control va en su propia fila, como el resto de los ajustes: compartir fila
                   con el bloque de temas lo comprimia y desbordaba en X. */}

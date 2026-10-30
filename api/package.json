@@ -1,6 +1,6 @@
 {
   "name": "api",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Api rest interna",
   "type": "module",
   "packageManager": "pnpm@11.19.0",

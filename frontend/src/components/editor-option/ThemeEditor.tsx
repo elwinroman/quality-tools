@@ -20,6 +20,7 @@ interface SelectRowProps {
   value: string
   options: readonly { value: string; label: string }[]
   onChange: (value: string) => void
+  onOpenChange?: (open: boolean) => void
 }
 
 /**
@@ -29,12 +30,12 @@ interface SelectRowProps {
  * es labelable, asi que un label envolvente le roba el nombre accesible y puede
  * activar el control dos veces. En su lugar el trigger recibe `aria-label`.
  */
-function SelectRow({ label, value, options, onChange }: SelectRowProps) {
+function SelectRow({ label, value, options, onChange, onOpenChange }: SelectRowProps) {
   return (
     <div className="text-primary/70 flex items-center justify-between gap-2 text-xs">
       <span>{label}</span>
 
-      <Select value={value} onValueChange={onChange}>
+      <Select value={value} onValueChange={onChange} onOpenChange={onOpenChange}>
         <SelectTrigger className={SELECT_TRIGGER_CLASS} aria-label={label}>
           <SelectValue />
         </SelectTrigger>
@@ -51,7 +52,11 @@ function SelectRow({ label, value, options, onChange }: SelectRowProps) {
   )
 }
 
-export function ThemeEditor() {
+interface ThemeEditorProps {
+  onSelectOpenChange?: (open: boolean) => void
+}
+
+export function ThemeEditor({ onSelectOpenChange }: ThemeEditorProps) {
   const { themeMode, theme, lightTheme, darkTheme, updateThemeMode, updateTheme, updateLightTheme, updateDarkTheme } =
     useEditorOptionsStore((state) => state)
 
@@ -62,6 +67,7 @@ export function ThemeEditor() {
         value={themeMode}
         options={MODE_OPTIONS}
         onChange={(value) => updateThemeMode(value as typeof themeMode)}
+        onOpenChange={onSelectOpenChange}
       />
 
       {themeMode === EDITOR_THEME_MODE.single && (
@@ -70,6 +76,7 @@ export function ThemeEditor() {
           value={theme}
           options={THEME_OPTIONS}
           onChange={(value) => updateTheme(value as IMonacoThemeId)}
+          onOpenChange={onSelectOpenChange}
         />
       )}
 
@@ -80,12 +87,14 @@ export function ThemeEditor() {
             value={lightTheme}
             options={THEME_OPTIONS}
             onChange={(value) => updateLightTheme(value as IMonacoThemeId)}
+            onOpenChange={onSelectOpenChange}
           />
           <SelectRow
             label={EDITOR_THEME_LABELS.darkTheme}
             value={darkTheme}
             options={THEME_OPTIONS}
             onChange={(value) => updateDarkTheme(value as IMonacoThemeId)}
+            onOpenChange={onSelectOpenChange}
           />
         </>
       )}

@@ -134,3 +134,4 @@ dist
 *.sh text eol=lf
 # Local Pi runtime state
 .atl/
+odd/

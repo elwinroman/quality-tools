@@ -4,6 +4,12 @@ Todos los cambios relevantes del proyecto se documentan en este archivo.
 
 El formato está inspirado en [Keep a Changelog](https://keepachangelog.com/) y el versionado debe mantenerse alineado entre `APP_VERSION`, `api/package.json` y `frontend/package.json` al publicar una versión.
 
+## [2.1.1] - 2026-10-30
+
+### Fixed
+
+- El panel de configuración del editor ya no se cierra al abrir o elegir opciones en los selects de tema. Mientras un select está abierto, el primer click fuera lo cierra a él y el siguiente cierra el panel.
+
 ## [2.1.0] - 2026-10-29
 
 ### Título de la versión
