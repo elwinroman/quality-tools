@@ -2,10 +2,19 @@ import { Search as SearchIcon } from 'lucide-react'
 import { useEffect } from 'react'
 
 import { Button } from '@/components/ui'
+import { cn } from '@/lib/utils'
 
 import { dialogSearchContext } from '../context/dialogSearchContext'
 
-export function SearchTrigger() {
+interface Props {
+  className?: string
+}
+
+/**
+ * Abre el modal de búsqueda de objetos. Además escucha la tecla `/` para abrirlo
+ * desde cualquier lado; el atajo ya no se anuncia en el botón.
+ */
+export function SearchTrigger({ className }: Props) {
   const { open, updateOpen } = dialogSearchContext()
 
   useEffect(() => {
@@ -30,14 +39,26 @@ export function SearchTrigger() {
   }
 
   return (
-    <Button variant="myGhost" size="sm" className="flex w-full justify-between overflow-hidden" onClick={handleClick}>
-      <div className="flex items-center gap-2">
-        <SearchIcon size={16} className="text-muted" />
-        <span className="text-xs text-ellipsis whitespace-nowrap">Buscar objeto</span>
-      </div>
+    <Button
+      variant="outline"
+      size="sm"
+      className={cn(
+        'group border-gentle-pink-500/60 bg-gentle-pink-100 text-gentle-pink-700 hover:border-gentle-pink-500 hover:bg-gentle-pink-200 hover:text-gentle-pink-800 dark:bg-gentle-pink-900/70 dark:text-gentle-pink-200 dark:hover:bg-gentle-pink-900 flex h-7 min-w-[112px] items-center justify-between gap-2 px-2',
+        className,
+      )}
+      onClick={handleClick}
+    >
+      <span className="flex items-center gap-2">
+        <SearchIcon size={16} className="shrink-0 text-current" />
+        <span className="text-xs whitespace-nowrap text-current">Buscar</span>
+      </span>
 
-      <kbd className="bg-card text-muted-foreground pointer-events-none inline-flex h-5 items-center gap-1 rounded border px-1.5 font-mono font-medium opacity-100 select-none">
-        <span className="mt-0.5 text-xs">/</span>
+      {/* El atajo se muestra al apuntar; sin hover disponible (táctil) queda siempre visible */}
+      <kbd
+        aria-hidden="true"
+        className="rounded-sm bg-black px-1 py-0.5 font-sans text-[10px] leading-none font-medium text-white opacity-0 transition-opacity group-hover:opacity-100 [@media(hover:none)]:opacity-100"
+      >
+        /
       </kbd>
     </Button>
   )

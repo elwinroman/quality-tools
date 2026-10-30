@@ -1,36 +1,35 @@
-import { DatabaseName, getStaticDatabaseCredentials, MSSQLDatabaseConnection } from '@core/store'
-import { wrapDatabaseError } from '@core/utils'
+import { DatabaseName, getStaticDatabaseCredentials } from '@core/store'
+import { MSSQLExecutor } from '@core/store/mssql-query-runner'
 import { ForLogRepositoryPort, SearchLog } from '@sysobject/domain/ports/drivens/for-log-repository.port'
 import sql from 'mssql'
 
 export class MssqlLogRepositoryAdapter implements ForLogRepositoryPort {
-  private connection = new MSSQLDatabaseConnection()
   private db = getStaticDatabaseCredentials(DatabaseName.APP)
 
-  async createSearchLog(logSearch: SearchLog): Promise<boolean> {
-    try {
-      const conn = await this.connection.connect(this.db.credentials, this.db.type)
-      const request = conn.request()
+  constructor(private readonly executor: MSSQLExecutor) {}
 
-      const stmt = `
+  async createSearchLog(logSearch: SearchLog): Promise<boolean> {
+    const stmt = `
         INSERT INTO dbo.LogBusqueda (idUsuario, idTipoAccion, cDatabase, cSchema, cBusqueda, cType, lProduccion, dFechaBusqueda)
         VALUES (@idUser, @actionType, @database, @schema, @search, @type, @isProduction, @createdAt)
       `
-      request.input('idUser', sql.Int, logSearch.idUser)
-      request.input('actionType', sql.Int, logSearch.actionType)
-      request.input('database', sql.VarChar(64), logSearch.database)
-      request.input('schema', sql.VarChar(64), logSearch.schema)
-      request.input('search', sql.VarChar(128), logSearch.search)
-      request.input('type', sql.Char(2), logSearch.type)
-      request.input('isProduction', sql.Bit, logSearch.isProduction)
-      request.input('createdAt', sql.DateTime, logSearch.createdAt)
+    const res = await this.executor.query({
+      credentials: this.db.credentials,
+      userType: this.db.type,
+      statement: stmt,
+      parameters: [
+        { name: 'idUser', type: sql.Int, value: logSearch.idUser },
+        { name: 'actionType', type: sql.Int, value: logSearch.actionType },
+        { name: 'database', type: sql.VarChar(64), value: logSearch.database },
+        { name: 'schema', type: sql.VarChar(64), value: logSearch.schema },
+        { name: 'search', type: sql.VarChar(128), value: logSearch.search },
+        { name: 'type', type: sql.Char(2), value: logSearch.type },
+        { name: 'isProduction', type: sql.Bit, value: logSearch.isProduction },
+        { name: 'createdAt', type: sql.DateTime, value: logSearch.createdAt },
+      ],
+    })
 
-      const res = await request.query(stmt)
-
-      if (res.rowsAffected[0] === 1) return true // se ha insertado correctamente (1 fila afectada)
-      return false
-    } catch (err) {
-      throw wrapDatabaseError(err)
-    }
+    if (res.rowsAffected[0] === 1) return true // se ha insertado correctamente (1 fila afectada)
+    return false
   }
 }

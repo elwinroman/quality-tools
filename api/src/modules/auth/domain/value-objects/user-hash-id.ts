@@ -4,18 +4,17 @@ import crypto from 'node:crypto'
 export class UserHashId {
   private constructor(private readonly value: string) {}
 
+  private static readonly SIZE_MD5_HEX: number = 32
+
   static create(user: string, host: string, hash?: string): UserHashId {
-    if (!hash) return new UserHashId(this.generate(user, host))
+    if (hash === undefined || hash === null) return new UserHashId(this.generate(user, host))
 
-    // si existe el hash
-    const expectedHash = this.generate(user, host)
-
-    if (hash !== expectedHash) {
-      throw new Error(`[auth] Hash inválido para el usuario '${user}', se ha creado incorrectamente o sido manipulado en la bd`)
+    if (hash.length !== this.SIZE_MD5_HEX) {
+      throw new Error('[auth] Hash inválido, debe tener 32 caracteres.')
     }
 
-    if (hash.length !== 32) {
-      throw new Error('[auth] Hash inválido, debe tener 32 caracteres')
+    if (hash !== this.generate(user, host)) {
+      throw new Error(`[auth] Hash inválido para el usuario '${user}', se ha creado incorrectamente o sido manipulado en BD.`)
     }
 
     return new UserHashId(hash)

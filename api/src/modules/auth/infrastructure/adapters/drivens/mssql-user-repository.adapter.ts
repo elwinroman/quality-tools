@@ -1,26 +1,23 @@
 import { ForUserRepositoryPort } from '@auth/domain/ports/drivens'
-import { PrimitiveUser, RepoUser, User } from '@auth/domain/schemas/user'
-import { DatabaseName, MSSQLDatabaseConnection } from '@core/store'
-import { getStaticDatabaseCredentials } from '@core/store/get-store-credentials'
-import { wrapDatabaseError } from '@core/utils'
-import { logger } from '@observability/infrastructure/logging/logger-instance'
+import { PersistedUser, PrimitiveUser } from '@auth/domain/schemas/user'
+import { DatabaseName } from '@core/store'
+import { getStaticDatabaseCredentials } from '@core/store/get-static-store-credentials'
+import { MSSQLExecutor, MSSQLTransactionRunner } from '@core/store/mssql-query-runner'
+import { decodeRow } from '@core/utils/decode-recordset.util'
 import sql from 'mssql'
 
+import { userRowMapper, UserRowSchema } from './user.mapper'
+
 export class MssqlUserRepositoryAdapter implements ForUserRepositoryPort {
-  private connection = new MSSQLDatabaseConnection()
   private db = getStaticDatabaseCredentials(DatabaseName.APP)
 
-  async getOrCreate(user: PrimitiveUser, _userDatabase: string): Promise<RepoUser | null> {
-    let conn: sql.ConnectionPool | null = null
-    let transaction: sql.Transaction | null = null
+  constructor(
+    private readonly executor: MSSQLExecutor,
+    private readonly transactionRunner: MSSQLTransactionRunner,
+  ) {}
 
-    try {
-      conn = await this.connection.connect(this.db.credentials, this.db.type)
-      transaction = new sql.Transaction(conn)
-
-      await transaction.begin()
-      const request = new sql.Request(transaction)
-
+  async getOrCreate(user: PrimitiveUser, _userDatabase: string): Promise<PersistedUser | null> {
+    return this.transactionRunner.runInTransaction(this.db.credentials, this.db.type, async ({ query, rollback }) => {
       const stmt = `
         MERGE INTO dbo.Usuario AS target
         USING (
@@ -46,74 +43,56 @@ export class MssqlUserRepositoryAdapter implements ForUserRepositoryPort {
             INSERTED.cServer, INSERTED.cAliasServer, INSERTED.dFechaRegistro, INSERTED.lVigente;
       `
 
-      request.input('hashId', sql.Char(32), user.hashId.getValue)
-      request.input('user', sql.VarChar(64), user.user)
-      request.input('host', sql.VarChar(64), user.host)
-      request.input('aliasHost', sql.VarChar(64), user.aliasHost)
-      request.input('createdAt', sql.DateTime2, user.createdAt)
-      request.input('isActive', sql.Bit, user.isActive)
+      const res = await query({
+        statement: stmt,
+        parameters: [
+          { name: 'hashId', type: sql.Char(32), value: user.hashId.getValue },
+          { name: 'user', type: sql.VarChar(64), value: user.user },
+          { name: 'host', type: sql.VarChar(64), value: user.host },
+          { name: 'aliasHost', type: sql.VarChar(64), value: user.aliasHost },
+          { name: 'createdAt', type: sql.DateTime2, value: user.createdAt },
+          { name: 'isActive', type: sql.Bit, value: user.isActive },
+        ],
+      })
 
-      const res = await request.query(stmt)
+      const row = decodeRow(res.recordset, UserRowSchema)
 
-      if (res.recordset && res.recordset.length === 1) {
-        const userData = res.recordset[0]
-
-        const userRepository = User.create({
-          id: userData.idUsuario,
-          hashId: userData.cHashUsuarioUID,
-          user: userData.cUsuario,
-          host: userData.cServer,
-          aliasHost: userData.cAliasServer,
-          createdAt: userData.dFechaRegistro,
-          isActive: userData.lVigente,
-        }).toRepoUser()
-
-        await transaction.commit()
-
-        return userRepository
+      if (!row) {
+        await rollback()
+        return null
       }
 
-      await transaction.rollback()
-      return null
-    } catch (err: unknown) {
-      if (transaction) {
-        try {
-          await transaction.rollback()
-        } catch (rollbackError) {
-          logger.error('[auth] Error al hacer rollback:', { rollbackError })
-        }
-      }
+      // se materializa antes del commit: una fila inválida hace rollback de la transacción
+      const userRepository = userRowMapper(row)
 
-      throw wrapDatabaseError(err)
-    }
+      return userRepository
+    })
   }
 
-  async getById(id: number): Promise<RepoUser | null> {
-    try {
-      const conn = await this.connection.connect(this.db.credentials, this.db.type)
-      const request = conn.request()
+  async getById(id: number): Promise<PersistedUser | null> {
+    const stmt = `
+        SELECT
+          idUsuario,
+          cHashUsuarioUID,
+          cUsuario,
+          cServer,
+          cAliasServer,
+          dFechaRegistro,
+          lVigente
+        FROM dbo.Usuario
+        WHERE idUsuario = @id
+      `
+    const res = await this.executor.query({
+      credentials: this.db.credentials,
+      userType: this.db.type,
+      statement: stmt,
+      parameters: [{ name: 'id', type: sql.Int, value: id }],
+    })
 
-      const stmt = 'SELECT * FROM dbo.Usuario WHERE idUsuario = @id'
-      request.input('id', sql.Int, id)
-      const res = await request.query(stmt)
+    const row = decodeRow(res.recordset, UserRowSchema)
 
-      if (res.recordset && res.recordset.length === 1) {
-        const userData = res.recordset[0]
+    if (!row) return null
 
-        return User.create({
-          id: userData.idUsuario,
-          hashId: userData.cHashUsuarioUID,
-          user: userData.cUsuario,
-          host: userData.cServer,
-          aliasHost: userData.cAliasServer,
-          createdAt: userData.dFechaRegistro,
-          isActive: userData.lVigente,
-        }).toRepoUser()
-      }
-
-      return null
-    } catch (err) {
-      throw wrapDatabaseError(err)
-    }
+    return userRowMapper(row)
   }
 }

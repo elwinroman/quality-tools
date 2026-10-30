@@ -1,4 +1,5 @@
+export * from './cache-session-credential-store.adapter'
+export * from './cache-token-revocation-store.adapter'
 export * from './jwt-token-manager.adapter'
 export * from './mssql-store-repository.adapter'
 export * from './mssql-user-repository.adapter'
-export * from './token-blacklist-cache.adapter'

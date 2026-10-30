@@ -55,21 +55,35 @@ export function SearchAligment() {
     <div>
       <label className="flex flex-col gap-1.5">
         <span className="text-sm font-medium">Objeto</span>
-        <InputWithIcon
-          ref={inputRef}
-          value={search}
-          startIcon={<Search size={22} className="text-muted" />}
-          endIcon={icon}
-          placeholder="Search"
-          onChange={handleChange}
-          onKeyUp={handleKeyup}
-          onFocus={() => setFocus(true)}
-          onBlur={() => setFocus(false)}
-          handleClick={handleClick}
-          isFocus={isFocus}
-          spellCheck="false"
-          title="Borrar"
-        />
+
+        <div className="group relative">
+          <InputWithIcon
+            ref={inputRef}
+            value={search}
+            startIcon={<Search size={22} className="text-gentle-pink-600 dark:text-gentle-pink-400" />}
+            endIcon={icon}
+            placeholder="Buscar objeto"
+            onChange={handleChange}
+            onKeyUp={handleKeyup}
+            onFocus={() => setFocus(true)}
+            onBlur={() => setFocus(false)}
+            handleClick={handleClick}
+            isFocus={isFocus}
+            spellCheck="false"
+            title="Borrar"
+          />
+
+          {/* El atajo se muestra al apuntar; sin hover disponible (táctil) queda siempre visible.
+              Se oculta con texto porque ese lugar lo ocupa el botón de borrar. */}
+          {!hasInput && (
+            <kbd
+              aria-hidden="true"
+              className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 rounded-sm bg-black px-1 py-0.5 font-sans text-[10px] leading-none font-medium text-white opacity-0 transition-opacity group-hover:opacity-100 [@media(hover:none)]:opacity-100"
+            >
+              /
+            </kbd>
+          )}
+        </div>
       </label>
       {errorValidation && <span className="text-xs text-rose-500">{errorValidation}</span>}
     </div>

@@ -3,9 +3,9 @@ import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
 
 import { FullSysObject, SysObjectRelation, TypeViews, ViewMode } from '@/models/sysobject'
-import { getProdSysObjectService } from '@/services'
+import { getProdSysObjectService, getSysObjectDependenciesService, getSysObjectDependentsService } from '@/services'
 
-import { getSysObjectByNameService, getSysObjectDependenciesService, getSysObjectDependentsService } from '../services/sysobject.service'
+import { getSysObjectByNameService } from '../services/sysobject.service'
 
 interface SysObjectError {
   title: string

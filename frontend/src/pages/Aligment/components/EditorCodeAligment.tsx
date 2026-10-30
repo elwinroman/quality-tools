@@ -1,17 +1,20 @@
 import { useSearchContext } from '@aligment/hooks'
 import { useAligmentStore } from '@aligment/zustand/aligment.store'
 import Editor from '@monaco-editor/react'
-import { Monaco } from '@monaco-editor/react'
 
-import { CircleLoader } from '@/components/loader'
-import { BaseMonacoEditorOptions, MonacoThemes } from '@/constants'
+import { ThemedCircleLoader } from '@/components/loader'
+import { BaseMonacoEditorOptions, resolveEditorThemePreference } from '@/constants'
+import { useEditorTheme } from '@/constants/monaco-themes/use-editor-theme'
 import { EDITOR_BANNER } from '@/enviroment/enviroment'
-import { ensureBuiltinTheme, getFormattedCodeForViewMode } from '@/utilities'
+import { getFormattedCodeForViewMode } from '@/utilities'
 import { useAppStore, useEditorOptionsStore } from '@/zustand'
 
 export function EditorCodeAligment() {
-  const { renderWhitespace, fontSize, minimap, theme, stickyScroll, guides } = useEditorOptionsStore((state) => state)
+  const { renderWhitespace, fontSize, minimap, theme, themeMode, lightTheme, darkTheme, stickyScroll, guides } = useEditorOptionsStore(
+    (state) => state,
+  )
   const isDark = useAppStore((state) => state.isDark)
+  const effectiveTheme = resolveEditorThemePreference({ theme, themeMode, lightTheme, darkTheme }, isDark)
   const viewMode = useAligmentStore((state) => state.viewMode)
   const sysobject = useAligmentStore((state) => state.sysobject)
   const updateCurrentEditorCode = useAligmentStore((state) => state.updateCurrentEditorCode)
@@ -25,15 +28,8 @@ export function EditorCodeAligment() {
   // guarda siempre el código calculado del editor (para copiar)
   updateCurrentEditorCode(code)
 
-  // cargar temas (estilos) de monaco
-  const handleBeforeMount = (monaco: Monaco) => {
-    for (const [keyTheme, valueTheme] of Object.entries(MonacoThemes)) {
-      monaco.editor.defineTheme(keyTheme, {
-        ...valueTheme.json,
-        base: ensureBuiltinTheme(valueTheme.json.base),
-      })
-    }
-  }
+  // define y aplica el tema seleccionado (carga perezosa, compartida)
+  const { handleBeforeMount } = useEditorTheme(effectiveTheme)
 
   const fullOptions = { ...BaseMonacoEditorOptions, renderWhitespace, fontSize, minimap, stickyScroll, guides }
 
@@ -44,10 +40,10 @@ export function EditorCodeAligment() {
         beforeMount={handleBeforeMount}
         language={sysobject ? 'sql' : 'shell'}
         defaultValue={EDITOR_BANNER}
-        theme={theme}
+        theme={effectiveTheme}
         value={!loading ? code : 'Buscando información, esto puede tardar unos segundos...'}
         options={{ ...fullOptions }}
-        loading={<CircleLoader visible={true} color={isDark ? 'white' : 'black'} />}
+        loading={<ThemedCircleLoader />}
       />
     </div>
   )

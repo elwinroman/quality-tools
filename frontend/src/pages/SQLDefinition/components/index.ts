@@ -1,7 +1,5 @@
-export * from './DependenciesContent'
 export * from './EditorCode'
 export * from './HeaderEditor'
 export * from './HeaderTabs'
 export * from './OverviewContent'
-export * from './PanelEditor'
 export * from './SQLDefinitionEmptyState'

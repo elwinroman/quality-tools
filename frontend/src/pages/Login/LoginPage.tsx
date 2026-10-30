@@ -14,7 +14,7 @@ export function LoginPage() {
   if (authContext) return <Navigate to="/" />
 
   return (
-    <section className="bg-background flex h-screen w-full items-center overflow-auto">
+    <section className="bg-background relative flex h-screen w-full items-center overflow-auto">
       {/* Sidebox  */}
       <SideBox />
 
@@ -28,7 +28,7 @@ export function LoginPage() {
           <h1 className="text-primary text-xl font-bold">Inicia sesión con tu cuenta</h1>
           <p className="text-secondary flex gap-1 text-sm">
             <span>¿Solo buscas objetos de producción?</span>
-            <Link to="/aligment" className="text-palette-primary-main hover:underline">
+            <Link to="/aligment" className="text-champagne-800 dark:text-champagne-300 hover:underline">
               Empieza aquí
             </Link>
           </p>
@@ -37,6 +37,13 @@ export function LoginPage() {
         {/* Formulario */}
         <Form />
       </div>
+
+      {/* Créditos */}
+      <footer className="text-muted absolute inset-x-0 bottom-0 grid place-content-center py-2 text-sm">
+        <span>
+          © 2026 <strong>Departamento de Aseguramiento de Calidad</strong>
+        </span>
+      </footer>
     </section>
   )
 }

@@ -4,7 +4,7 @@ import type { ApiSysObjectType } from '@/models/sysobject'
 import { loadAbort } from '@/utilities'
 
 import { favoritoAdapter } from '../adapters/favorito.adapter'
-import type { Favorito, FavoritoApiResponse, UpsertFavoritoBody } from '../models/favorito.model'
+import type { Favorito, FavoritoApiResponse, UpsertFavoritoBody, UpsertFavoritoResponse } from '../models/favorito.model'
 
 interface GetQueryParams {
   type: ApiSysObjectType
@@ -32,20 +32,10 @@ export const getFavoritosService = (queryParams: GetQueryParams): AxiosCall<Favo
   }
 }
 
-export const upsertFavoritoService = (body: UpsertFavoritoBody): AxiosCall<{ message: string }> => {
+export const upsertFavoritoService = (body: UpsertFavoritoBody): AxiosCall<UpsertFavoritoResponse> => {
   const controller = loadAbort()
 
-  const call = api.put<{ message: string }>('/favorito/upsert', body, {
-    signal: controller.signal,
-  })
-
-  return { call, controller }
-}
-
-export const deleteFavoritoService = (id: number): AxiosCall<{ data: { msg: string } }> => {
-  const controller = loadAbort()
-
-  const call = api.delete<{ data: { msg: string } }>(`/favorito/${id}`, {
+  const call = api.put<UpsertFavoritoResponse>('/favorito', body, {
     signal: controller.signal,
   })
 

@@ -1,11 +1,10 @@
-import { ForTokenManagementPort, NewTokens } from '@auth/domain/ports/drivens'
+import { ForTokenManagementPort, NewTokens, TokenRevocationStore } from '@auth/domain/ports/drivens'
 import { Logger } from '@observability/domain/logger'
 import { LoggerContext } from '@observability/domain/logger-context'
-import { CacheRepository } from '@shared/domain/cache-repository'
 
 export class LogoutUseCase {
   constructor(
-    private readonly cacheRepository: CacheRepository,
+    private readonly tokenRevocationStore: TokenRevocationStore,
     private readonly tokenManager: ForTokenManagementPort,
     private readonly logger: Logger,
     private readonly loggerContext: LoggerContext,
@@ -34,14 +33,12 @@ export class LogoutUseCase {
     // todo: ¿verificar que los tokens estén en la blacklist?
 
     // si no han expirado los tokens, colocarlo en la blacklist para invalidarlos y no poderse reutilizars
-    await this.cacheRepository.set(
-      `blacklist:${decodedAccessToken.jti}`,
-      JSON.stringify({ type: decodedAccessToken.type, jti: decodedAccessToken.jti, user_id: decodedAccessToken.user_id }),
+    await this.tokenRevocationStore.revoke(
+      { type: decodedAccessToken.type, jti: decodedAccessToken.jti, userId: decodedAccessToken.user_id },
       decodedAccessToken.expirationCountdown,
     )
-    await this.cacheRepository.set(
-      `blacklist:${decodedRefreshToken.jti}`,
-      JSON.stringify({ type: decodedRefreshToken.type, jti: decodedRefreshToken.jti, user_id: decodedRefreshToken.user_id }),
+    await this.tokenRevocationStore.revoke(
+      { type: decodedRefreshToken.type, jti: decodedRefreshToken.jti, userId: decodedRefreshToken.user_id },
       decodedRefreshToken.expirationCountdown,
     )
 

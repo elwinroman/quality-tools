@@ -1,10 +1,10 @@
 import { ALLOWED_ORIGINS, PORT } from './config/enviroment'
 import { shutdownLogger } from './modules/observability/infrastructure/logging/logger-instance'
-import { shutdownMetricsTelemetry, startMetricsTelemetry } from './modules/observability/infrastructure/metrics/opentelemetry-metrics'
+import { shutdownTelemetry, startTelemetry } from './modules/observability/infrastructure/telemetry/opentelemetry-telemetry'
 
 async function bootstrap(): Promise<void> {
   // La autoinstrumentacion OTEL debe iniciar antes de importar Express/HTTP.
-  startMetricsTelemetry()
+  startTelemetry()
 
   const [{ createAllRouter }, { Server }] = await Promise.all([import('./config/all.route'), import('./config/server.controller')])
 
@@ -16,8 +16,8 @@ async function bootstrap(): Promise<void> {
 }
 
 async function shutdown(): Promise<void> {
-  // Cierre ordenado: permite hacer flush de logs/metricas OTLP antes de terminar el proceso.
-  await shutdownMetricsTelemetry()
+  // Cierre ordenado: permite hacer flush de logs/metricas/traces OTLP antes de terminar el proceso.
+  await shutdownTelemetry()
   await shutdownLogger()
   process.exit(0)
 }

@@ -5,9 +5,6 @@ import { InvalidCredentialsException, PermissionDenyException } from '@auth/doma
 // Busqueda Reciente Exceptions
 import { BusquedaRecienteNotFoundException } from '@busqueda-reciente/domain/exceptions/busqueda-reciente-not-found.exception'
 import { CacheCredentialNotFoundException } from '@core/exceptions/cache/cache-credential-not-found.exception'
-// Favorito Exceptions
-import { FavoritoAlreadyExistsException } from '@favorito/domain/exceptions/favorito-already-exists.exception'
-import { FavoritoNotFoundException } from '@favorito/domain/exceptions/favorito-not-found.exception'
 // Application Exceptions
 import {
   ForbiddenException,
@@ -35,7 +32,9 @@ export const ErrorResponseSchema = z
       status: z.number().openapi({ example: 422 }),
       detail: z.string().openapi({ example: 'Los parámetros proporcionados no son válidos' }),
       errorCode: z.number().openapi({ example: 1000 }),
-      invalidParams: z.array(z.any()).optional().openapi({ description: 'Solo presente en errores de validación Zod (422)' }),
+      invalidParams: z.array(z.any()).optional().openapi({
+        description: 'Solo presente en errores de validación Zod (422)',
+      }),
     }),
   })
   .openapi('ErrorResponse')
@@ -74,7 +73,13 @@ export const DeleteResponseSchema = z
   })
   .openapi('DeleteResponse')
 
-type ErrorResponseConfig = Record<number, { description: string; content: { 'application/json': { schema: typeof ErrorResponseSchema } } }>
+type ErrorResponseConfig = Record<
+  number,
+  {
+    description: string
+    content: { 'application/json': { schema: typeof ErrorResponseSchema } }
+  }
+>
 
 /**
  * Tipo base para excepciones con metadata estática.
@@ -153,18 +158,10 @@ const exceptionRegistry = {
     detail: 'No se ha encontrado el objeto en producción.',
   },
 
-  // Busqueda Reciente / Favorito (4xxx)
+  // Busqueda Reciente (4xxx)
   BusquedaRecienteNotFoundException: {
     class: BusquedaRecienteNotFoundException,
     detail: 'La búsqueda reciente solicitada no fue encontrada.',
-  },
-  FavoritoNotFoundException: {
-    class: FavoritoNotFoundException,
-    detail: 'El favorito solicitado no fue encontrado.',
-  },
-  FavoritoAlreadyExistsException: {
-    class: FavoritoAlreadyExistsException,
-    detail: 'El favorito ya existe para este usuario.',
   },
 } as const
 
@@ -173,7 +170,12 @@ type ExceptionName = keyof typeof exceptionRegistry
 /**
  * Obtiene la metadata de una excepción desde su clase.
  */
-function getExceptionInfo(name: ExceptionName): { status: number; errorCode: number; title: string; detail: string } {
+function getExceptionInfo(name: ExceptionName): {
+  status: number
+  errorCode: number
+  title: string
+  detail: string
+} {
   const entry = exceptionRegistry[name]
   const ExceptionClass = entry.class as unknown as ExceptionClass
 

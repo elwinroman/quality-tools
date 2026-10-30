@@ -33,7 +33,7 @@ export class Server {
       cors({
         credentials: true,
         origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
-          // same-origin, curl
+          // mismo origen, curl
           if (!origin) return callback(null, true)
 
           const url = new URL(origin)

@@ -19,13 +19,19 @@ importers:
         version: 0.219.0
       '@opentelemetry/auto-instrumentations-node':
         specifier: ^0.77.0
-        version: 0.77.0(@opentelemetry/api@1.9.0)(@opentelemetry/core@2.8.0(@opentelemetry/api@1.9.0))
+        version: 0.77.0(@opentelemetry/api@1.9.0)(@opentelemetry/core@2.8.0(@opentelemetry/api@1.9.0))(supports-color@5.5.0)
       '@opentelemetry/exporter-logs-otlp-http':
         specifier: ^0.219.0
         version: 0.219.0(@opentelemetry/api@1.9.0)
       '@opentelemetry/exporter-metrics-otlp-http':
         specifier: ^0.219.0
         version: 0.219.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/exporter-trace-otlp-http':
+        specifier: ^0.219.0
+        version: 0.219.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation-express':
+        specifier: ^0.67.0
+        version: 0.67.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
       '@opentelemetry/resources':
         specifier: ^2.8.0
         version: 2.8.0(@opentelemetry/api@1.9.0)
@@ -37,13 +43,16 @@ importers:
         version: 2.8.0(@opentelemetry/api@1.9.0)
       '@opentelemetry/sdk-node':
         specifier: ^0.219.0
-        version: 0.219.0(@opentelemetry/api@1.9.0)
+        version: 0.219.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
+      '@opentelemetry/sdk-trace-base':
+        specifier: ^2.8.0
+        version: 2.8.0(@opentelemetry/api@1.9.0)
       '@opentelemetry/semantic-conventions':
         specifier: ^1.41.1
         version: 1.41.1
       '@sentry/node':
         specifier: ^9.19.0
-        version: 9.47.1
+        version: 9.47.1(supports-color@5.5.0)
       cookie-parser:
         specifier: 1.4.6
         version: 1.4.6
@@ -55,19 +64,19 @@ importers:
         version: 16.4.5
       express:
         specifier: 4.19.2
-        version: 4.19.2
+        version: 4.19.2(supports-color@5.5.0)
       inquirer:
         specifier: ^12.11.1
         version: 12.11.1(@types/node@22.10.10)
       iovalkey:
         specifier: ^0.3.1
-        version: 0.3.3
+        version: 0.3.3(supports-color@5.5.0)
       jsonwebtoken:
         specifier: 9.0.2
         version: 9.0.2
       mssql:
-        specifier: 11.0.1
-        version: 11.0.1
+        specifier: 11.0.2
+        version: 11.0.2(supports-color@5.5.0)
       picocolors:
         specifier: 1.0.1
         version: 1.0.1
@@ -76,7 +85,7 @@ importers:
         version: 9.14.0
       swagger-ui-express:
         specifier: ^5.0.1
-        version: 5.0.1(express@4.19.2)
+        version: 5.0.1(express@4.19.2(supports-color@5.5.0))
       zod:
         specifier: 3.23.8
         version: 3.23.8
@@ -113,7 +122,7 @@ importers:
         version: 9.0.6
       '@types/mssql':
         specifier: 9.1.5
-        version: 9.1.5
+        version: 9.1.5(supports-color@5.5.0)
       '@types/node':
         specifier: 22.10.10
         version: 22.10.10
@@ -122,25 +131,25 @@ importers:
         version: 4.1.8
       '@vitest/coverage-v8':
         specifier: 2.0.3
-        version: 2.0.3(vitest@2.0.3(@types/node@22.10.10))
+        version: 2.0.3(supports-color@5.5.0)(vitest@2.0.3(@types/node@22.10.10)(supports-color@5.5.0))
       cross-env:
         specifier: ^7.0.3
         version: 7.0.3
       eslint:
         specifier: 8.57.0
-        version: 8.57.0
+        version: 8.57.0(supports-color@5.5.0)
       eslint-config-prettier:
         specifier: 9.1.0
-        version: 9.1.0(eslint@8.57.0)
+        version: 9.1.0(eslint@8.57.0(supports-color@5.5.0))
       eslint-plugin-prettier:
         specifier: 5.2.1
-        version: 5.2.1(@types/eslint@9.6.1)(eslint-config-prettier@9.1.0(eslint@8.57.0))(eslint@8.57.0)(prettier@3.3.3)
+        version: 5.2.1(@types/eslint@9.6.1)(eslint-config-prettier@9.1.0(eslint@8.57.0(supports-color@5.5.0)))(eslint@8.57.0(supports-color@5.5.0))(prettier@3.3.3)
       eslint-plugin-simple-import-sort:
         specifier: 12.1.1
-        version: 12.1.1(eslint@8.57.0)
+        version: 12.1.1(eslint@8.57.0(supports-color@5.5.0))
       eslint-plugin-unused-imports:
         specifier: ^4.1.4
-        version: 4.3.0(@typescript-eslint/eslint-plugin@8.3.0(@typescript-eslint/parser@8.3.0(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0)
+        version: 4.3.0(@typescript-eslint/eslint-plugin@8.3.0(@typescript-eslint/parser@8.3.0(eslint@8.57.0(supports-color@5.5.0))(supports-color@5.5.0)(typescript@5.5.4))(eslint@8.57.0(supports-color@5.5.0))(supports-color@5.5.0)(typescript@5.5.4))(eslint@8.57.0(supports-color@5.5.0))
       globals:
         specifier: 15.9.0
         version: 15.9.0
@@ -158,7 +167,7 @@ importers:
         version: 6.0.1
       standard:
         specifier: 17.1.0
-        version: 17.1.0(@typescript-eslint/parser@8.3.0(eslint@8.57.0)(typescript@5.5.4))
+        version: 17.1.0(@typescript-eslint/parser@8.3.0(eslint@8.57.0(supports-color@5.5.0))(supports-color@5.5.0)(typescript@5.5.4))(supports-color@5.5.0)
       tsx:
         specifier: 4.19.0
         version: 4.19.0
@@ -167,13 +176,13 @@ importers:
         version: 5.5.4
       typescript-eslint:
         specifier: 8.3.0
-        version: 8.3.0(eslint@8.57.0)(typescript@5.5.4)
+        version: 8.3.0(eslint@8.57.0(supports-color@5.5.0))(supports-color@5.5.0)(typescript@5.5.4)
       vite-tsconfig-paths:
         specifier: ^5.1.4
-        version: 5.1.4(typescript@5.5.4)(vite@5.4.21(@types/node@22.10.10))
+        version: 5.1.4(supports-color@5.5.0)(typescript@5.5.4)(vite@5.4.21(@types/node@22.10.10))
       vitest:
         specifier: 2.0.3
-        version: 2.0.3(@types/node@22.10.10)
+        version: 2.0.3(@types/node@22.10.10)(supports-color@5.5.0)
 
 packages:
 
@@ -1516,12 +1525,14 @@ packages:
   '@opentelemetry/sdk-trace-base@1.30.1':
     resolution: {integrity: sha512-jVPgBbH1gCy2Lb7X0AVQ8XAfgg0pJ4nvl8/IiQA6nxOsPvS+0zMJaFSs2ltXe0J6C8dqjcnpyqINDJmU30+uOg==}
     engines: {node: '>=14'}
+    deprecated: Use @opentelemetry/sdk-trace package
     peerDependencies:
       '@opentelemetry/api': '>=1.0.0 <1.10.0'
 
   '@opentelemetry/sdk-trace-base@2.8.0':
     resolution: {integrity: sha512-mhU4jp+vW0mGbFRd+GeXHvmfA4aDqWjBjLC3pE5XMpLs0IE2ryYb019Ts2AQrOq67gaTF25D91+fgvEHDZEnuQ==}
     engines: {node: ^18.19.0 || >=20.6.0}
+    deprecated: Use @opentelemetry/sdk-trace package
     peerDependencies:
       '@opentelemetry/api': '>=1.3.0 <1.10.0'
 
@@ -2059,6 +2070,7 @@ packages:
 
   '@ungap/structured-clone@1.3.0':
     resolution: {integrity: sha512-WmoN8qaIAo7WTYWbAZuG8PYEhn5fkz7dZrqTBZ7dtt//lL2Gwms1IcnQ5yHqjDfX8Ft5j4YzDM23f87zBfDe9g==}
+    deprecated: Potential CWE-502 - Update to 1.3.1 or higher
 
   '@vitest/coverage-v8@2.0.3':
     resolution: {integrity: sha512-53d+6jXFdYbasXBmsL6qaGIfcY5eBQq0sP57AjdasOcSiGNj4qxkkpDKIitUNfjxcfAfUfQ8BD0OR2fSey64+g==}
@@ -2948,16 +2960,18 @@ packages:
 
   glob@10.5.0:
     resolution: {integrity: sha512-DfXN8DfhJ7NH3Oe7cFmu3NCu1wKbkReJ8TorzSAFbSKrlNaQSKfIzqYqVY8zlbs2NLBbWpRiU52GX2PbaBVNkg==}
+    deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
     hasBin: true
 
   glob@11.1.0:
     resolution: {integrity: sha512-vuNwKSaKiqm7g0THUBu2x7ckSs3XJLXE+2ssL7/MfTGPLLcrJQ/4Uq1CjPTtO5cCIiRxqvN6Twy1qOwhL0Xjcw==}
     engines: {node: 20 || >=22}
+    deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
     hasBin: true
 
   glob@7.2.3:
     resolution: {integrity: sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q==}
-    deprecated: Glob versions prior to v9 are no longer supported
+    deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
 
   globals@13.24.0:
     resolution: {integrity: sha512-AhO5QUcj8llrbG09iWhPU2B204J1xnPeL8kQmVorSsy+Sjj1sk8gIyh6cUocGmH4L0UuhAJy+hJMRA4mgA4mFQ==}
@@ -3521,8 +3535,8 @@ packages:
   ms@2.1.3:
     resolution: {integrity: sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==}
 
-  mssql@11.0.1:
-    resolution: {integrity: sha512-KlGNsugoT90enKlR8/G36H0kTxPthDhmtNUCwEHvgRza5Cjpjoj+P2X6eMpFUDN7pFrJZsKadL4x990G8RBE1w==}
+  mssql@11.0.2:
+    resolution: {integrity: sha512-x3Rdo3aR7/gQgpcVWA5EexMTd/BtHzdOkv94MTvV137UglFOZUJER6wRlq2Fl4R0F7JqBpDYyV4hX1kMTP0j7A==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -4337,6 +4351,7 @@ packages:
   tsconfck@3.1.6:
     resolution: {integrity: sha512-ks6Vjr/jEw0P1gmOVwutM3B7fWxoWBL2KRDb1JfqGVawBmO5UsvmWOQFGHBPl5yxYz4eERr19E6L7NMv+Fej4w==}
     engines: {node: ^18 || >=20}
+    deprecated: unmaintained
     hasBin: true
     peerDependencies:
       typescript: ^5.0.0
@@ -4424,6 +4439,7 @@ packages:
 
   uuid@8.3.2:
     resolution: {integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==}
+    deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
     hasBin: true
 
   vary@1.1.2:
@@ -4611,13 +4627,13 @@ snapshots:
       openapi3-ts: 4.5.0
       zod: 3.23.8
 
-  '@azure-rest/core-client@2.5.1':
+  '@azure-rest/core-client@2.5.1(supports-color@5.5.0)':
     dependencies:
       '@azure/abort-controller': 2.1.2
-      '@azure/core-auth': 1.10.1
-      '@azure/core-rest-pipeline': 1.22.2
+      '@azure/core-auth': 1.10.1(supports-color@5.5.0)
+      '@azure/core-rest-pipeline': 1.22.2(supports-color@5.5.0)
       '@azure/core-tracing': 1.3.1
-      '@typespec/ts-http-runtime': 0.3.2
+      '@typespec/ts-http-runtime': 0.3.2(supports-color@5.5.0)
       tslib: 2.8.1
     transitivePeerDependencies:
       - supports-color
@@ -4626,39 +4642,39 @@ snapshots:
     dependencies:
       tslib: 2.8.1
 
-  '@azure/core-auth@1.10.1':
+  '@azure/core-auth@1.10.1(supports-color@5.5.0)':
     dependencies:
       '@azure/abort-controller': 2.1.2
-      '@azure/core-util': 1.13.1
+      '@azure/core-util': 1.13.1(supports-color@5.5.0)
       tslib: 2.8.1
     transitivePeerDependencies:
       - supports-color
 
-  '@azure/core-client@1.10.1':
+  '@azure/core-client@1.10.1(supports-color@5.5.0)':
     dependencies:
       '@azure/abort-controller': 2.1.2
-      '@azure/core-auth': 1.10.1
-      '@azure/core-rest-pipeline': 1.22.2
+      '@azure/core-auth': 1.10.1(supports-color@5.5.0)
+      '@azure/core-rest-pipeline': 1.22.2(supports-color@5.5.0)
       '@azure/core-tracing': 1.3.1
-      '@azure/core-util': 1.13.1
-      '@azure/logger': 1.3.0
+      '@azure/core-util': 1.13.1(supports-color@5.5.0)
+      '@azure/logger': 1.3.0(supports-color@5.5.0)
       tslib: 2.8.1
     transitivePeerDependencies:
       - supports-color
 
-  '@azure/core-http-compat@2.3.1':
+  '@azure/core-http-compat@2.3.1(supports-color@5.5.0)':
     dependencies:
       '@azure/abort-controller': 2.1.2
-      '@azure/core-client': 1.10.1
-      '@azure/core-rest-pipeline': 1.22.2
+      '@azure/core-client': 1.10.1(supports-color@5.5.0)
+      '@azure/core-rest-pipeline': 1.22.2(supports-color@5.5.0)
     transitivePeerDependencies:
       - supports-color
 
-  '@azure/core-lro@2.7.2':
+  '@azure/core-lro@2.7.2(supports-color@5.5.0)':
     dependencies:
       '@azure/abort-controller': 2.1.2
-      '@azure/core-util': 1.13.1
-      '@azure/logger': 1.3.0
+      '@azure/core-util': 1.13.1(supports-color@5.5.0)
+      '@azure/logger': 1.3.0(supports-color@5.5.0)
       tslib: 2.8.1
     transitivePeerDependencies:
       - supports-color
@@ -4667,14 +4683,14 @@ snapshots:
     dependencies:
       tslib: 2.8.1
 
-  '@azure/core-rest-pipeline@1.22.2':
+  '@azure/core-rest-pipeline@1.22.2(supports-color@5.5.0)':
     dependencies:
       '@azure/abort-controller': 2.1.2
-      '@azure/core-auth': 1.10.1
+      '@azure/core-auth': 1.10.1(supports-color@5.5.0)
       '@azure/core-tracing': 1.3.1
-      '@azure/core-util': 1.13.1
-      '@azure/logger': 1.3.0
-      '@typespec/ts-http-runtime': 0.3.2
+      '@azure/core-util': 1.13.1(supports-color@5.5.0)
+      '@azure/logger': 1.3.0(supports-color@5.5.0)
+      '@typespec/ts-http-runtime': 0.3.2(supports-color@5.5.0)
       tslib: 2.8.1
     transitivePeerDependencies:
       - supports-color
@@ -4683,23 +4699,23 @@ snapshots:
     dependencies:
       tslib: 2.8.1
 
-  '@azure/core-util@1.13.1':
+  '@azure/core-util@1.13.1(supports-color@5.5.0)':
     dependencies:
       '@azure/abort-controller': 2.1.2
-      '@typespec/ts-http-runtime': 0.3.2
+      '@typespec/ts-http-runtime': 0.3.2(supports-color@5.5.0)
       tslib: 2.8.1
     transitivePeerDependencies:
       - supports-color
 
-  '@azure/identity@4.13.0':
+  '@azure/identity@4.13.0(supports-color@5.5.0)':
     dependencies:
       '@azure/abort-controller': 2.1.2
-      '@azure/core-auth': 1.10.1
-      '@azure/core-client': 1.10.1
-      '@azure/core-rest-pipeline': 1.22.2
+      '@azure/core-auth': 1.10.1(supports-color@5.5.0)
+      '@azure/core-client': 1.10.1(supports-color@5.5.0)
+      '@azure/core-rest-pipeline': 1.22.2(supports-color@5.5.0)
       '@azure/core-tracing': 1.3.1
-      '@azure/core-util': 1.13.1
-      '@azure/logger': 1.3.0
+      '@azure/core-util': 1.13.1(supports-color@5.5.0)
+      '@azure/logger': 1.3.0(supports-color@5.5.0)
       '@azure/msal-browser': 4.28.1
       '@azure/msal-node': 3.8.6
       open: 10.2.0
@@ -4707,39 +4723,39 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@azure/keyvault-common@2.0.0':
+  '@azure/keyvault-common@2.0.0(supports-color@5.5.0)':
     dependencies:
       '@azure/abort-controller': 2.1.2
-      '@azure/core-auth': 1.10.1
-      '@azure/core-client': 1.10.1
-      '@azure/core-rest-pipeline': 1.22.2
+      '@azure/core-auth': 1.10.1(supports-color@5.5.0)
+      '@azure/core-client': 1.10.1(supports-color@5.5.0)
+      '@azure/core-rest-pipeline': 1.22.2(supports-color@5.5.0)
       '@azure/core-tracing': 1.3.1
-      '@azure/core-util': 1.13.1
-      '@azure/logger': 1.3.0
+      '@azure/core-util': 1.13.1(supports-color@5.5.0)
+      '@azure/logger': 1.3.0(supports-color@5.5.0)
       tslib: 2.8.1
     transitivePeerDependencies:
       - supports-color
 
-  '@azure/keyvault-keys@4.10.0':
+  '@azure/keyvault-keys@4.10.0(supports-color@5.5.0)':
     dependencies:
-      '@azure-rest/core-client': 2.5.1
+      '@azure-rest/core-client': 2.5.1(supports-color@5.5.0)
       '@azure/abort-controller': 2.1.2
-      '@azure/core-auth': 1.10.1
-      '@azure/core-http-compat': 2.3.1
-      '@azure/core-lro': 2.7.2
+      '@azure/core-auth': 1.10.1(supports-color@5.5.0)
+      '@azure/core-http-compat': 2.3.1(supports-color@5.5.0)
+      '@azure/core-lro': 2.7.2(supports-color@5.5.0)
       '@azure/core-paging': 1.6.2
-      '@azure/core-rest-pipeline': 1.22.2
+      '@azure/core-rest-pipeline': 1.22.2(supports-color@5.5.0)
       '@azure/core-tracing': 1.3.1
-      '@azure/core-util': 1.13.1
-      '@azure/keyvault-common': 2.0.0
-      '@azure/logger': 1.3.0
+      '@azure/core-util': 1.13.1(supports-color@5.5.0)
+      '@azure/keyvault-common': 2.0.0(supports-color@5.5.0)
+      '@azure/logger': 1.3.0(supports-color@5.5.0)
       tslib: 2.8.1
     transitivePeerDependencies:
       - supports-color
 
-  '@azure/logger@1.3.0':
+  '@azure/logger@1.3.0(supports-color@5.5.0)':
     dependencies:
-      '@typespec/ts-http-runtime': 0.3.2
+      '@typespec/ts-http-runtime': 0.3.2(supports-color@5.5.0)
       tslib: 2.8.1
     transitivePeerDependencies:
       - supports-color
@@ -4912,14 +4928,14 @@ snapshots:
   '@esbuild/win32-x64@0.23.1':
     optional: true
 
-  '@eslint-community/eslint-utils@4.9.1(eslint@8.57.0)':
+  '@eslint-community/eslint-utils@4.9.1(eslint@8.57.0(supports-color@5.5.0))':
     dependencies:
-      eslint: 8.57.0
+      eslint: 8.57.0(supports-color@5.5.0)
       eslint-visitor-keys: 3.4.3
 
   '@eslint-community/regexpp@4.12.2': {}
 
-  '@eslint/eslintrc@2.1.4':
+  '@eslint/eslintrc@2.1.4(supports-color@5.5.0)':
     dependencies:
       ajv: 6.12.6
       debug: 4.4.3(supports-color@5.5.0)
@@ -4951,7 +4967,7 @@ snapshots:
       protobufjs: 7.6.4
       yargs: 17.7.3
 
-  '@humanwhocodes/config-array@0.11.14':
+  '@humanwhocodes/config-array@0.11.14(supports-color@5.5.0)':
     dependencies:
       '@humanwhocodes/object-schema': 2.0.3
       debug: 4.4.3(supports-color@5.5.0)
@@ -5230,59 +5246,59 @@ snapshots:
 
   '@opentelemetry/api@1.9.0': {}
 
-  '@opentelemetry/auto-instrumentations-node@0.77.0(@opentelemetry/api@1.9.0)(@opentelemetry/core@2.8.0(@opentelemetry/api@1.9.0))':
+  '@opentelemetry/auto-instrumentations-node@0.77.0(@opentelemetry/api@1.9.0)(@opentelemetry/core@2.8.0(@opentelemetry/api@1.9.0))(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/core': 2.8.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-amqplib': 0.66.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-aws-lambda': 0.71.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-aws-sdk': 0.74.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-bunyan': 0.64.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-cassandra-driver': 0.64.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-connect': 0.62.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-cucumber': 0.35.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-dataloader': 0.36.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-dns': 0.62.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-express': 0.67.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-fs': 0.38.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-generic-pool': 0.62.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-graphql': 0.67.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-grpc': 0.219.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-hapi': 0.65.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-host-metrics': 0.2.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-http': 0.219.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-ioredis': 0.67.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-kafkajs': 0.28.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-knex': 0.63.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-koa': 0.67.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-lru-memoizer': 0.63.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-memcached': 0.62.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-mongodb': 0.72.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-mongoose': 0.65.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-mysql': 0.65.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-mysql2': 0.65.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-nestjs-core': 0.65.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-net': 0.63.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-openai': 0.17.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-oracledb': 0.44.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-pg': 0.71.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-pino': 0.65.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-redis': 0.67.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-restify': 0.64.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-router': 0.63.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-runtime-node': 0.32.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-socket.io': 0.66.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-tedious': 0.38.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-undici': 0.29.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-winston': 0.63.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
+      '@opentelemetry/instrumentation-amqplib': 0.66.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
+      '@opentelemetry/instrumentation-aws-lambda': 0.71.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
+      '@opentelemetry/instrumentation-aws-sdk': 0.74.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
+      '@opentelemetry/instrumentation-bunyan': 0.64.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
+      '@opentelemetry/instrumentation-cassandra-driver': 0.64.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
+      '@opentelemetry/instrumentation-connect': 0.62.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
+      '@opentelemetry/instrumentation-cucumber': 0.35.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
+      '@opentelemetry/instrumentation-dataloader': 0.36.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
+      '@opentelemetry/instrumentation-dns': 0.62.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
+      '@opentelemetry/instrumentation-express': 0.67.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
+      '@opentelemetry/instrumentation-fs': 0.38.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
+      '@opentelemetry/instrumentation-generic-pool': 0.62.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
+      '@opentelemetry/instrumentation-graphql': 0.67.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
+      '@opentelemetry/instrumentation-grpc': 0.219.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
+      '@opentelemetry/instrumentation-hapi': 0.65.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
+      '@opentelemetry/instrumentation-host-metrics': 0.2.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
+      '@opentelemetry/instrumentation-http': 0.219.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
+      '@opentelemetry/instrumentation-ioredis': 0.67.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
+      '@opentelemetry/instrumentation-kafkajs': 0.28.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
+      '@opentelemetry/instrumentation-knex': 0.63.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
+      '@opentelemetry/instrumentation-koa': 0.67.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
+      '@opentelemetry/instrumentation-lru-memoizer': 0.63.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
+      '@opentelemetry/instrumentation-memcached': 0.62.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
+      '@opentelemetry/instrumentation-mongodb': 0.72.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
+      '@opentelemetry/instrumentation-mongoose': 0.65.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
+      '@opentelemetry/instrumentation-mysql': 0.65.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
+      '@opentelemetry/instrumentation-mysql2': 0.65.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
+      '@opentelemetry/instrumentation-nestjs-core': 0.65.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
+      '@opentelemetry/instrumentation-net': 0.63.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
+      '@opentelemetry/instrumentation-openai': 0.17.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
+      '@opentelemetry/instrumentation-oracledb': 0.44.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
+      '@opentelemetry/instrumentation-pg': 0.71.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
+      '@opentelemetry/instrumentation-pino': 0.65.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
+      '@opentelemetry/instrumentation-redis': 0.67.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
+      '@opentelemetry/instrumentation-restify': 0.64.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
+      '@opentelemetry/instrumentation-router': 0.63.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
+      '@opentelemetry/instrumentation-runtime-node': 0.32.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
+      '@opentelemetry/instrumentation-socket.io': 0.66.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
+      '@opentelemetry/instrumentation-tedious': 0.38.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
+      '@opentelemetry/instrumentation-undici': 0.29.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
+      '@opentelemetry/instrumentation-winston': 0.63.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
       '@opentelemetry/resource-detector-alibaba-cloud': 0.34.0(@opentelemetry/api@1.9.0)
       '@opentelemetry/resource-detector-aws': 2.19.0(@opentelemetry/api@1.9.0)
       '@opentelemetry/resource-detector-azure': 0.27.0(@opentelemetry/api@1.9.0)
       '@opentelemetry/resource-detector-container': 0.8.10(@opentelemetry/api@1.9.0)
-      '@opentelemetry/resource-detector-gcp': 0.54.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/resource-detector-gcp': 0.54.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
       '@opentelemetry/resources': 2.8.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/sdk-node': 0.219.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/sdk-node': 0.219.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -5416,426 +5432,426 @@ snapshots:
       '@opentelemetry/sdk-trace-base': 2.8.0(@opentelemetry/api@1.9.0)
       '@opentelemetry/semantic-conventions': 1.41.1
 
-  '@opentelemetry/instrumentation-amqplib@0.46.1(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-amqplib@0.46.1(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/core': 1.30.1(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation': 0.57.2(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.57.2(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
       '@opentelemetry/semantic-conventions': 1.41.1
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-amqplib@0.66.0(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-amqplib@0.66.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/core': 2.8.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
       '@opentelemetry/semantic-conventions': 1.41.1
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-aws-lambda@0.71.0(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-aws-lambda@0.71.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
       '@opentelemetry/propagator-aws-xray': 2.2.0(@opentelemetry/api@1.9.0)
       '@opentelemetry/semantic-conventions': 1.41.1
       '@types/aws-lambda': 8.10.162
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-aws-sdk@0.74.0(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-aws-sdk@0.74.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/core': 2.8.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
       '@opentelemetry/semantic-conventions': 1.41.1
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-bunyan@0.64.0(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-bunyan@0.64.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/api-logs': 0.219.0
-      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
       '@types/bunyan': 1.8.11
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-cassandra-driver@0.64.0(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-cassandra-driver@0.64.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
       '@opentelemetry/semantic-conventions': 1.41.1
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-connect@0.43.1(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-connect@0.43.1(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/core': 1.30.1(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation': 0.57.2(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.57.2(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
       '@opentelemetry/semantic-conventions': 1.41.1
       '@types/connect': 3.4.38
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-connect@0.62.0(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-connect@0.62.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/core': 2.8.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
       '@opentelemetry/semantic-conventions': 1.41.1
       '@types/connect': 3.4.38
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-cucumber@0.35.0(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-cucumber@0.35.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
       '@opentelemetry/semantic-conventions': 1.41.1
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-dataloader@0.16.1(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-dataloader@0.16.1(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/instrumentation': 0.57.2(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.57.2(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-dataloader@0.36.0(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-dataloader@0.36.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-dns@0.62.0(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-dns@0.62.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-express@0.47.1(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-express@0.47.1(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/core': 1.30.1(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation': 0.57.2(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.57.2(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
       '@opentelemetry/semantic-conventions': 1.41.1
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-express@0.67.0(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-express@0.67.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/core': 2.8.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
       '@opentelemetry/semantic-conventions': 1.41.1
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-fs@0.19.1(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-fs@0.19.1(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/core': 1.30.1(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation': 0.57.2(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.57.2(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-fs@0.38.0(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-fs@0.38.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/core': 2.8.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-generic-pool@0.43.1(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-generic-pool@0.43.1(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/instrumentation': 0.57.2(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.57.2(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-generic-pool@0.62.0(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-generic-pool@0.62.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-graphql@0.47.1(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-graphql@0.47.1(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/instrumentation': 0.57.2(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.57.2(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-graphql@0.67.0(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-graphql@0.67.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-grpc@0.219.0(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-grpc@0.219.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
       '@opentelemetry/semantic-conventions': 1.41.1
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-hapi@0.45.2(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-hapi@0.45.2(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/core': 1.30.1(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation': 0.57.2(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.57.2(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
       '@opentelemetry/semantic-conventions': 1.41.1
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-hapi@0.65.0(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-hapi@0.65.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/core': 2.8.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
       '@opentelemetry/semantic-conventions': 1.41.1
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-host-metrics@0.2.0(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-host-metrics@0.2.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
       systeminformation: 5.31.11
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-http@0.219.0(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-http@0.219.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/core': 2.8.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
       '@opentelemetry/semantic-conventions': 1.41.1
       forwarded-parse: 2.1.2
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-http@0.57.2(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-http@0.57.2(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/core': 1.30.1(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation': 0.57.2(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.57.2(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
       '@opentelemetry/semantic-conventions': 1.28.0
       forwarded-parse: 2.1.2
       semver: 7.7.3
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-ioredis@0.47.1(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-ioredis@0.47.1(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/instrumentation': 0.57.2(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.57.2(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
       '@opentelemetry/redis-common': 0.36.2
       '@opentelemetry/semantic-conventions': 1.41.1
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-ioredis@0.67.0(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-ioredis@0.67.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
       '@opentelemetry/redis-common': 0.38.3
       '@opentelemetry/semantic-conventions': 1.41.1
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-kafkajs@0.28.0(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-kafkajs@0.28.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
       '@opentelemetry/semantic-conventions': 1.41.1
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-kafkajs@0.7.1(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-kafkajs@0.7.1(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/instrumentation': 0.57.2(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.57.2(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
       '@opentelemetry/semantic-conventions': 1.41.1
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-knex@0.44.1(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-knex@0.44.1(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/instrumentation': 0.57.2(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.57.2(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
       '@opentelemetry/semantic-conventions': 1.41.1
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-knex@0.63.0(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-knex@0.63.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
       '@opentelemetry/semantic-conventions': 1.41.1
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-koa@0.47.1(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-koa@0.47.1(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/core': 1.30.1(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation': 0.57.2(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.57.2(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
       '@opentelemetry/semantic-conventions': 1.41.1
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-koa@0.67.0(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-koa@0.67.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/core': 2.8.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
       '@opentelemetry/semantic-conventions': 1.41.1
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-lru-memoizer@0.44.1(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-lru-memoizer@0.44.1(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/instrumentation': 0.57.2(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.57.2(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-lru-memoizer@0.63.0(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-lru-memoizer@0.63.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-memcached@0.62.0(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-memcached@0.62.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
       '@opentelemetry/semantic-conventions': 1.41.1
       '@types/memcached': 2.2.10
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-mongodb@0.52.0(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-mongodb@0.52.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/instrumentation': 0.57.2(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.57.2(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
       '@opentelemetry/semantic-conventions': 1.41.1
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-mongodb@0.72.0(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-mongodb@0.72.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
       '@opentelemetry/semantic-conventions': 1.41.1
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-mongoose@0.46.1(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-mongoose@0.46.1(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/core': 1.30.1(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation': 0.57.2(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.57.2(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
       '@opentelemetry/semantic-conventions': 1.41.1
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-mongoose@0.65.0(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-mongoose@0.65.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/core': 2.8.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
       '@opentelemetry/semantic-conventions': 1.41.1
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-mysql2@0.45.2(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-mysql2@0.45.2(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/instrumentation': 0.57.2(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.57.2(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
       '@opentelemetry/semantic-conventions': 1.41.1
       '@opentelemetry/sql-common': 0.40.1(@opentelemetry/api@1.9.0)
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-mysql2@0.65.0(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-mysql2@0.65.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
       '@opentelemetry/semantic-conventions': 1.41.1
       '@opentelemetry/sql-common': 0.42.0(@opentelemetry/api@1.9.0)
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-mysql@0.45.1(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-mysql@0.45.1(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/instrumentation': 0.57.2(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.57.2(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
       '@opentelemetry/semantic-conventions': 1.41.1
       '@types/mysql': 2.15.26
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-mysql@0.65.0(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-mysql@0.65.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
       '@opentelemetry/semantic-conventions': 1.41.1
       '@types/mysql': 2.15.27
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-nestjs-core@0.65.0(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-nestjs-core@0.65.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
       '@opentelemetry/semantic-conventions': 1.41.1
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-net@0.63.0(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-net@0.63.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
       '@opentelemetry/semantic-conventions': 1.41.1
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-openai@0.17.0(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-openai@0.17.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/api-logs': 0.219.0
-      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
       '@opentelemetry/semantic-conventions': 1.41.1
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-oracledb@0.44.0(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-oracledb@0.44.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
       '@opentelemetry/semantic-conventions': 1.41.1
       '@types/oracledb': 6.5.2
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-pg@0.51.1(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-pg@0.51.1(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/core': 1.30.1(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation': 0.57.2(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.57.2(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
       '@opentelemetry/semantic-conventions': 1.41.1
       '@opentelemetry/sql-common': 0.40.1(@opentelemetry/api@1.9.0)
       '@types/pg': 8.6.1
@@ -5843,11 +5859,11 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-pg@0.71.0(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-pg@0.71.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/core': 2.8.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
       '@opentelemetry/semantic-conventions': 1.41.1
       '@opentelemetry/sql-common': 0.42.0(@opentelemetry/api@1.9.0)
       '@types/pg': 8.15.6
@@ -5855,125 +5871,125 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-pino@0.65.0(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-pino@0.65.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/api-logs': 0.219.0
       '@opentelemetry/core': 2.8.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-redis-4@0.46.1(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-redis-4@0.46.1(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/instrumentation': 0.57.2(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.57.2(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
       '@opentelemetry/redis-common': 0.36.2
       '@opentelemetry/semantic-conventions': 1.41.1
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-redis@0.67.0(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-redis@0.67.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
       '@opentelemetry/redis-common': 0.38.3
       '@opentelemetry/semantic-conventions': 1.41.1
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-restify@0.64.0(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-restify@0.64.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/core': 2.8.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
       '@opentelemetry/semantic-conventions': 1.41.1
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-router@0.63.0(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-router@0.63.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
       '@opentelemetry/semantic-conventions': 1.41.1
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-runtime-node@0.32.0(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-runtime-node@0.32.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/api-logs': 0.219.0
       '@opentelemetry/core': 2.8.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-socket.io@0.66.0(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-socket.io@0.66.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-tedious@0.18.1(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-tedious@0.18.1(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/instrumentation': 0.57.2(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.57.2(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
       '@opentelemetry/semantic-conventions': 1.41.1
       '@types/tedious': 4.0.14
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-tedious@0.38.0(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-tedious@0.38.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
       '@opentelemetry/semantic-conventions': 1.41.1
       '@types/tedious': 4.0.14
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-undici@0.10.1(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-undici@0.10.1(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/core': 1.30.1(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation': 0.57.2(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.57.2(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-undici@0.29.0(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-undici@0.29.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/core': 2.8.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
       '@opentelemetry/semantic-conventions': 1.41.1
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-winston@0.63.0(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-winston@0.63.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/api-logs': 0.219.0
-      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation@0.219.0(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation@0.219.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/api-logs': 0.219.0
       import-in-the-middle: 3.2.0
-      require-in-the-middle: 8.0.1
+      require-in-the-middle: 8.0.1(supports-color@5.5.0)
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation@0.57.2(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation@0.57.2(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/api-logs': 0.57.2
       '@types/shimmer': 1.2.0
       import-in-the-middle: 1.15.0
-      require-in-the-middle: 7.5.2
+      require-in-the-middle: 7.5.2(supports-color@5.5.0)
       semver: 7.7.3
       shimmer: 1.2.1
     transitivePeerDependencies:
@@ -6047,12 +6063,12 @@ snapshots:
       '@opentelemetry/core': 2.8.0(@opentelemetry/api@1.9.0)
       '@opentelemetry/resources': 2.8.0(@opentelemetry/api@1.9.0)
 
-  '@opentelemetry/resource-detector-gcp@0.54.0(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/resource-detector-gcp@0.54.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/core': 2.8.0(@opentelemetry/api@1.9.0)
       '@opentelemetry/resources': 2.8.0(@opentelemetry/api@1.9.0)
-      gcp-metadata: 8.1.3
+      gcp-metadata: 8.1.3(supports-color@5.5.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -6082,7 +6098,7 @@ snapshots:
       '@opentelemetry/core': 2.8.0(@opentelemetry/api@1.9.0)
       '@opentelemetry/resources': 2.8.0(@opentelemetry/api@1.9.0)
 
-  '@opentelemetry/sdk-node@0.219.0(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/sdk-node@0.219.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/api-logs': 0.219.0
@@ -6100,7 +6116,7 @@ snapshots:
       '@opentelemetry/exporter-trace-otlp-http': 0.219.0(@opentelemetry/api@1.9.0)
       '@opentelemetry/exporter-trace-otlp-proto': 0.219.0(@opentelemetry/api@1.9.0)
       '@opentelemetry/exporter-zipkin': 2.8.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.219.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
       '@opentelemetry/otlp-exporter-base': 0.219.0(@opentelemetry/api@1.9.0)
       '@opentelemetry/otlp-grpc-exporter-base': 0.219.0(@opentelemetry/api@1.9.0)
       '@opentelemetry/propagator-b3': 2.8.0(@opentelemetry/api@1.9.0)
@@ -6156,10 +6172,10 @@ snapshots:
 
   '@pkgr/core@0.1.2': {}
 
-  '@prisma/instrumentation@6.11.1(@opentelemetry/api@1.9.0)':
+  '@prisma/instrumentation@6.11.1(@opentelemetry/api@1.9.0)(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/instrumentation': 0.57.2(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.57.2(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -6264,12 +6280,12 @@ snapshots:
 
   '@sentry/core@9.47.1': {}
 
-  '@sentry/node-core@9.47.1(@opentelemetry/api@1.9.0)(@opentelemetry/context-async-hooks@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/core@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.57.2(@opentelemetry/api@1.9.0))(@opentelemetry/resources@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/semantic-conventions@1.41.1)':
+  '@sentry/node-core@9.47.1(@opentelemetry/api@1.9.0)(@opentelemetry/context-async-hooks@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/core@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.57.2(@opentelemetry/api@1.9.0)(supports-color@5.5.0))(@opentelemetry/resources@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/semantic-conventions@1.41.1)':
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/context-async-hooks': 1.30.1(@opentelemetry/api@1.9.0)
       '@opentelemetry/core': 1.30.1(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation': 0.57.2(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.57.2(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
       '@opentelemetry/resources': 1.30.1(@opentelemetry/api@1.9.0)
       '@opentelemetry/sdk-trace-base': 1.30.1(@opentelemetry/api@1.9.0)
       '@opentelemetry/semantic-conventions': 1.41.1
@@ -6277,40 +6293,40 @@ snapshots:
       '@sentry/opentelemetry': 9.47.1(@opentelemetry/api@1.9.0)(@opentelemetry/context-async-hooks@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/core@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/semantic-conventions@1.41.1)
       import-in-the-middle: 1.15.0
 
-  '@sentry/node@9.47.1':
+  '@sentry/node@9.47.1(supports-color@5.5.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/context-async-hooks': 1.30.1(@opentelemetry/api@1.9.0)
       '@opentelemetry/core': 1.30.1(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation': 0.57.2(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-amqplib': 0.46.1(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-connect': 0.43.1(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-dataloader': 0.16.1(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-express': 0.47.1(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-fs': 0.19.1(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-generic-pool': 0.43.1(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-graphql': 0.47.1(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-hapi': 0.45.2(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-http': 0.57.2(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-ioredis': 0.47.1(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-kafkajs': 0.7.1(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-knex': 0.44.1(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-koa': 0.47.1(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-lru-memoizer': 0.44.1(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-mongodb': 0.52.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-mongoose': 0.46.1(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-mysql': 0.45.1(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-mysql2': 0.45.2(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-pg': 0.51.1(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-redis-4': 0.46.1(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-tedious': 0.18.1(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-undici': 0.10.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.57.2(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
+      '@opentelemetry/instrumentation-amqplib': 0.46.1(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
+      '@opentelemetry/instrumentation-connect': 0.43.1(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
+      '@opentelemetry/instrumentation-dataloader': 0.16.1(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
+      '@opentelemetry/instrumentation-express': 0.47.1(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
+      '@opentelemetry/instrumentation-fs': 0.19.1(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
+      '@opentelemetry/instrumentation-generic-pool': 0.43.1(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
+      '@opentelemetry/instrumentation-graphql': 0.47.1(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
+      '@opentelemetry/instrumentation-hapi': 0.45.2(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
+      '@opentelemetry/instrumentation-http': 0.57.2(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
+      '@opentelemetry/instrumentation-ioredis': 0.47.1(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
+      '@opentelemetry/instrumentation-kafkajs': 0.7.1(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
+      '@opentelemetry/instrumentation-knex': 0.44.1(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
+      '@opentelemetry/instrumentation-koa': 0.47.1(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
+      '@opentelemetry/instrumentation-lru-memoizer': 0.44.1(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
+      '@opentelemetry/instrumentation-mongodb': 0.52.0(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
+      '@opentelemetry/instrumentation-mongoose': 0.46.1(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
+      '@opentelemetry/instrumentation-mysql': 0.45.1(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
+      '@opentelemetry/instrumentation-mysql2': 0.45.2(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
+      '@opentelemetry/instrumentation-pg': 0.51.1(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
+      '@opentelemetry/instrumentation-redis-4': 0.46.1(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
+      '@opentelemetry/instrumentation-tedious': 0.18.1(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
+      '@opentelemetry/instrumentation-undici': 0.10.1(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
       '@opentelemetry/resources': 1.30.1(@opentelemetry/api@1.9.0)
       '@opentelemetry/sdk-trace-base': 1.30.1(@opentelemetry/api@1.9.0)
       '@opentelemetry/semantic-conventions': 1.41.1
-      '@prisma/instrumentation': 6.11.1(@opentelemetry/api@1.9.0)
+      '@prisma/instrumentation': 6.11.1(@opentelemetry/api@1.9.0)(supports-color@5.5.0)
       '@sentry/core': 9.47.1
-      '@sentry/node-core': 9.47.1(@opentelemetry/api@1.9.0)(@opentelemetry/context-async-hooks@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/core@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.57.2(@opentelemetry/api@1.9.0))(@opentelemetry/resources@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/semantic-conventions@1.41.1)
+      '@sentry/node-core': 9.47.1(@opentelemetry/api@1.9.0)(@opentelemetry/context-async-hooks@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/core@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.57.2(@opentelemetry/api@1.9.0)(supports-color@5.5.0))(@opentelemetry/resources@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/semantic-conventions@1.41.1)
       '@sentry/opentelemetry': 9.47.1(@opentelemetry/api@1.9.0)(@opentelemetry/context-async-hooks@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/core@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/semantic-conventions@1.41.1)
       import-in-the-middle: 1.15.0
       minimatch: 9.0.5
@@ -6487,10 +6503,10 @@ snapshots:
     dependencies:
       '@types/node': 22.10.10
 
-  '@types/mssql@9.1.5':
+  '@types/mssql@9.1.5(supports-color@5.5.0)':
     dependencies:
       '@types/node': 22.10.10
-      '@types/tedious': 18.0.0
+      '@types/tedious': 18.0.0(supports-color@5.5.0)
       tarn: 3.0.2
     transitivePeerDependencies:
       - supports-color
@@ -6559,9 +6575,9 @@ snapshots:
       '@types/express': 4.17.21
       '@types/serve-static': 2.2.0
 
-  '@types/tedious@18.0.0':
+  '@types/tedious@18.0.0(supports-color@5.5.0)':
     dependencies:
-      tedious: 19.2.0
+      tedious: 19.2.0(supports-color@5.5.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -6573,15 +6589,15 @@ snapshots:
     dependencies:
       '@types/node': 22.10.10
 
-  '@typescript-eslint/eslint-plugin@8.3.0(@typescript-eslint/parser@8.3.0(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0)(typescript@5.5.4)':
+  '@typescript-eslint/eslint-plugin@8.3.0(@typescript-eslint/parser@8.3.0(eslint@8.57.0(supports-color@5.5.0))(supports-color@5.5.0)(typescript@5.5.4))(eslint@8.57.0(supports-color@5.5.0))(supports-color@5.5.0)(typescript@5.5.4)':
     dependencies:
       '@eslint-community/regexpp': 4.12.2
-      '@typescript-eslint/parser': 8.3.0(eslint@8.57.0)(typescript@5.5.4)
+      '@typescript-eslint/parser': 8.3.0(eslint@8.57.0(supports-color@5.5.0))(supports-color@5.5.0)(typescript@5.5.4)
       '@typescript-eslint/scope-manager': 8.3.0
-      '@typescript-eslint/type-utils': 8.3.0(eslint@8.57.0)(typescript@5.5.4)
-      '@typescript-eslint/utils': 8.3.0(eslint@8.57.0)(typescript@5.5.4)
+      '@typescript-eslint/type-utils': 8.3.0(eslint@8.57.0(supports-color@5.5.0))(supports-color@5.5.0)(typescript@5.5.4)
+      '@typescript-eslint/utils': 8.3.0(eslint@8.57.0(supports-color@5.5.0))(supports-color@5.5.0)(typescript@5.5.4)
       '@typescript-eslint/visitor-keys': 8.3.0
-      eslint: 8.57.0
+      eslint: 8.57.0(supports-color@5.5.0)
       graphemer: 1.4.0
       ignore: 5.3.2
       natural-compare: 1.4.0
@@ -6591,14 +6607,14 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@typescript-eslint/parser@8.3.0(eslint@8.57.0)(typescript@5.5.4)':
+  '@typescript-eslint/parser@8.3.0(eslint@8.57.0(supports-color@5.5.0))(supports-color@5.5.0)(typescript@5.5.4)':
     dependencies:
       '@typescript-eslint/scope-manager': 8.3.0
       '@typescript-eslint/types': 8.3.0
-      '@typescript-eslint/typescript-estree': 8.3.0(typescript@5.5.4)
+      '@typescript-eslint/typescript-estree': 8.3.0(supports-color@5.5.0)(typescript@5.5.4)
       '@typescript-eslint/visitor-keys': 8.3.0
       debug: 4.4.3(supports-color@5.5.0)
-      eslint: 8.57.0
+      eslint: 8.57.0(supports-color@5.5.0)
     optionalDependencies:
       typescript: 5.5.4
     transitivePeerDependencies:
@@ -6609,10 +6625,10 @@ snapshots:
       '@typescript-eslint/types': 8.3.0
       '@typescript-eslint/visitor-keys': 8.3.0
 
-  '@typescript-eslint/type-utils@8.3.0(eslint@8.57.0)(typescript@5.5.4)':
+  '@typescript-eslint/type-utils@8.3.0(eslint@8.57.0(supports-color@5.5.0))(supports-color@5.5.0)(typescript@5.5.4)':
     dependencies:
-      '@typescript-eslint/typescript-estree': 8.3.0(typescript@5.5.4)
-      '@typescript-eslint/utils': 8.3.0(eslint@8.57.0)(typescript@5.5.4)
+      '@typescript-eslint/typescript-estree': 8.3.0(supports-color@5.5.0)(typescript@5.5.4)
+      '@typescript-eslint/utils': 8.3.0(eslint@8.57.0(supports-color@5.5.0))(supports-color@5.5.0)(typescript@5.5.4)
       debug: 4.4.3(supports-color@5.5.0)
       ts-api-utils: 1.4.3(typescript@5.5.4)
     optionalDependencies:
@@ -6623,7 +6639,7 @@ snapshots:
 
   '@typescript-eslint/types@8.3.0': {}
 
-  '@typescript-eslint/typescript-estree@8.3.0(typescript@5.5.4)':
+  '@typescript-eslint/typescript-estree@8.3.0(supports-color@5.5.0)(typescript@5.5.4)':
     dependencies:
       '@typescript-eslint/types': 8.3.0
       '@typescript-eslint/visitor-keys': 8.3.0
@@ -6638,13 +6654,13 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@typescript-eslint/utils@8.3.0(eslint@8.57.0)(typescript@5.5.4)':
+  '@typescript-eslint/utils@8.3.0(eslint@8.57.0(supports-color@5.5.0))(supports-color@5.5.0)(typescript@5.5.4)':
     dependencies:
-      '@eslint-community/eslint-utils': 4.9.1(eslint@8.57.0)
+      '@eslint-community/eslint-utils': 4.9.1(eslint@8.57.0(supports-color@5.5.0))
       '@typescript-eslint/scope-manager': 8.3.0
       '@typescript-eslint/types': 8.3.0
-      '@typescript-eslint/typescript-estree': 8.3.0(typescript@5.5.4)
-      eslint: 8.57.0
+      '@typescript-eslint/typescript-estree': 8.3.0(supports-color@5.5.0)(typescript@5.5.4)
+      eslint: 8.57.0(supports-color@5.5.0)
     transitivePeerDependencies:
       - supports-color
       - typescript
@@ -6654,24 +6670,24 @@ snapshots:
       '@typescript-eslint/types': 8.3.0
       eslint-visitor-keys: 3.4.3
 
-  '@typespec/ts-http-runtime@0.3.2':
+  '@typespec/ts-http-runtime@0.3.2(supports-color@5.5.0)':
     dependencies:
-      http-proxy-agent: 7.0.2
-      https-proxy-agent: 7.0.6
+      http-proxy-agent: 7.0.2(supports-color@5.5.0)
+      https-proxy-agent: 7.0.6(supports-color@5.5.0)
       tslib: 2.8.1
     transitivePeerDependencies:
       - supports-color
 
   '@ungap/structured-clone@1.3.0': {}
 
-  '@vitest/coverage-v8@2.0.3(vitest@2.0.3(@types/node@22.10.10))':
+  '@vitest/coverage-v8@2.0.3(supports-color@5.5.0)(vitest@2.0.3(@types/node@22.10.10)(supports-color@5.5.0))':
     dependencies:
       '@ampproject/remapping': 2.3.0
       '@bcoe/v8-coverage': 0.2.3
       debug: 4.4.3(supports-color@5.5.0)
       istanbul-lib-coverage: 3.2.2
       istanbul-lib-report: 3.0.1
-      istanbul-lib-source-maps: 5.0.6
+      istanbul-lib-source-maps: 5.0.6(supports-color@5.5.0)
       istanbul-reports: 3.2.0
       magic-string: 0.30.21
       magicast: 0.3.5
@@ -6679,7 +6695,7 @@ snapshots:
       strip-literal: 2.1.1
       test-exclude: 7.0.1
       tinyrainbow: 1.2.0
-      vitest: 2.0.3(@types/node@22.10.10)
+      vitest: 2.0.3(@types/node@22.10.10)(supports-color@5.5.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -6877,11 +6893,11 @@ snapshots:
       inherits: 2.0.4
       readable-stream: 4.7.0
 
-  body-parser@1.20.2:
+  body-parser@1.20.2(supports-color@5.5.0):
     dependencies:
       bytes: 3.1.2
       content-type: 1.0.5
-      debug: 2.6.9
+      debug: 2.6.9(supports-color@5.5.0)
       depd: 2.0.0
       destroy: 1.2.0
       http-errors: 2.0.0
@@ -7078,13 +7094,17 @@ snapshots:
 
   dateformat@4.6.3: {}
 
-  debug@2.6.9:
+  debug@2.6.9(supports-color@5.5.0):
     dependencies:
       ms: 2.0.0
+    optionalDependencies:
+      supports-color: 5.5.0
 
-  debug@3.2.7:
+  debug@3.2.7(supports-color@5.5.0):
     dependencies:
       ms: 2.1.3
+    optionalDependencies:
+      supports-color: 5.5.0
 
   debug@4.4.3(supports-color@5.5.0):
     dependencies:
@@ -7329,58 +7349,58 @@ snapshots:
 
   escape-string-regexp@5.0.0: {}
 
-  eslint-config-prettier@9.1.0(eslint@8.57.0):
+  eslint-config-prettier@9.1.0(eslint@8.57.0(supports-color@5.5.0)):
     dependencies:
-      eslint: 8.57.0
+      eslint: 8.57.0(supports-color@5.5.0)
 
-  eslint-config-standard-jsx@11.0.0(eslint-plugin-react@7.37.5(eslint@8.57.0))(eslint@8.57.0):
+  eslint-config-standard-jsx@11.0.0(eslint-plugin-react@7.37.5(eslint@8.57.0(supports-color@5.5.0)))(eslint@8.57.0(supports-color@5.5.0)):
     dependencies:
-      eslint: 8.57.0
-      eslint-plugin-react: 7.37.5(eslint@8.57.0)
+      eslint: 8.57.0(supports-color@5.5.0)
+      eslint-plugin-react: 7.37.5(eslint@8.57.0(supports-color@5.5.0))
 
-  eslint-config-standard@17.1.0(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.3.0(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0))(eslint-plugin-n@15.7.0(eslint@8.57.0))(eslint-plugin-promise@6.6.0(eslint@8.57.0))(eslint@8.57.0):
+  eslint-config-standard@17.1.0(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.3.0(eslint@8.57.0(supports-color@5.5.0))(supports-color@5.5.0)(typescript@5.5.4))(eslint@8.57.0(supports-color@5.5.0))(supports-color@5.5.0))(eslint-plugin-n@15.7.0(eslint@8.57.0(supports-color@5.5.0)))(eslint-plugin-promise@6.6.0(eslint@8.57.0(supports-color@5.5.0)))(eslint@8.57.0(supports-color@5.5.0)):
     dependencies:
-      eslint: 8.57.0
-      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.3.0(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0)
-      eslint-plugin-n: 15.7.0(eslint@8.57.0)
-      eslint-plugin-promise: 6.6.0(eslint@8.57.0)
+      eslint: 8.57.0(supports-color@5.5.0)
+      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.3.0(eslint@8.57.0(supports-color@5.5.0))(supports-color@5.5.0)(typescript@5.5.4))(eslint@8.57.0(supports-color@5.5.0))(supports-color@5.5.0)
+      eslint-plugin-n: 15.7.0(eslint@8.57.0(supports-color@5.5.0))
+      eslint-plugin-promise: 6.6.0(eslint@8.57.0(supports-color@5.5.0))
 
-  eslint-import-resolver-node@0.3.9:
+  eslint-import-resolver-node@0.3.9(supports-color@5.5.0):
     dependencies:
-      debug: 3.2.7
+      debug: 3.2.7(supports-color@5.5.0)
       is-core-module: 2.16.1
       resolve: 1.22.11
     transitivePeerDependencies:
       - supports-color
 
-  eslint-module-utils@2.12.1(@typescript-eslint/parser@8.3.0(eslint@8.57.0)(typescript@5.5.4))(eslint-import-resolver-node@0.3.9)(eslint@8.57.0):
+  eslint-module-utils@2.12.1(@typescript-eslint/parser@8.3.0(eslint@8.57.0(supports-color@5.5.0))(supports-color@5.5.0)(typescript@5.5.4))(eslint-import-resolver-node@0.3.9(supports-color@5.5.0))(eslint@8.57.0(supports-color@5.5.0))(supports-color@5.5.0):
     dependencies:
-      debug: 3.2.7
+      debug: 3.2.7(supports-color@5.5.0)
     optionalDependencies:
-      '@typescript-eslint/parser': 8.3.0(eslint@8.57.0)(typescript@5.5.4)
-      eslint: 8.57.0
-      eslint-import-resolver-node: 0.3.9
+      '@typescript-eslint/parser': 8.3.0(eslint@8.57.0(supports-color@5.5.0))(supports-color@5.5.0)(typescript@5.5.4)
+      eslint: 8.57.0(supports-color@5.5.0)
+      eslint-import-resolver-node: 0.3.9(supports-color@5.5.0)
     transitivePeerDependencies:
       - supports-color
 
-  eslint-plugin-es@4.1.0(eslint@8.57.0):
+  eslint-plugin-es@4.1.0(eslint@8.57.0(supports-color@5.5.0)):
     dependencies:
-      eslint: 8.57.0
+      eslint: 8.57.0(supports-color@5.5.0)
       eslint-utils: 2.1.0
       regexpp: 3.2.0
 
-  eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.3.0(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0):
+  eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.3.0(eslint@8.57.0(supports-color@5.5.0))(supports-color@5.5.0)(typescript@5.5.4))(eslint@8.57.0(supports-color@5.5.0))(supports-color@5.5.0):
     dependencies:
       '@rtsao/scc': 1.1.0
       array-includes: 3.1.9
       array.prototype.findlastindex: 1.2.6
       array.prototype.flat: 1.3.3
       array.prototype.flatmap: 1.3.3
-      debug: 3.2.7
+      debug: 3.2.7(supports-color@5.5.0)
       doctrine: 2.1.0
-      eslint: 8.57.0
-      eslint-import-resolver-node: 0.3.9
-      eslint-module-utils: 2.12.1(@typescript-eslint/parser@8.3.0(eslint@8.57.0)(typescript@5.5.4))(eslint-import-resolver-node@0.3.9)(eslint@8.57.0)
+      eslint: 8.57.0(supports-color@5.5.0)
+      eslint-import-resolver-node: 0.3.9(supports-color@5.5.0)
+      eslint-module-utils: 2.12.1(@typescript-eslint/parser@8.3.0(eslint@8.57.0(supports-color@5.5.0))(supports-color@5.5.0)(typescript@5.5.4))(eslint-import-resolver-node@0.3.9(supports-color@5.5.0))(eslint@8.57.0(supports-color@5.5.0))(supports-color@5.5.0)
       hasown: 2.0.2
       is-core-module: 2.16.1
       is-glob: 4.0.3
@@ -7392,39 +7412,39 @@ snapshots:
       string.prototype.trimend: 1.0.9
       tsconfig-paths: 3.15.0
     optionalDependencies:
-      '@typescript-eslint/parser': 8.3.0(eslint@8.57.0)(typescript@5.5.4)
+      '@typescript-eslint/parser': 8.3.0(eslint@8.57.0(supports-color@5.5.0))(supports-color@5.5.0)(typescript@5.5.4)
     transitivePeerDependencies:
       - eslint-import-resolver-typescript
       - eslint-import-resolver-webpack
       - supports-color
 
-  eslint-plugin-n@15.7.0(eslint@8.57.0):
+  eslint-plugin-n@15.7.0(eslint@8.57.0(supports-color@5.5.0)):
     dependencies:
       builtins: 5.1.0
-      eslint: 8.57.0
-      eslint-plugin-es: 4.1.0(eslint@8.57.0)
-      eslint-utils: 3.0.0(eslint@8.57.0)
+      eslint: 8.57.0(supports-color@5.5.0)
+      eslint-plugin-es: 4.1.0(eslint@8.57.0(supports-color@5.5.0))
+      eslint-utils: 3.0.0(eslint@8.57.0(supports-color@5.5.0))
       ignore: 5.3.2
       is-core-module: 2.16.1
       minimatch: 3.1.2
       resolve: 1.22.11
       semver: 7.7.3
 
-  eslint-plugin-prettier@5.2.1(@types/eslint@9.6.1)(eslint-config-prettier@9.1.0(eslint@8.57.0))(eslint@8.57.0)(prettier@3.3.3):
+  eslint-plugin-prettier@5.2.1(@types/eslint@9.6.1)(eslint-config-prettier@9.1.0(eslint@8.57.0(supports-color@5.5.0)))(eslint@8.57.0(supports-color@5.5.0))(prettier@3.3.3):
     dependencies:
-      eslint: 8.57.0
+      eslint: 8.57.0(supports-color@5.5.0)
       prettier: 3.3.3
       prettier-linter-helpers: 1.0.1
       synckit: 0.9.3
     optionalDependencies:
       '@types/eslint': 9.6.1
-      eslint-config-prettier: 9.1.0(eslint@8.57.0)
+      eslint-config-prettier: 9.1.0(eslint@8.57.0(supports-color@5.5.0))
 
-  eslint-plugin-promise@6.6.0(eslint@8.57.0):
+  eslint-plugin-promise@6.6.0(eslint@8.57.0(supports-color@5.5.0)):
     dependencies:
-      eslint: 8.57.0
+      eslint: 8.57.0(supports-color@5.5.0)
 
-  eslint-plugin-react@7.37.5(eslint@8.57.0):
+  eslint-plugin-react@7.37.5(eslint@8.57.0(supports-color@5.5.0)):
     dependencies:
       array-includes: 3.1.9
       array.prototype.findlast: 1.2.5
@@ -7432,7 +7452,7 @@ snapshots:
       array.prototype.tosorted: 1.1.4
       doctrine: 2.1.0
       es-iterator-helpers: 1.2.2
-      eslint: 8.57.0
+      eslint: 8.57.0(supports-color@5.5.0)
       estraverse: 5.3.0
       hasown: 2.0.2
       jsx-ast-utils: 3.3.5
@@ -7446,15 +7466,15 @@ snapshots:
       string.prototype.matchall: 4.0.12
       string.prototype.repeat: 1.0.0
 
-  eslint-plugin-simple-import-sort@12.1.1(eslint@8.57.0):
+  eslint-plugin-simple-import-sort@12.1.1(eslint@8.57.0(supports-color@5.5.0)):
     dependencies:
-      eslint: 8.57.0
+      eslint: 8.57.0(supports-color@5.5.0)
 
-  eslint-plugin-unused-imports@4.3.0(@typescript-eslint/eslint-plugin@8.3.0(@typescript-eslint/parser@8.3.0(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0):
+  eslint-plugin-unused-imports@4.3.0(@typescript-eslint/eslint-plugin@8.3.0(@typescript-eslint/parser@8.3.0(eslint@8.57.0(supports-color@5.5.0))(supports-color@5.5.0)(typescript@5.5.4))(eslint@8.57.0(supports-color@5.5.0))(supports-color@5.5.0)(typescript@5.5.4))(eslint@8.57.0(supports-color@5.5.0)):
     dependencies:
-      eslint: 8.57.0
+      eslint: 8.57.0(supports-color@5.5.0)
     optionalDependencies:
-      '@typescript-eslint/eslint-plugin': 8.3.0(@typescript-eslint/parser@8.3.0(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0)(typescript@5.5.4)
+      '@typescript-eslint/eslint-plugin': 8.3.0(@typescript-eslint/parser@8.3.0(eslint@8.57.0(supports-color@5.5.0))(supports-color@5.5.0)(typescript@5.5.4))(eslint@8.57.0(supports-color@5.5.0))(supports-color@5.5.0)(typescript@5.5.4)
 
   eslint-scope@7.2.2:
     dependencies:
@@ -7465,9 +7485,9 @@ snapshots:
     dependencies:
       eslint-visitor-keys: 1.3.0
 
-  eslint-utils@3.0.0(eslint@8.57.0):
+  eslint-utils@3.0.0(eslint@8.57.0(supports-color@5.5.0)):
     dependencies:
-      eslint: 8.57.0
+      eslint: 8.57.0(supports-color@5.5.0)
       eslint-visitor-keys: 2.1.0
 
   eslint-visitor-keys@1.3.0: {}
@@ -7476,13 +7496,13 @@ snapshots:
 
   eslint-visitor-keys@3.4.3: {}
 
-  eslint@8.57.0:
+  eslint@8.57.0(supports-color@5.5.0):
     dependencies:
-      '@eslint-community/eslint-utils': 4.9.1(eslint@8.57.0)
+      '@eslint-community/eslint-utils': 4.9.1(eslint@8.57.0(supports-color@5.5.0))
       '@eslint-community/regexpp': 4.12.2
-      '@eslint/eslintrc': 2.1.4
+      '@eslint/eslintrc': 2.1.4(supports-color@5.5.0)
       '@eslint/js': 8.57.0
-      '@humanwhocodes/config-array': 0.11.14
+      '@humanwhocodes/config-array': 0.11.14(supports-color@5.5.0)
       '@humanwhocodes/module-importer': 1.0.1
       '@nodelib/fs.walk': 1.2.8
       '@ungap/structured-clone': 1.3.0
@@ -7585,21 +7605,21 @@ snapshots:
     dependencies:
       pify: 2.3.0
 
-  express@4.19.2:
+  express@4.19.2(supports-color@5.5.0):
     dependencies:
       accepts: 1.3.8
       array-flatten: 1.1.1
-      body-parser: 1.20.2
+      body-parser: 1.20.2(supports-color@5.5.0)
       content-disposition: 0.5.4
       content-type: 1.0.5
       cookie: 0.6.0
       cookie-signature: 1.0.6
-      debug: 2.6.9
+      debug: 2.6.9(supports-color@5.5.0)
       depd: 2.0.0
       encodeurl: 1.0.2
       escape-html: 1.0.3
       etag: 1.8.1
-      finalhandler: 1.2.0
+      finalhandler: 1.2.0(supports-color@5.5.0)
       fresh: 0.5.2
       http-errors: 2.0.0
       merge-descriptors: 1.0.1
@@ -7611,8 +7631,8 @@ snapshots:
       qs: 6.11.0
       range-parser: 1.2.1
       safe-buffer: 5.2.1
-      send: 0.18.0
-      serve-static: 1.15.0
+      send: 0.18.0(supports-color@5.5.0)
+      serve-static: 1.15.0(supports-color@5.5.0)
       setprototypeof: 1.2.0
       statuses: 2.0.1
       type-is: 1.6.18
@@ -7683,9 +7703,9 @@ snapshots:
     dependencies:
       to-regex-range: 5.0.1
 
-  finalhandler@1.2.0:
+  finalhandler@1.2.0(supports-color@5.5.0):
     dependencies:
-      debug: 2.6.9
+      debug: 2.6.9(supports-color@5.5.0)
       encodeurl: 1.0.2
       escape-html: 1.0.3
       on-finished: 2.4.1
@@ -7753,18 +7773,18 @@ snapshots:
 
   functions-have-names@1.2.3: {}
 
-  gaxios@7.1.3:
+  gaxios@7.1.3(supports-color@5.5.0):
     dependencies:
       extend: 3.0.2
-      https-proxy-agent: 7.0.6
+      https-proxy-agent: 7.0.6(supports-color@5.5.0)
       node-fetch: 3.3.2
       rimraf: 5.0.10
     transitivePeerDependencies:
       - supports-color
 
-  gcp-metadata@8.1.3:
+  gcp-metadata@8.1.3(supports-color@5.5.0):
     dependencies:
-      gaxios: 7.1.3
+      gaxios: 7.1.3(supports-color@5.5.0)
       google-logging-utils: 1.1.3
       json-bigint: 1.0.0
     transitivePeerDependencies:
@@ -7922,7 +7942,7 @@ snapshots:
       statuses: 2.0.1
       toidentifier: 1.0.1
 
-  http-proxy-agent@7.0.2:
+  http-proxy-agent@7.0.2(supports-color@5.5.0):
     dependencies:
       agent-base: 7.1.4
       debug: 4.4.3(supports-color@5.5.0)
@@ -7934,7 +7954,7 @@ snapshots:
       quick-lru: 5.1.1
       resolve-alpn: 1.2.1
 
-  https-proxy-agent@7.0.6:
+  https-proxy-agent@7.0.6(supports-color@5.5.0):
     dependencies:
       agent-base: 7.1.4
       debug: 4.4.3(supports-color@5.5.0)
@@ -8009,7 +8029,7 @@ snapshots:
       hasown: 2.0.2
       side-channel: 1.1.0
 
-  iovalkey@0.3.3:
+  iovalkey@0.3.3(supports-color@5.5.0):
     dependencies:
       '@iovalkey/commands': 0.1.0
       cluster-key-slot: 1.1.2
@@ -8173,7 +8193,7 @@ snapshots:
       make-dir: 4.0.0
       supports-color: 7.2.0
 
-  istanbul-lib-source-maps@5.0.6:
+  istanbul-lib-source-maps@5.0.6(supports-color@5.5.0):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
       debug: 4.4.3(supports-color@5.5.0)
@@ -8402,14 +8422,14 @@ snapshots:
 
   ms@2.1.3: {}
 
-  mssql@11.0.1:
+  mssql@11.0.2(supports-color@5.5.0):
     dependencies:
       '@tediousjs/connection-string': 0.5.0
       commander: 11.1.0
       debug: 4.4.3(supports-color@5.5.0)
       rfdc: 1.4.1
       tarn: 3.0.2
-      tedious: 18.6.2
+      tedious: 18.6.2(supports-color@5.5.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -8823,7 +8843,7 @@ snapshots:
 
   require-directory@2.1.1: {}
 
-  require-in-the-middle@7.5.2:
+  require-in-the-middle@7.5.2(supports-color@5.5.0):
     dependencies:
       debug: 4.4.3(supports-color@5.5.0)
       module-details-from-path: 1.0.4
@@ -8831,7 +8851,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  require-in-the-middle@8.0.1:
+  require-in-the-middle@8.0.1(supports-color@5.5.0):
     dependencies:
       debug: 4.4.3(supports-color@5.5.0)
       module-details-from-path: 1.0.4
@@ -8957,9 +8977,9 @@ snapshots:
 
   semver@7.7.3: {}
 
-  send@0.18.0:
+  send@0.18.0(supports-color@5.5.0):
     dependencies:
-      debug: 2.6.9
+      debug: 2.6.9(supports-color@5.5.0)
       depd: 2.0.0
       destroy: 1.2.0
       encodeurl: 1.0.2
@@ -8975,12 +8995,12 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  serve-static@1.15.0:
+  serve-static@1.15.0(supports-color@5.5.0):
     dependencies:
       encodeurl: 1.0.2
       escape-html: 1.0.3
       parseurl: 1.3.3
-      send: 0.18.0
+      send: 0.18.0(supports-color@5.5.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -9093,15 +9113,15 @@ snapshots:
       pkg-conf: 3.1.0
       xdg-basedir: 4.0.0
 
-  standard@17.1.0(@typescript-eslint/parser@8.3.0(eslint@8.57.0)(typescript@5.5.4)):
+  standard@17.1.0(@typescript-eslint/parser@8.3.0(eslint@8.57.0(supports-color@5.5.0))(supports-color@5.5.0)(typescript@5.5.4))(supports-color@5.5.0):
     dependencies:
-      eslint: 8.57.0
-      eslint-config-standard: 17.1.0(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.3.0(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0))(eslint-plugin-n@15.7.0(eslint@8.57.0))(eslint-plugin-promise@6.6.0(eslint@8.57.0))(eslint@8.57.0)
-      eslint-config-standard-jsx: 11.0.0(eslint-plugin-react@7.37.5(eslint@8.57.0))(eslint@8.57.0)
-      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.3.0(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0)
-      eslint-plugin-n: 15.7.0(eslint@8.57.0)
-      eslint-plugin-promise: 6.6.0(eslint@8.57.0)
-      eslint-plugin-react: 7.37.5(eslint@8.57.0)
+      eslint: 8.57.0(supports-color@5.5.0)
+      eslint-config-standard: 17.1.0(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.3.0(eslint@8.57.0(supports-color@5.5.0))(supports-color@5.5.0)(typescript@5.5.4))(eslint@8.57.0(supports-color@5.5.0))(supports-color@5.5.0))(eslint-plugin-n@15.7.0(eslint@8.57.0(supports-color@5.5.0)))(eslint-plugin-promise@6.6.0(eslint@8.57.0(supports-color@5.5.0)))(eslint@8.57.0(supports-color@5.5.0))
+      eslint-config-standard-jsx: 11.0.0(eslint-plugin-react@7.37.5(eslint@8.57.0(supports-color@5.5.0)))(eslint@8.57.0(supports-color@5.5.0))
+      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.3.0(eslint@8.57.0(supports-color@5.5.0))(supports-color@5.5.0)(typescript@5.5.4))(eslint@8.57.0(supports-color@5.5.0))(supports-color@5.5.0)
+      eslint-plugin-n: 15.7.0(eslint@8.57.0(supports-color@5.5.0))
+      eslint-plugin-promise: 6.6.0(eslint@8.57.0(supports-color@5.5.0))
+      eslint-plugin-react: 7.37.5(eslint@8.57.0(supports-color@5.5.0))
       standard-engine: 15.1.0
       version-guard: 1.1.3
     transitivePeerDependencies:
@@ -9224,9 +9244,9 @@ snapshots:
     dependencies:
       '@scarf/scarf': 1.4.0
 
-  swagger-ui-express@5.0.1(express@4.19.2):
+  swagger-ui-express@5.0.1(express@4.19.2(supports-color@5.5.0)):
     dependencies:
-      express: 4.19.2
+      express: 4.19.2(supports-color@5.5.0)
       swagger-ui-dist: 5.31.0
 
   synckit@0.9.3:
@@ -9238,11 +9258,11 @@ snapshots:
 
   tarn@3.0.2: {}
 
-  tedious@18.6.2:
+  tedious@18.6.2(supports-color@5.5.0):
     dependencies:
-      '@azure/core-auth': 1.10.1
-      '@azure/identity': 4.13.0
-      '@azure/keyvault-keys': 4.10.0
+      '@azure/core-auth': 1.10.1(supports-color@5.5.0)
+      '@azure/identity': 4.13.0(supports-color@5.5.0)
+      '@azure/keyvault-keys': 4.10.0(supports-color@5.5.0)
       '@js-joda/core': 5.7.0
       '@types/node': 22.10.10
       bl: 6.1.6
@@ -9253,11 +9273,11 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  tedious@19.2.0:
+  tedious@19.2.0(supports-color@5.5.0):
     dependencies:
-      '@azure/core-auth': 1.10.1
-      '@azure/identity': 4.13.0
-      '@azure/keyvault-keys': 4.10.0
+      '@azure/core-auth': 1.10.1(supports-color@5.5.0)
+      '@azure/identity': 4.13.0(supports-color@5.5.0)
+      '@azure/keyvault-keys': 4.10.0(supports-color@5.5.0)
       '@js-joda/core': 5.7.0
       '@types/node': 22.10.10
       bl: 6.1.6
@@ -9375,11 +9395,11 @@ snapshots:
       possible-typed-array-names: 1.1.0
       reflect.getprototypeof: 1.0.10
 
-  typescript-eslint@8.3.0(eslint@8.57.0)(typescript@5.5.4):
+  typescript-eslint@8.3.0(eslint@8.57.0(supports-color@5.5.0))(supports-color@5.5.0)(typescript@5.5.4):
     dependencies:
-      '@typescript-eslint/eslint-plugin': 8.3.0(@typescript-eslint/parser@8.3.0(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0)(typescript@5.5.4)
-      '@typescript-eslint/parser': 8.3.0(eslint@8.57.0)(typescript@5.5.4)
-      '@typescript-eslint/utils': 8.3.0(eslint@8.57.0)(typescript@5.5.4)
+      '@typescript-eslint/eslint-plugin': 8.3.0(@typescript-eslint/parser@8.3.0(eslint@8.57.0(supports-color@5.5.0))(supports-color@5.5.0)(typescript@5.5.4))(eslint@8.57.0(supports-color@5.5.0))(supports-color@5.5.0)(typescript@5.5.4)
+      '@typescript-eslint/parser': 8.3.0(eslint@8.57.0(supports-color@5.5.0))(supports-color@5.5.0)(typescript@5.5.4)
+      '@typescript-eslint/utils': 8.3.0(eslint@8.57.0(supports-color@5.5.0))(supports-color@5.5.0)(typescript@5.5.4)
     optionalDependencies:
       typescript: 5.5.4
     transitivePeerDependencies:
@@ -9413,7 +9433,7 @@ snapshots:
 
   version-guard@1.1.3: {}
 
-  vite-node@2.0.3(@types/node@22.10.10):
+  vite-node@2.0.3(@types/node@22.10.10)(supports-color@5.5.0):
     dependencies:
       cac: 6.7.14
       debug: 4.4.3(supports-color@5.5.0)
@@ -9431,7 +9451,7 @@ snapshots:
       - supports-color
       - terser
 
-  vite-tsconfig-paths@5.1.4(typescript@5.5.4)(vite@5.4.21(@types/node@22.10.10)):
+  vite-tsconfig-paths@5.1.4(supports-color@5.5.0)(typescript@5.5.4)(vite@5.4.21(@types/node@22.10.10)):
     dependencies:
       debug: 4.4.3(supports-color@5.5.0)
       globrex: 0.1.2
@@ -9451,7 +9471,7 @@ snapshots:
       '@types/node': 22.10.10
       fsevents: 2.3.3
 
-  vitest@2.0.3(@types/node@22.10.10):
+  vitest@2.0.3(@types/node@22.10.10)(supports-color@5.5.0):
     dependencies:
       '@ampproject/remapping': 2.3.0
       '@vitest/expect': 2.0.3
@@ -9470,7 +9490,7 @@ snapshots:
       tinypool: 1.1.1
       tinyrainbow: 1.2.0
       vite: 5.4.21(@types/node@22.10.10)
-      vite-node: 2.0.3(@types/node@22.10.10)
+      vite-node: 2.0.3(@types/node@22.10.10)(supports-color@5.5.0)
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@types/node': 22.10.10

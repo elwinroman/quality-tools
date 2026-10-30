@@ -90,19 +90,19 @@ export function Form() {
         <div className="flex flex-col gap-0.5">
           <Label text="Server" />
           <Input name="server" placeholder="Ingresa el nombre de tu servidor" defaultValue="10.5.81.141\pruebas" />
-          {formErrors?.server && <p className="mt-0.5 text-xs text-red-500">{formErrors.server}</p>}
+          {formErrors?.server && <p className="text-destructive mt-0.5 text-xs">{formErrors.server}</p>}
         </div>
 
         <div className="flex flex-col gap-0.5">
           <Label text="Usuario SQL" />
           <Input name="username" placeholder="Ingresa tu usuario SQL" />
-          {formErrors?.username && <p className="mt-0.5 text-xs text-red-500">{formErrors.username}</p>}
+          {formErrors?.username && <p className="text-destructive mt-0.5 text-xs">{formErrors.username}</p>}
         </div>
 
         <div className="flex flex-col gap-0.5">
           <Label text="Contraseña" />
           <PasswordInput name="password" />
-          {formErrors?.password && <p className="mt-0.5 text-xs text-red-500">{formErrors.password}</p>}
+          {formErrors?.password && <p className="text-destructive mt-0.5 text-xs">{formErrors.password}</p>}
         </div>
 
         <Button
@@ -151,7 +151,7 @@ export function Form() {
               {visibleDatabases.length} bases de datos encontradas. Selecciona una para iniciar sesión.
             </p>
           )}
-          {formErrors?.dbname && <p className="mt-0.5 text-xs text-red-500">{formErrors.dbname}</p>}
+          {formErrors?.dbname && <p className="text-destructive mt-0.5 text-xs">{formErrors.dbname}</p>}
         </div>
       </div>
 
@@ -162,11 +162,11 @@ export function Form() {
       </div>
 
       {(error ?? databasesError) && (
-        <div className="flex items-center gap-2 rounded-md bg-[#B71D18] px-4 py-2">
-          <i className="pt-0.5 text-white">
+        <div className="bg-destructive flex items-center gap-2 rounded-md px-4 py-2">
+          <i className="text-destructive-foreground pt-0.5">
             <AlertCircleIcon width={22} height={22} />
           </i>
-          <p className="text-sm text-white">
+          <p className="text-destructive-foreground text-sm">
             {error && hasDatabases ? `No tienes permisos para acceder a '${selectedDb}'.` : (error ?? databasesError)!.detail}
           </p>
         </div>

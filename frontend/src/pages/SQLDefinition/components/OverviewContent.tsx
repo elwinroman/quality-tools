@@ -1,75 +1,59 @@
-import { format } from '@formkit/tempo'
-import { Shield } from 'lucide-react'
-
-import { LOCAL_LANGUAJE } from '@/enviroment/enviroment'
+import { OverviewCard, OverviewCollapsible, OverviewDateValue, OverviewDefinitionList } from '@/components/overview'
+import { RelationsSection, useRelationNavigation } from '@/components/relations'
+import { ContentTitle } from '@/components/shared'
 
 import { useSysObjectStore } from '../store/sysobject.store'
-
-interface MetaRowProps {
-  label: string
-  value: React.ReactNode
-}
-
-function MetaRow({ label, value }: MetaRowProps) {
-  return (
-    <div className="flex items-center gap-4">
-      <span className="text-primary w-32 shrink-0 text-sm font-medium">{label}</span>
-      <span className="bg-background-neutral text-secondary rounded px-2 py-0.5 text-xs">{value}</span>
-    </div>
-  )
-}
+import { PermissionChips } from './PermissionChips'
 
 export function OverviewContent() {
   const sysobject = useSysObjectStore((state) => state.sysobject)
+  const dependencies = useSysObjectStore((state) => state.dependencies)
+  const dependents = useSysObjectStore((state) => state.dependents)
+  const isLoadingRelations = useSysObjectStore((state) => state.isLoadingRelations)
+  const errorRelations = useSysObjectStore((state) => state.errorRelations)
+  const fetchSysObjectRelations = useSysObjectStore((state) => state.fetchSysObjectRelations)
+  const navigateToRelation = useRelationNavigation()
 
   if (!sysobject) return null
 
   return (
-    <div className="flex h-full flex-col gap-5 overflow-auto p-6">
-      {/* Metadata */}
-      <section className="flex flex-col gap-2">
-        <div className="flex flex-col gap-2.5">
-          <MetaRow label="Schema" value={sysobject.schemaName} />
-          <MetaRow label="Object ID" value={sysobject.id} />
-          <MetaRow label="Tipo" value={`${sysobject.typeDesc} (${sysobject.type})`} />
+    <div className="flex h-full flex-col gap-3 overflow-auto p-5">
+      <ContentTitle>Overview</ContentTitle>
+
+      {/* Tarjeta unica: metadata y relaciones, sin titulo de encabezado */}
+      <OverviewCard bodyClassName="p-0">
+        <div className="p-3">
+          <OverviewDefinitionList
+            items={[
+              { label: 'Tipo', value: `${sysobject.typeDesc} (${sysobject.type})`, spanFull: true },
+              { label: 'Schema', value: sysobject.schemaName },
+              { label: 'Object ID', value: sysobject.id },
+              { label: 'Creado', value: <OverviewDateValue date={sysobject.createDate} /> },
+              { label: 'Modificado', value: <OverviewDateValue date={sysobject.modifyDate} /> },
+              { label: 'Permisos', value: <PermissionChips permissions={sysobject.permission} />, spanFull: true },
+            ]}
+          />
         </div>
-      </section>
 
-      <div className="border-border border-t" />
-
-      {/* Fechas */}
-      <section className="flex flex-col gap-1.5">
-        <p className="text-secondary text-xs">
-          Creado el <span className="text-primary font-medium">{format(sysobject.createDate, 'full', LOCAL_LANGUAJE)}</span>
-        </p>
-        <p className="text-secondary text-xs">
-          Modificado el <span className="text-primary font-medium">{format(sysobject.modifyDate, 'full', LOCAL_LANGUAJE)}</span>
-        </p>
-      </section>
-
-      {/* Permisos */}
-      {sysobject.permission.length > 0 && (
-        <>
-          <div className="border-border border-t" />
-
-          <section className="flex flex-col gap-2">
-            <span className="text-secondary text-xs font-medium tracking-wide uppercase">Permisos</span>
-
-            <div className="flex flex-col gap-1.5">
-              {sysobject.permission.map((perm, i) => (
-                <div key={i} className="flex items-center gap-4">
-                  <span className="text-primary w-32 shrink-0 text-sm font-medium">{perm.name}</span>
-                  <span className="bg-background-neutral text-secondary rounded px-2 py-0.5 text-xs">{perm.permissionName}</span>
-                  <span className="text-secondary inline-flex items-center gap-1 text-xs">
-                    <Shield size={11} />
-                    {perm.stateDesc}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </section>
-        </>
-      )}
+        {/* Relaciones: fila interna de la tarjeta, plegada y con carga perezosa al expandir */}
+        <div className="border-border border-t">
+          <OverviewCollapsible
+            title="Relaciones"
+            className="rounded-none border-0"
+            onExpand={() => {
+              void fetchSysObjectRelations()
+            }}
+          >
+            <RelationsSection
+              dependencies={dependencies}
+              dependents={dependents}
+              isLoading={isLoadingRelations}
+              error={errorRelations}
+              onSelect={navigateToRelation}
+            />
+          </OverviewCollapsible>
+        </div>
+      </OverviewCard>
     </div>
   )
 }

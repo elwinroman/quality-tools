@@ -4,14 +4,16 @@ import type { ApiSysObjectType } from '@/models/sysobject'
 import { useAuthStore } from '@/zustand'
 
 import { useFavoritos } from '../hooks/useFavoritos'
-import type { Favorito } from '../models/favorito.model'
+import type { FavoriteScopeKind, Favorito } from '../models/favorito.model'
 
 interface FavoritoContextType {
   favoritos: Favorito[]
   getFavoritos(): Promise<void>
-  upsertFavorito(schema: string, objectName: string, type: string): Promise<void>
-  deleteFavorito(id: number): Promise<void>
+  upsertFavorito(schema: string, objectName: string, type: string, isActive: boolean, scope?: FavoriteScopeKind): Promise<void>
+  deleteFavorito(schema: string, objectName: string, type: string, scope?: FavoriteScopeKind): Promise<void>
   isFavorito(objectName: string, schema: string): Favorito | undefined
+  findFavorito(objectName: string, schema: string, scopeKind: FavoriteScopeKind): Favorito | undefined
+  moveFavorito(favorito: Favorito, toScope: FavoriteScopeKind): Promise<void>
   loading: boolean
 }
 
@@ -23,7 +25,7 @@ interface Props {
 }
 
 export function FavoritoProvider({ children, type }: Props) {
-  const { favoritos, getFavoritos, upsertFavorito, deleteFavorito, isFavorito, loading } = useFavoritos(type)
+  const { favoritos, getFavoritos, upsertFavorito, deleteFavorito, isFavorito, findFavorito, moveFavorito, loading } = useFavoritos(type)
   const database = useAuthStore((state) => state.authContext?.database)
 
   useEffect(() => {
@@ -31,7 +33,9 @@ export function FavoritoProvider({ children, type }: Props) {
   }, [database])
 
   return (
-    <FavoritoContext.Provider value={{ favoritos, getFavoritos, upsertFavorito, deleteFavorito, isFavorito, loading }}>
+    <FavoritoContext.Provider
+      value={{ favoritos, getFavoritos, upsertFavorito, deleteFavorito, isFavorito, findFavorito, moveFavorito, loading }}
+    >
       {children}
     </FavoritoContext.Provider>
   )
@@ -42,9 +46,4 @@ export const useFavoritoContext = () => {
   if (!context) throw new Error('useFavoritoContext debe usarse dentro de <FavoritoProvider>')
 
   return context
-}
-
-/** Versión segura: retorna null si no hay provider (para componentes compartidos) */
-export const useFavoritoContextSafe = () => {
-  return useContext(FavoritoContext)
 }

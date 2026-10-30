@@ -53,7 +53,7 @@ TableHead.displayName = 'TableHead'
 
 const TableCell = forwardRef<ComponentRef<'td'>, ComponentPropsWithoutRef<'td'> & { className?: string }>(
   ({ className, ...props }, ref) => (
-    <td ref={ref} className={cn('border-0 py-4 pl-4 align-middle [&:has([role=checkbox])]:pr-0', className)} {...props} />
+    <td ref={ref} className={cn('border-0 py-3 pl-4 align-middle [&:has([role=checkbox])]:pr-0', className)} {...props} />
   ),
 )
 TableCell.displayName = 'TableCell'

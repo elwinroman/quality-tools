@@ -3,8 +3,29 @@ import * as Sentry from '@sentry/node'
 
 import { SENTRY_REPORTING_ENABLED } from '@/config/enviroment'
 
-import { DatabaseError } from '../exceptions'
 import { InfrastructureError } from '../infrastructure-error.exception'
+
+/** Límite de caracteres del statement que se adjunta al evento de Sentry. */
+export const SENTRY_STATEMENT_MAX_LENGTH = 2000
+
+/** Marca visible de que el statement fue recortado antes de enviarse. */
+export const SENTRY_STATEMENT_TRUNCATION_MARKER = '… [statement truncated]'
+
+/** Clave del contexto de Sentry que describe la operación de base de datos que falló. */
+export const SENTRY_DATABASE_OPERATION_CONTEXT = 'Database operation'
+
+/** Delimitador visible entre los frames de la aplicación y el stack original del driver. */
+export const SENTRY_ORIGINAL_STACK_MARKER = 'Original MSSQL stack:'
+
+/**
+ * Recorta el statement al límite configurado y agrega una marca cuando hubo recorte.
+ * Se adjunta como contexto del evento: nunca en el mensaje ni en el stack.
+ */
+export function truncateStatementForSentry(statement: string): string {
+  if (statement.length <= SENTRY_STATEMENT_MAX_LENGTH) return statement
+
+  return `${statement.slice(0, SENTRY_STATEMENT_MAX_LENGTH)}${SENTRY_STATEMENT_TRUNCATION_MARKER}`
+}
 
 export function sentryScopeError(err: unknown) {
   if (!SENTRY_REPORTING_ENABLED) return
@@ -54,20 +75,51 @@ export function sentryScopeError(err: unknown) {
       jti: context.session?.jti,
     })
 
-    if (err instanceof DatabaseError) {
-      const proxyError = new Error(err.message)
-      proxyError.name = err.originalError.name // cambia el nombre del error por el original
-      proxyError.stack = err.stack
+    // El ejecutor de base de datos guardó el contexto de la operación; el formateo se difiere
+    // hasta este único punto de reporte. El statement viaja como contexto (truncado) porque es
+    // el SQL que falló; las credenciales y los valores de parámetros nunca entran al contexto.
+    const databaseOperation = context.databaseOperationCallsite
 
-      // contexto del error original
-      scope.setContext('Original Error', { ...err.originalError })
-
-      return Sentry.captureException(proxyError)
+    if (databaseOperation && err instanceof Error) {
+      enrichErrorStackWithCallsite(err, databaseOperation.stack)
     }
+
+    if (databaseOperation) {
+      scope.setContext(SENTRY_DATABASE_OPERATION_CONTEXT, {
+        operation: databaseOperation.operation,
+        statement: truncateStatementForSentry(databaseOperation.statement),
+      })
+    }
+
     if (err instanceof InfrastructureError) scope.setExtra('descripcion', err.detail)
 
+    // Se reporta la instancia cruda del error, sin objeto proxy intermedio.
     Sentry.captureException(err)
   })
+}
+
+/**
+ * Antepone los frames de la aplicación al stack del driver para que Sentry muestre primero
+ * el repositorio llamador y luego, tras un delimitador claro, el stack original de MSSQL.
+ */
+export function enrichErrorStackWithCallsite(err: Error, callsiteStack?: string): void {
+  const originalStack = err.stack
+  const applicationFrames = callsiteStack ? extractApplicationFrames(callsiteStack) : undefined
+
+  err.stack = [`${err.name}: ${err.message}`, applicationFrames, SENTRY_ORIGINAL_STACK_MARKER, originalStack]
+    .filter((stackPart): stackPart is string => Boolean(stackPart))
+    .join('\n')
+}
+
+/**
+ * `Error.captureStackTrace` escribe una línea de encabezado sintética (`Error: `) antes de los
+ * frames. Aquí se descarta y se conservan únicamente las líneas de frame reales.
+ */
+function extractApplicationFrames(callsiteStack: string): string {
+  return callsiteStack
+    .split('\n')
+    .filter(line => line.trim().startsWith('at '))
+    .join('\n')
 }
 
 function sanitizeRequestBody(body: Record<string, unknown>) {

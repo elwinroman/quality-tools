@@ -1,4 +1,4 @@
-import { extractBearerToken } from '@core/utils'
+import { extractBearerToken } from '@core/utils/extract-bearer-token.util'
 import { describe, expect, it } from 'vitest'
 
 describe('extractBearerToken', () => {

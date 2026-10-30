@@ -1,13 +1,13 @@
 import './styles/editor.style.css'
 
-import type { Monaco } from '@monaco-editor/react'
 import { DiffEditor } from '@monaco-editor/react'
 import { OctagonAlert } from 'lucide-react'
 
-import { CircleLoader } from '@/components/loader'
-import { BaseMonacoEditorOptions, MonacoThemes } from '@/constants'
+import { ThemedCircleLoader } from '@/components/loader'
+import { BaseMonacoEditorOptions, resolveEditorThemePreference } from '@/constants'
+import { useEditorTheme } from '@/constants/monaco-themes/use-editor-theme'
 import { EDITOR_BANNER } from '@/enviroment/enviroment'
-import { ensureBuiltinTheme, getFormattedCodeForViewMode } from '@/utilities'
+import { getFormattedCodeForViewMode } from '@/utilities'
 import { useAppStore, useAuthStore, useEditorOptionsStore } from '@/zustand'
 
 import { useSysObjectStore } from '../../../store/sysobject.store'
@@ -18,10 +18,21 @@ const DIFF_EDITOR_BASE_OPTIONS = {
 } as const
 
 export function DiffEditorCode() {
-  const { renderWhitespace, fontSize, renderSideBySide, theme, normalizeWhitespace, guides, minimap, stickyScroll } = useEditorOptionsStore(
-    (state) => state,
-  )
+  const {
+    renderWhitespace,
+    fontSize,
+    renderSideBySide,
+    theme,
+    themeMode,
+    lightTheme,
+    darkTheme,
+    normalizeWhitespace,
+    guides,
+    minimap,
+    stickyScroll,
+  } = useEditorOptionsStore((state) => state)
   const isDark = useAppStore((state) => state.isDark)
+  const effectiveTheme = resolveEditorThemePreference({ theme, themeMode, lightTheme, darkTheme }, isDark)
   const authContext = useAuthStore((state) => state.authContext)
   const viewMode = useSysObjectStore((state) => state.viewMode)
   const sysobject = useSysObjectStore((state) => state.sysobject)
@@ -51,15 +62,8 @@ export function DiffEditorCode() {
     document.documentElement.style.setProperty('--current-database-content', JSON.stringify(authContext.database))
   }
 
-  // cargar temas (estilos) de monaco
-  const handleBeforeMount = (monaco: Monaco) => {
-    for (const [keyTheme, valueTheme] of Object.entries(MonacoThemes)) {
-      monaco.editor.defineTheme(keyTheme, {
-        ...valueTheme.json,
-        base: ensureBuiltinTheme(valueTheme.json.base),
-      })
-    }
-  }
+  // define y aplica el tema seleccionado (carga perezosa, compartida)
+  const { handleBeforeMount } = useEditorTheme(effectiveTheme)
 
   // inyección de componentes (header + copy) dentro del DiffEditor
   const { render: injectComponents } = useInjectionComponent({ originalCode, modifiedCode, renderSideBySide })
@@ -89,7 +93,7 @@ export function DiffEditorCode() {
   if (isLoadingProdObject) {
     return (
       <div className="flex h-full w-full items-center justify-center">
-        <CircleLoader visible={true} color={isDark ? 'white' : 'black'} />
+        <ThemedCircleLoader />
       </div>
     )
   }
@@ -100,11 +104,11 @@ export function DiffEditorCode() {
         beforeMount={handleBeforeMount}
         onMount={injectComponents}
         language="sql"
-        theme={theme}
+        theme={effectiveTheme}
         original={originalCode}
         modified={modifiedCode}
         options={{ ...fullOptions }}
-        loading={<CircleLoader visible={true} color={isDark ? 'white' : 'black'} />}
+        loading={<ThemedCircleLoader />}
       />
     </div>
   )

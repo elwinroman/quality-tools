@@ -1,3 +1,4 @@
+import type { EditorThemeMode } from '@/constants'
 import {
   IEditorStickyScrollOptions,
   IFontSize,
@@ -34,8 +35,17 @@ export interface BearEditorOptionsState {
   /** Muestra guias verticales de indentación */
   guides: IGuidesOptions
 
-  /** Tema visual aplicado al editor, e.g., 'light', 'dark', etc. */
+  /** Tema para el modo de selección única. */
   theme: IMonacoTheme
+
+  /** Preferencia de sincronización de tema con el modo de la aplicación. */
+  themeMode: EditorThemeMode
+
+  /** Tema utilizado en modo claro cuando se usan temas separados. */
+  lightTheme: IMonacoTheme
+
+  /** Tema utilizado en modo oscuro cuando se usan temas separados. */
+  darkTheme: IMonacoTheme
 
   /** Actualiza el tamaño de fuente del editor. */
   updateFontSize: (size: IFontSize) => void
@@ -55,8 +65,17 @@ export interface BearEditorOptionsState {
   /** Actualiza las guía de indentación verticales */
   updateGuides: (state: boolean) => void
 
-  /** Cambia el tema visual del editor. */
+  /** Cambia el tema de selección única. */
   updateTheme: (theme: IMonacoTheme) => void
+
+  /** Cambia el comportamiento de selección del tema. */
+  updateThemeMode: (mode: EditorThemeMode) => void
+
+  /** Actualiza el tema del modo claro. */
+  updateLightTheme: (theme: IMonacoTheme) => void
+
+  /** Actualiza el tema del modo oscuro. */
+  updateDarkTheme: (theme: IMonacoTheme) => void
 
   /**
    * Indica si se debe normalizar el whitespace (tabs → espacios) antes de comparar.

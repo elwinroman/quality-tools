@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef } from 'react'
 
-import { CircleLoader } from '@/components/loader'
+import { ThemedCircleLoader } from '@/components/loader'
 
 import { dialogSearchContext } from '../../context/dialogSearchContext'
 import { searchContext } from '../../context/searchContext'
@@ -54,7 +54,7 @@ export function Results() {
 
   return (
     <div ref={resultsRef} className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
-      {(loadingSuggestions || loadingRecents) && <CircleLoader visible={true} color="white" />}
+      {(loadingSuggestions || loadingRecents) && <ThemedCircleLoader />}
 
       {!loadingSuggestions && noResults && <p className="text-secondary mt-5 text-center">Sin resultados</p>}
 
@@ -68,7 +68,6 @@ export function Results() {
             <Item
               key={data.id}
               ref={index === activeIndex ? activeItemRef : undefined}
-              objectId={data.id}
               schema={data.schema}
               objectName={data.name}
               updateOpen={updateOpen}

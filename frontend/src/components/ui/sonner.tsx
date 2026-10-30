@@ -23,9 +23,15 @@ const colorfulClassNames = {
   warning: '!bg-amber-600 !border-amber-700 !text-white',
 }
 
+/**
+ * Aspecto neutro: invierte los colores base de la app, así que se ve negro en modo
+ * claro y blanco en modo oscuro. Para toasts que no son ni éxito ni advertencia.
+ */
+export const NEUTRAL_TOAST_CLASS = '!bg-foreground !text-background !border-border'
+
 // Modo minimalista: usa los colores base de la app (--background / --foreground)
 const minimalClassNames = {
-  toast: `${TOAST_BASE} !bg-foreground !text-background !border-border`,
+  toast: `${TOAST_BASE} ${NEUTRAL_TOAST_CLASS}`,
 }
 
 const Toaster = () => {

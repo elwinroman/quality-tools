@@ -34,7 +34,12 @@ export const useAuthStore = create<BearAuthState>()(
       {
         name: 'app.auth.local',
         storage: createJSONStorage(() => localStorage),
-        partialize: (state) => Object.fromEntries(Object.entries(state).filter(([key]) => !['errorApiConnection'].includes(key))),
+        // `database` lo posee el servidor (`check-session`): no se persiste para no mostrar una copia obsoleta
+        // cuando la sesión cambia de base de datos en otra pestaña. Se restablece desde el servidor.
+        partialize: (state) => ({
+          token: state.token,
+          authContext: state.authContext ? { ...state.authContext, database: '' } : null,
+        }),
       },
     ),
   ),

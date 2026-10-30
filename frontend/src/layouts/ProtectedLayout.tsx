@@ -1,6 +1,6 @@
 import { isAxiosError } from 'axios'
 import { OctagonAlert } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Navigate } from 'react-router-dom'
 
 import { CheckSessionResponse } from '@/adapters'
@@ -8,20 +8,27 @@ import { SessionExpiredAlert } from '@/components/SessionExpiredAlert'
 import useFetchAndLoad from '@/hooks/useFetchAndLoad'
 import { Error500 } from '@/pages'
 import { checkSessionService } from '@/services'
-import { useAuthStore } from '@/zustand'
+import { useAppStore, useAuthStore } from '@/zustand'
 
 export function ProtectedLayout({ children }: { children: React.ReactNode }) {
   const authContext = useAuthStore((state) => state.authContext)
   const errorApiConnection = useAuthStore((state) => state.errorApiConnection)
+  const updateDatabase = useAuthStore((state) => state.updateDatabase)
   const { error, callEndpoint } = useFetchAndLoad<CheckSessionResponse>()
   const [sessionExpired, setSessionExpired] = useState(false)
   const [viewDefinitionError, setViewDefinitionError] = useState(false)
+  const checkingSessionRef = useRef(false)
 
-  const checkSession = async () => {
+  // sincroniza la base de datos activa con la que informa el servidor
+  const checkSession = useCallback(async () => {
+    if (checkingSessionRef.current) return
+    checkingSessionRef.current = true
+
     try {
       const response = await callEndpoint(checkSessionService())
 
       if (!response.data.statusDatabaseConn) setViewDefinitionError(true)
+      if (response.data.database) updateDatabase(response.data.database)
     } catch (err: unknown) {
       console.error('Error al intentar verificar la sesión: ', err)
 
@@ -31,13 +38,34 @@ export function ProtectedLayout({ children }: { children: React.ReactNode }) {
         // solo cierra sesión si es un error 4xx
         if (status && status >= 400 && status < 500) setSessionExpired(true)
       }
+    } finally {
+      checkingSessionRef.current = false
     }
-  }
+  }, [callEndpoint, updateDatabase])
 
-  // notificación de sesión expirada
+  // verificación inicial al montar el layout
   useEffect(() => {
-    if (authContext) checkSession()
-  }, [])
+    if (useAuthStore.getState().authContext) void checkSession()
+  }, [checkSession])
+
+  // al recuperar foco o visibilidad se re-lee la base de datos activa para reflejar cambios hechos en otra pestaña
+  useEffect(() => {
+    const revalidateSession = () => {
+      if (document.visibilityState !== 'visible') return
+      if (useAppStore.getState().switchingDatabase) return
+      if (!useAuthStore.getState().authContext) return
+
+      void checkSession()
+    }
+
+    window.addEventListener('focus', revalidateSession)
+    document.addEventListener('visibilitychange', revalidateSession)
+
+    return () => {
+      window.removeEventListener('focus', revalidateSession)
+      document.removeEventListener('visibilitychange', revalidateSession)
+    }
+  }, [checkSession])
 
   if (!authContext) return <Navigate to="/aligment" />
   if (errorApiConnection) return <Error500 />

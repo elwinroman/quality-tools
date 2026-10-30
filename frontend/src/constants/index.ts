@@ -1,5 +1,7 @@
 export * from './app-routes'
 export * from './base-monaco-editor-options'
+export * from './diff-editor'
 export * from './monaco-themes/monaco-themes'
+export * from './monaco-themes/theme-preference'
 export * from './type-sysobject'
 export * from './type-views-list'

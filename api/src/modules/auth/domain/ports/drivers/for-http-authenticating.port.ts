@@ -11,7 +11,7 @@ export interface ForHttpAuthenticatingPort {
   refreshToken(refreshToken: string): Promise<{ accessToken: string }>
   checkSession(
     credentials: StoreUserSchema,
-  ): Promise<{ databaseConnection: string; viewdefinitionPermission: boolean; checkedAt: Date | string }>
+  ): Promise<{ databaseConnection: string; viewdefinitionPermission: boolean; checkedAt: Date | string; database: string }>
   health(): void
   listDatabases(credentials: Omit<StoreUserSchema, 'database'>): Promise<string[]>
   switchDatabase(

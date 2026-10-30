@@ -45,19 +45,28 @@ const envSchema = z
     SENTRY_DNS: z.string().url(),
     NODE_ENV: z.enum(['development', 'production', 'test']).optional().default('development'),
 
-    // Observabilidad
-    LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error', 'fatal']).optional().default('info'),
+    // Logging de aplicación
+    CONSOLE_LOGS_ENABLED: z.preprocess(val => val === undefined || val === 'true', z.boolean()),
+    CONSOLE_LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error', 'fatal']).optional().default('warn'),
+
+    // Observabilidad OpenTelemetry
     OTEL_DEPLOYMENT_ENV: z.enum(['development', 'cert', 'production']),
     OTEL_LOGS_ENABLED: z
       .preprocess(val => val === 'true', z.boolean())
       .optional()
       .default(false),
+    LOG_EXPORT_LEVEL: z.enum(['debug', 'info', 'warn', 'error', 'fatal']).optional().default('info'),
     OTEL_SERVICE_NAME: z.string().min(1).default('quality-tools-api'),
     OTEL_EXPORTER_OTLP_ENDPOINT: z.string().url().default('http://otel-collector:4318'),
     OTEL_EXPORTER_OTLP_LOGS_ENDPOINT: z.string().url().optional(),
     OTEL_EXPORTER_OTLP_METRICS_ENDPOINT: z.string().url().optional(),
+    OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: z.string().url().optional(),
     OTEL_RESOURCE_ATTRIBUTES: z.string().default('project=quality-tools'),
     OTEL_METRICS_ENABLED: z
+      .preprocess(val => val === 'true', z.boolean())
+      .optional()
+      .default(false),
+    OTEL_TRACES_ENABLED: z
       .preprocess(val => val === 'true', z.boolean())
       .optional()
       .default(false),
@@ -131,6 +140,14 @@ const envSchema = z
         path: ['OTEL_EXPORTER_OTLP_ENDPOINT'],
       })
     }
+
+    if (data.OTEL_TRACES_ENABLED && !data.OTEL_EXPORTER_OTLP_ENDPOINT && !data.OTEL_EXPORTER_OTLP_TRACES_ENDPOINT) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'OTEL_EXPORTER_OTLP_ENDPOINT u OTEL_EXPORTER_OTLP_TRACES_ENDPOINT es obligatorio cuando OTEL_TRACES_ENABLED=true',
+        path: ['OTEL_EXPORTER_OTLP_ENDPOINT'],
+      })
+    }
   })
 
 const { data, error, success } = envSchema.safeParse(process.env)
@@ -167,15 +184,19 @@ export const {
   SENTRY_DNS,
   NODE_ENV,
 
-  LOG_LEVEL,
+  CONSOLE_LOGS_ENABLED,
+  CONSOLE_LOG_LEVEL,
   OTEL_DEPLOYMENT_ENV,
   OTEL_LOGS_ENABLED,
+  LOG_EXPORT_LEVEL,
   OTEL_SERVICE_NAME,
   OTEL_EXPORTER_OTLP_ENDPOINT,
   OTEL_EXPORTER_OTLP_LOGS_ENDPOINT,
   OTEL_EXPORTER_OTLP_METRICS_ENDPOINT,
+  OTEL_EXPORTER_OTLP_TRACES_ENDPOINT,
   OTEL_RESOURCE_ATTRIBUTES,
   OTEL_METRICS_ENABLED,
+  OTEL_TRACES_ENABLED,
   OTEL_METRIC_EXPORT_INTERVAL,
   OTEL_METRIC_EXPORT_TIMEOUT,
   OTEL_LOG_EXPORT_INTERVAL,

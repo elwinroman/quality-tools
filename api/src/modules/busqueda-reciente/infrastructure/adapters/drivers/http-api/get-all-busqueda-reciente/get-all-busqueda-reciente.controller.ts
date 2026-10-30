@@ -1,13 +1,16 @@
+import { CurrentStoreContextResolver } from '@auth/domain/ports/drivens/current-store-context-resolver.port'
 import { ForHttpManagingBusquedaRecientePort } from '@busqueda-reciente/domain/ports/drivers/for-http-managing-busqueda-reciente.port'
 import { BusquedaRecienteFilter } from '@busqueda-reciente/domain/schemas/busqueda-reciente'
-import { buildStoreAuthContext } from '@core/utils'
 import { TypeSysObject } from '@sysobject/domain/schemas/sysobject'
 import { NextFunction, Request, Response } from 'express'
 
 import { GetAllBusquedaRecienteQuery, GetAllBusquedaRecienteQuerySchema } from './get-all-busqueda-reciente-query.http-dto'
 
 export class GetAllBusquedaRecienteController {
-  constructor(private readonly service: ForHttpManagingBusquedaRecientePort) {}
+  constructor(
+    private readonly service: ForHttpManagingBusquedaRecientePort,
+    private readonly currentStoreContextResolver: CurrentStoreContextResolver,
+  ) {}
 
   async run(req: Request, res: Response, next: NextFunction) {
     const { type, limit } = req.query
@@ -21,7 +24,7 @@ export class GetAllBusquedaRecienteController {
           credentials: { database },
         },
         authContext,
-      } = await buildStoreAuthContext()
+      } = await this.currentStoreContextResolver.resolve()
 
       const filter: BusquedaRecienteFilter = {
         type: dto.type as TypeSysObject,

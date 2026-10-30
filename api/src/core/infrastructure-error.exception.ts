@@ -17,12 +17,13 @@ import { BaseError } from '@core/exceptions/base-error'
  * ```typescript
  * export class DatabaseConnectionErrorException extends InfrastructureError {
  *   readonly type = 'DatabaseConnectionErrorException'
- *   readonly title = 'Error de conexión'
- *   readonly detail = 'No se pudo conectar a la base de datos'
- *   readonly metadata = { status: 500, errorCode: 5000 }
+ *   static readonly title = 'Error de conexión a base de datos'
+ *   readonly detail: string
+ *   static readonly metadata = { status: 500, errorCode: 5000 }
  *
- *   constructor(cause?: Error) {
- *     super('[db] Error de conexión a la base de datos', cause)
+ *   constructor(code: string, message: string, cause?: Error) {
+ *     super(`[db] Error de conexión: ${code} - ${message}`, cause)
+ *     this.detail = `Hubo un error relacionado con la conexión y el pool de conexiones. ${code} - ${message}`
  *   }
  * }
  * ```

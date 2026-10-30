@@ -1,7 +1,7 @@
-import { LayoutDashboard, Rows3, TableProperties } from 'lucide-react'
+import { CircleHelp, KeyRound, Rows3 } from 'lucide-react'
 
-import { TabsList, TabsTrigger } from '@/components/ui'
-import { cn } from '@/lib/utils'
+import { EditorTab } from '@/components/editor-header'
+import { TabsList } from '@/components/ui'
 
 import { TabOption } from '../constants/tab-options'
 import { useUserTableStore } from '../store/usertable.store'
@@ -10,52 +10,13 @@ export function HeaderTabsUsertable() {
   const object = useUserTableStore((state) => state.userTableObject)
 
   return (
-    <header className="border-b-border h-9 border-b px-2">
-      <div className="SY flex h-full flex-nowrap items-center gap-2">
-        <TabsList className="h-full gap-0 rounded-none">
-          {/* Tab Esquema */}
-          <TabsTrigger
-            value={TabOption.Structure}
-            disabled={!object}
-            className={cn(
-              // Base
-              'h-full gap-1.5 rounded-none border-b-2 border-transparent',
-              // Active
-              'data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none',
-            )}
-          >
-            <TableProperties size={12} />
-            <span>Esquema</span>
-          </TabsTrigger>
+    <TabsList className="h-auto gap-1 rounded-none bg-transparent p-0">
+      {/* Esquema nunca se deshabilita: es el tab por defecto y muestra el estado vacío */}
+      <EditorTab value={TabOption.Structure} label="Esquema" icon={Rows3} />
 
-          {/* Tab Overview */}
-          <TabsTrigger
-            value={TabOption.Overview}
-            className={cn(
-              'h-full gap-1.5 rounded-none border-b-2 border-transparent',
-              'data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none',
-            )}
-          >
-            <LayoutDashboard size={12} />
-            <span>Overview</span>
-          </TabsTrigger>
+      <EditorTab value={TabOption.Overview} label="Overview" icon={CircleHelp} disabled={!object} />
 
-          {/* Tab Índices */}
-          <TabsTrigger
-            value={TabOption.Indexes}
-            disabled={!object}
-            className={cn(
-              // Base
-              'h-full gap-1.5 rounded-none border-b-2 border-transparent',
-              // Active
-              'data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none',
-            )}
-          >
-            <Rows3 size={12} />
-            <span>Índices</span>
-          </TabsTrigger>
-        </TabsList>
-      </div>
-    </header>
+      <EditorTab value={TabOption.Indexes} label="Índices" icon={KeyRound} disabled={!object} />
+    </TabsList>
   )
 }

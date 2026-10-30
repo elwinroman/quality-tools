@@ -4,6 +4,7 @@ import { OTLPLogExporter } from '@opentelemetry/exporter-logs-otlp-http'
 import { BatchLogRecordProcessor, LoggerProvider } from '@opentelemetry/sdk-logs'
 
 import {
+  LOG_EXPORT_LEVEL,
   OTEL_DEPLOYMENT_ENV,
   OTEL_EXPORTER_OTLP_ENDPOINT,
   OTEL_EXPORTER_OTLP_LOGS_ENDPOINT,
@@ -69,6 +70,8 @@ export class OpenTelemetryLogger implements Logger {
   }
 
   private emit(level: LoggerLevel, message: Message, context?: Context): void {
+    if (severityNumberByLevel[level] < severityNumberByLevel[LOG_EXPORT_LEVEL]) return
+
     const logContext = buildLogContext(context)
 
     this.logger.emit({

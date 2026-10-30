@@ -1,6 +1,5 @@
 import { UserHashId } from '../value-objects/user-hash-id'
 
-// roles
 export const UserRoleList = {
   ADMIN: 'administrador',
   ANALIST: 'analista',
@@ -9,7 +8,6 @@ export const UserRoleList = {
 
 export type UserRole = (typeof UserRoleList)[keyof typeof UserRoleList]
 
-// Interfaz para los datos primitivos
 export interface PrimitiveUser {
   id?: number
   hashId: UserHashId // Value Object en lugar de string
@@ -21,9 +19,8 @@ export interface PrimitiveUser {
   isActive: boolean
 }
 
-// Interfaz para datos de usuario persistidos (con id obligatorio)
-export interface RepoUser extends PrimitiveUser {
-  id: number // id obligatorio, ya que es un usuario persistido
+export interface PersistedUser extends PrimitiveUser {
+  id: number
 }
 
 export class User {
@@ -51,7 +48,23 @@ export class User {
     })
   }
 
-  // Getters
+  /**
+   * Arma el usuario ya persistido. El id es obligatorio a propósito: si no lo tenés,
+   * este camino no compila, en vez de afirmar un id que puede no existir.
+   */
+  static persisted(persistedUser: {
+    id: number
+    hashId: string
+    user: string
+    role?: UserRole
+    host: string
+    aliasHost: string
+    createdAt?: string | Date
+    isActive?: boolean
+  }): PersistedUser {
+    return { ...User.create(persistedUser).toValue(), id: persistedUser.id }
+  }
+
   get idValue(): number | undefined {
     return this.atributes.id
   }
@@ -66,13 +79,6 @@ export class User {
       aliasHost: this.atributes.aliasHost,
       createdAt: this.atributes.createdAt,
       isActive: this.atributes.isActive,
-    }
-  }
-
-  toRepoUser(): RepoUser {
-    return {
-      ...this.toValue(),
-      id: this.atributes.id!, // este "id" debe ser obligatorio para RepoUser ya que el id ya se ha creado
     }
   }
 }

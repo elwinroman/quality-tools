@@ -28,7 +28,7 @@ export class CompositeLogger implements Logger {
       try {
         logger[level](message, context)
       } catch (err) {
-        // Observability must never break application flow.
+        // La observabilidad nunca debe interrumpir el flujo de la aplicación.
         console.error('[observability] Error al emitir log', err)
       }
     }

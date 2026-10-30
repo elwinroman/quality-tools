@@ -3,19 +3,19 @@ import { registry } from '@core/swagger/openapi-registry'
 import { DeleteResponseSchema, errorResponses, SuccessListResponseSchema, SuccessMessageResponseSchema } from '@core/swagger/schemas'
 import { z } from 'zod'
 
-import { DeleteFavoritoParamsSchema } from './controllers/delete-favorito/delete-favorito-param.http-dto'
 import { GetAllFavoritosQuerySchema } from './controllers/get-all-favoritos/get-all-favoritos-query.http-dto'
 import { RegisterFavoritoParamsSchema } from './controllers/register-favorito/register-favorito-params.http-dto'
 
 extendZodWithOpenApi(z)
 
-// PUT /api/v1/favorito/upsert
+// PUT /api/v1/favorito
 registry.registerPath({
   method: 'put',
-  path: '/api/v1/favorito/upsert',
+  path: '/api/v1/favorito',
   tags: ['Favorito'],
-  summary: 'Registrar o actualizar favorito',
-  description: 'Agrega un objeto SQL como favorito. Si ya existe, lo actualiza (upsert). Retorna 201 si se insertó, 200 si se actualizó.',
+  summary: 'Marcar o desmarcar un favorito',
+  description:
+    'Fija el estado de un objeto SQL como favorito del usuario autenticado. Con isActive en true lo marca, o lo reactiva si estaba desmarcado; con false lo desmarca. Es idempotente: si el estado pedido ya era el actual, responde 200 con data en null.',
   security: [{ BearerAuth: [] }],
   request: {
     body: {
@@ -28,11 +28,7 @@ registry.registerPath({
   },
   responses: {
     200: {
-      description: 'Favorito actualizado',
-      content: { 'application/json': { schema: SuccessMessageResponseSchema } },
-    },
-    201: {
-      description: 'Favorito creado',
+      description: 'Estado del favorito aplicado (creado, reactivado, desmarcado o sin cambios)',
       content: { 'application/json': { schema: SuccessMessageResponseSchema } },
     },
     ...errorResponses('UnauthorizedException', 'ValidationException'),
@@ -56,25 +52,5 @@ registry.registerPath({
       content: { 'application/json': { schema: SuccessListResponseSchema } },
     },
     ...errorResponses('UnauthorizedException', 'ValidationException'),
-  },
-})
-
-// DELETE /api/v1/favorito/:id
-registry.registerPath({
-  method: 'delete',
-  path: '/api/v1/favorito/{id}',
-  tags: ['Favorito'],
-  summary: 'Eliminar favorito',
-  description: 'Elimina un favorito del usuario por su ID.',
-  security: [{ BearerAuth: [] }],
-  request: {
-    params: DeleteFavoritoParamsSchema,
-  },
-  responses: {
-    200: {
-      description: 'Favorito eliminado',
-      content: { 'application/json': { schema: DeleteResponseSchema } },
-    },
-    ...errorResponses('FavoritoNotFoundException', 'UnauthorizedException', 'ValidationException'),
   },
 })

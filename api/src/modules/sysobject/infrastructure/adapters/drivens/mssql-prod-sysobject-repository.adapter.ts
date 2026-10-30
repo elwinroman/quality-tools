@@ -1,64 +1,49 @@
-import { DatabaseName, getStaticDatabaseCredentials, MSSQLDatabaseConnection } from '@core/store'
-import { wrapDatabaseError } from '@core/utils'
-import { format } from '@formkit/tempo'
+import { DatabaseName, getStaticDatabaseCredentials } from '@core/store'
+import { MSSQLExecutor } from '@core/store/mssql-query-runner'
+import { decodeRow, decodeRows } from '@core/utils/decode-recordset.util'
 import { ForProdSysObjectRepositoryPort } from '@sysobject/domain/ports/drivens/for-prod-sysobject-repository.port'
 import { PermissionRol } from '@sysobject/domain/schemas/permission-rol'
 import { SysObject } from '@sysobject/domain/schemas/sysobject'
 import sql from 'mssql'
 
+import {
+  prodPermissionRolRowMapper,
+  ProdPermissionRolRowSchema,
+  prodSysObjectRowMapper,
+  ProdSysObjectRowSchema,
+} from './prod-sysobject.mapper'
+
 export class MssqlProdSysObjectRepositoryAdapter implements ForProdSysObjectRepositoryPort {
-  private connection = new MSSQLDatabaseConnection()
   private db = getStaticDatabaseCredentials(DatabaseName.PREPROD)
 
+  constructor(private readonly executor: MSSQLExecutor) {}
+
   async getByNameAndSchema(name: string, schema: string): Promise<SysObject | null> {
-    try {
-      const conn = await this.connection.connect(this.db.credentials, this.db.type)
-      const request = conn.request()
+    const res = await this.executor.execute({
+      credentials: this.db.credentials,
+      userType: this.db.type,
+      procedure: 'SYS_ObtenerDefinicionSQL_SP',
+      parameters: [
+        { name: 'object_name', type: sql.VarChar(128), value: name },
+        { name: 'schema_name', type: sql.VarChar(64), value: schema },
+      ],
+    })
 
-      request.input('object_name', sql.VarChar(128), name).input('schema_name', sql.VarChar(64), schema)
-      const res = await request.execute('SYS_ObtenerDefinicionSQL_SP')
+    const row = decodeRow(res.recordset, ProdSysObjectRowSchema)
 
-      if (res && res.recordset.length === 0) return null
+    if (!row) return null
 
-      // adapter
-      const data: SysObject = {
-        id: res.recordset[0].object_id,
-        name: res.recordset[0].name,
-        type: res.recordset[0].type.trim(),
-        typeDesc: res.recordset[0].type_desc,
-        schemaId: res.recordset[0].schema_id,
-        schemaName: res.recordset[0].schema_name,
-        createDate: format(res.recordset[0].create_date, 'DD-MM-YYYY'),
-        modifyDate: format(res.recordset[0].modify_date, 'DD-MM-YYYY'),
-        definition: res.recordset[0].definition,
-      }
-
-      return data
-    } catch (err) {
-      throw wrapDatabaseError(err)
-    }
+    return prodSysObjectRowMapper(row)
   }
 
   async getRolesById(id: number): Promise<PermissionRol[]> {
-    try {
-      const conn = await this.connection.connect(this.db.credentials, this.db.type)
-      const request = conn.request()
+    const res = await this.executor.execute({
+      credentials: this.db.credentials,
+      userType: this.db.type,
+      procedure: 'SYS_ObtenerRoles_SP',
+      parameters: [{ name: 'id', type: sql.Int, value: id }],
+    })
 
-      request.input('id', sql.Int, id)
-      const res = await request.execute('SYS_ObtenerRoles_SP')
-
-      const data: PermissionRol[] =
-        res.recordset.map((obj): PermissionRol => {
-          return {
-            stateDesc: obj.state_desc,
-            permissionName: obj.permission_name,
-            name: obj.rol,
-          }
-        }) ?? []
-
-      return data
-    } catch (err) {
-      throw wrapDatabaseError(err)
-    }
+    return decodeRows(res.recordset, ProdPermissionRolRowSchema).map(prodPermissionRolRowMapper)
   }
 }

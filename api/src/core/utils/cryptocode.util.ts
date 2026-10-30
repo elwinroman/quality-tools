@@ -57,7 +57,7 @@ class CryptoCode {
     return encryptedString
   }
 
-  decrypt(encryptedString: string): string | undefined {
+  decrypt(encryptedString: string): string {
     try {
       /** separa el string en partes */
       const [cipherTextB64, saltB64, nonceB64, tagB64] = encryptedString.split('*')

@@ -8,7 +8,7 @@ import {
   BusquedaRecienteRepoResponse,
   Context,
 } from '@busqueda-reciente/domain/schemas/busqueda-reciente'
-import { valkeyClient } from '@core/cache/valkey-client'
+import { KeyValueStore } from '@core/cache/key-value-store'
 import type { Meta } from '@shared/domain/schemas/meta'
 import { resolveTypeSysObjectValues } from '@sysobject/domain/schemas/sysobject'
 
@@ -29,6 +29,8 @@ const CACHE_PREFIX = 'busqueda-reciente'
 const MAX_ENTRIES_PER_KEY = 30
 
 export class ValkeyCacheBusquedaRecienteRepositoryAdapter implements ForBusquedaRecienteRepositoryPort {
+  constructor(private readonly cacheRepository: KeyValueStore) {}
+
   async createOrUpdate(input: BusquedaRecienteInput): Promise<boolean> {
     const key = this.buildKey(input.idUser, input.database)
     const id = this.generateId(input.idUser, input.database, input.schema, input.objectName)
@@ -60,7 +62,7 @@ export class ValkeyCacheBusquedaRecienteRepositoryAdapter implements ForBusqueda
   }
 
   async deleteById(id: string): Promise<boolean> {
-    const keys = await valkeyClient.keys(`${CACHE_PREFIX}:*`)
+    const keys = await this.cacheRepository.keys(`${CACHE_PREFIX}:*`)
 
     for (const key of keys) {
       const entries = await this.readEntries(key)
@@ -128,16 +130,16 @@ export class ValkeyCacheBusquedaRecienteRepositoryAdapter implements ForBusqueda
   }
 
   private async readEntries(key: string): Promise<CacheEntry[]> {
-    const raw = await valkeyClient.get(key)
+    const raw = await this.cacheRepository.get(key)
     if (!raw) return []
     return JSON.parse(raw) as CacheEntry[]
   }
 
   private async writeEntries(key: string, entries: CacheEntry[]): Promise<void> {
     if (entries.length === 0) {
-      await valkeyClient.del(key)
+      await this.cacheRepository.delete(key)
       return
     }
-    await valkeyClient.set(key, JSON.stringify(entries), 'EX', BUSQUEDA_RECIENTE_CACHE_TTL)
+    await this.cacheRepository.set(key, JSON.stringify(entries), BUSQUEDA_RECIENTE_CACHE_TTL)
   }
 }

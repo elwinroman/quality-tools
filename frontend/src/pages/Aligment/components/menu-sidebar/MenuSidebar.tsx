@@ -1,74 +1,72 @@
 import { useSearchContext } from '@aligment/hooks'
-import { LayoutGrid, User } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { Info } from 'lucide-react'
 
-import { CircleLoader } from '@/components/loader'
-import { LoginUsername, ThemeToggle } from '@/components/navbar/components'
-import { Button, Checkbox } from '@/components/ui'
-import { AppRoutes } from '@/constants'
-import { APP_SHORT_NAME } from '@/enviroment/enviroment'
-import { useAppStore, useAuthStore } from '@/zustand'
+import { ThemedCircleLoader } from '@/components/loader'
+import { Sidebar, SidebarFooter, SidebarHeader, SidebarNav } from '@/components/sidebar'
+import { useDismissibleNotice } from '@/hooks/useDismissibleNotice'
+import { useAuthStore } from '@/zustand'
 
-import { ButtonGroup, SearchAligment, ViewModeSelect } from './components'
+import { ButtonGroup, InfoCard, SearchAligment } from './components'
+
+/**
+ * Botón que reabre el aviso de Aligment después de cerrarlo: usa el mismo key que
+ * `InfoCard`, así la reapertura la sincroniza el hook vía su evento de navegador.
+ */
+function ReopenInfoButton() {
+  const { reopen } = useDismissibleNotice('aligment-info')
+
+  return (
+    <button
+      type="button"
+      className="text-secondary hover:text-primary hover:bg-action-hover grid h-7 w-7 shrink-0 cursor-pointer place-content-center rounded-sm transition-colors"
+      onClick={reopen}
+      aria-label="Mostrar el aviso de alineación"
+      title="Mostrar el aviso de alineación"
+    >
+      <Info size={14} />
+    </button>
+  )
+}
 
 interface Props {
   className?: string
+  /** Oculta el botón de colapsar dentro del sidebar cuando ya está colapsado. */
+  isCollapsed?: boolean
+  onToggleSidebar?(): void
 }
 
-export function MenuSidebar({ className = '' }: Props) {
-  const navigate = useNavigate()
+/**
+ * Sidebar de Aligment. Reutiliza el marco, el header, la navegación y el footer
+ * compartidos; lo propio es el cuerpo de consulta.
+ *
+ * No se le pasa el toggle de colapsar a propósito: acá el sidebar se colapsa desde
+ * su propio header y, una vez colapsado, se lo revela desde el header del editor.
+ */
+export function MenuSidebar({ className = '', isCollapsed = false, onToggleSidebar }: Props) {
   const authContext = useAuthStore((state) => state.authContext)
-  const isDark = useAppStore((state) => state.isDark)
   const { loading } = useSearchContext()
 
-  const backHome = () => navigate(AppRoutes.Home)
-  const redirectLogin = () => navigate(AppRoutes.Login)
-
   return (
-    <nav className={`border-border border-r shadow-xl ${className}`}>
-      <header className="flex items-center px-6 py-3">
-        {authContext ? (
-          <Button variant={'ghost'} size="sm" className="flex items-center gap-2" onClick={backHome}>
-            <LayoutGrid size={16} />
-            <span className="underline">Home</span>
-          </Button>
-        ) : (
-          <div className="flex w-full items-center justify-between">
-            <span className="text-primary font-bold">{APP_SHORT_NAME}</span>
-            <ThemeToggle />
-          </div>
-        )}
-      </header>
+    <Sidebar
+      className={className}
+      header={<SidebarHeader showDatabase={false} isCollapsed={isCollapsed} onToggleSidebar={onToggleSidebar} />}
+      footer={
+        <>
+          {/* Aviso cerrable, pegado arriba del bloque de perfil */}
+          <InfoCard />
 
-      <div className="grow overflow-x-hidden overflow-y-auto px-4 py-6 md:px-6">
+          <SidebarFooter footerAction={<ReopenInfoButton />} />
+        </>
+      }
+    >
+      {/* Navegación entre páginas: sólo con sesión, porque sus destinos son protegidos */}
+      {authContext && <SidebarNav className="shrink-0" />}
+
+      {/* Cuerpo propio de Aligment */}
+      <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
         <div className="flex flex-col gap-6">
-          {/* Texto */}
-          <div className="flex flex-col gap-3">
-            <h4 className="text-primary/90 text-sm font-bold">CONSULTA DE OBJETOS PARA ALINEACIÓN</h4>
-
-            <p className="text-secondary text-sm text-pretty">
-              <span>Recupera los objetos alineados a </span>
-              <strong>producción </strong>
-              <span>y dí adios a observaciones por desvío de ambientes </span>
-              <span className="text-primary">(Actualizado al día de ayer)</span>
-            </p>
-          </div>
-
-          <div className="flex flex-col gap-4">
-            {/* Radio options */}
-            <ViewModeSelect />
-
-            {/* Input */}
-            <SearchAligment />
-          </div>
-
-          {/* Términos y condiciones */}
-          <div>
-            <label className="flex gap-2">
-              <Checkbox disabled={true} checked={true} className="mt-1" />
-              <span className="text-secondary text-[14px]">Al realizar la consulta acepto que mis datos sean recopilados.</span>
-            </label>
-          </div>
+          {/* Input */}
+          <SearchAligment />
 
           {/* Buttons */}
           <ButtonGroup />
@@ -76,25 +74,11 @@ export function MenuSidebar({ className = '' }: Props) {
           {/* Loader */}
           {loading && (
             <div className="relative mt-4">
-              <CircleLoader size={20} visible={true} color={isDark ? 'white' : 'black'} />
+              <ThemedCircleLoader size={20} />
             </div>
           )}
         </div>
-
-        {/* objeto copia */}
-        <div className="h-14 min-h-14 w-full bg-none"></div>
       </div>
-
-      <footer className="bg-background/85 absolute bottom-0 flex h-14 min-h-14 w-[calc(100%-20px)] items-center px-6 backdrop-blur-sm">
-        {!authContext ? (
-          <button className="hover:bg-action-hover flex h-10 items-center gap-2 rounded-sm px-2 transition-colors" onClick={redirectLogin}>
-            <User size={18} />
-            <span className="text-sm">Iniciar sesión</span>
-          </button>
-        ) : (
-          <LoginUsername />
-        )}
-      </footer>
-    </nav>
+    </Sidebar>
   )
 }

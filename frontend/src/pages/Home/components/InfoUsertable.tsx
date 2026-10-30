@@ -3,6 +3,8 @@ import { type ReactNode } from 'react'
 
 import { cn } from '@/lib/utils'
 
+import { HomeInfoCard as Card } from './HomeInfoCard'
+
 const EXAMPLE_COLUMNS = [
   { name: 'id', type: 'INT', nullable: false },
   { name: 'nombre', type: 'NVARCHAR(100)', nullable: false },
@@ -91,17 +93,9 @@ export function InfoUsertable() {
   )
 }
 
-function Card({ children, className }: { children: ReactNode; className?: string }) {
-  return (
-    <div className={cn('bg-background-paperchanel shadow-custom-card border-border flex flex-col gap-3 rounded-xl border p-6', className)}>
-      {children}
-    </div>
-  )
-}
-
 function CardIcon({ children }: { children: ReactNode }) {
   return (
-    <div className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-sky-500/10 text-sky-600 dark:text-sky-400">
+    <div className="bg-gentle-pink-500/15 text-gentle-pink-700 dark:text-gentle-pink-300 inline-flex h-10 w-10 items-center justify-center rounded-lg">
       {children}
     </div>
   )

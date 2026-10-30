@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { toast } from 'sonner'
 
+import { NEUTRAL_TOAST_CLASS } from '@/components/ui/sonner'
 import { Error500 } from '@/pages'
 import { useAuthStore } from '@/zustand'
 
@@ -11,13 +12,15 @@ import { useAligmentStore } from './zustand/aligment.store'
 export function AligmentPage() {
   const errorApiConnection = useAuthStore((state) => state.errorApiConnection)
   const hideMenu = useAligmentStore((state) => state.hideMenu)
+  const updateHideMenu = useAligmentStore((state) => state.updateHideMenu)
   const { error } = useSearchContext()
 
   // notificación de errores (evita repetir el toast si el error no cambió)
   const lastErrorRef = useRef(error)
   useEffect(() => {
     if (error && error !== lastErrorRef.current) {
-      toast.warning('Warning', {
+      toast('Información', {
+        className: NEUTRAL_TOAST_CLASS,
         description: error.detail,
         duration: 6000,
       })
@@ -33,21 +36,15 @@ export function AligmentPage() {
       <aside
         className={`bg-background relative hidden h-full transition-all duration-300 ease-in-out sm:block ${hideMenu ? 'w-0 overflow-hidden opacity-0' : `w-sidebar opacity-100`} `}
       >
-        <MenuSidebar className={`w-sidebar bg-background h-full flex-col sm:flex`} />
+        <MenuSidebar className="w-sidebar shadow-xl" isCollapsed={hideMenu} onToggleSidebar={() => updateHideMenu(!hideMenu)} />
       </aside>
 
       {/* Main content */}
-      <main className={`flex flex-1 flex-col transition-all duration-300 ease-in-out ${hideMenu ? 'w-full' : 'w-content-area'} `}>
+      <main className="flex min-w-0 flex-1 flex-col transition-all duration-300 ease-in-out">
         <HeaderEditor />
 
         {/* Editor code */}
         <EditorCodeAligment />
-
-        <footer className="text-muted grid place-content-center py-2 text-sm">
-          <span>
-            © 2026 <strong>Departamento de Aseguramiento de Calidad</strong>
-          </span>
-        </footer>
       </main>
     </section>
   )

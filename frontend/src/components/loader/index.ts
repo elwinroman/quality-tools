@@ -1,5 +1,4 @@
 export * from './circle-loader/CircleLoader'
 export * from './DatabaseSwitchOverlay'
-export * from './loader-dot/LoaderDot'
-export * from './loader-slack/LoaderSlack'
 export * from './spinner-bot-loader/SpinnerBotLoader'
+export * from './ThemedCircleLoader'

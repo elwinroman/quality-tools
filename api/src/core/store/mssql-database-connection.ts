@@ -2,6 +2,8 @@ import { InvalidCredentialsException } from '@auth/domain/exceptions'
 import { StoreUserSchema } from '@shared/domain/store'
 import sql, { ConnectionPool } from 'mssql'
 
+import type { MSSQLConnection } from './mssql-connection'
+
 /** Mapa de conexiones activas, donde la clave es una representación en cadena */
 interface PoolStack {
   [key: string]: ConnectionPool
@@ -16,14 +18,14 @@ export enum UserTypeEnum {
 /** Tipo que deriva de los valores del enum UserType */
 export type UserType = UserTypeEnum
 
-export class MSSQLDatabaseConnection {
+export class MSSQLDatabaseConnection implements MSSQLConnection {
   private pools: PoolStack = {} // Almacena múltiples conexiones
 
   /**
    * Obtiene una conexión de la base de datos. Si no existe, la crea.
    * @param config Credenciales de conexión.
    * @returns Pool de conexión.
-   * TODO: Implementar MSSQLQueryRunner, para capturar los errores sin usar try, catch en las querys
+   * La ejecución, la captura del punto de llamada y el mapeo de errores se centralizan en MSSQLQueryRunner.
    */
   async connect(config: StoreUserSchema, userType: UserType): Promise<ConnectionPool> {
     const key = JSON.stringify(config)

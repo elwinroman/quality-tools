@@ -20,17 +20,21 @@ const enum SQLDataTypes {
  * @returns Cadena formateada representando el tipo de dato con sus parámetros.
  */
 export const formatSQLDataType = (type: string, maxLenght: number, precision: number, scale: number) => {
-  if (type === SQLDataTypes.VARCHAR || type === SQLDataTypes.CHAR)
-    return maxLenght === -1 ? `${type.toLowerCase()}(MAX)` : `${type.toLowerCase()}(${maxLenght})`
+  const normalizedType = type.toLowerCase()
 
-  if (type === SQLDataTypes.NVARCHAR || type === SQLDataTypes.NCHAR)
-    return maxLenght === -1 ? `${type.toLowerCase()}(MAX)` : `${type.toLowerCase()}(${maxLenght / 2})` // se divide entre 2 porque internamente se guarda en Bytes
+  if (normalizedType === SQLDataTypes.VARCHAR || normalizedType === SQLDataTypes.CHAR)
+    return maxLenght === -1 ? `${normalizedType}(MAX)` : `${normalizedType}(${maxLenght})`
 
-  if (type === SQLDataTypes.NUMERIC || type === SQLDataTypes.DECIMAL || type === SQLDataTypes.FLOAT)
-    return `${type.toLowerCase()}(${precision}, ${scale})`
+  if (normalizedType === SQLDataTypes.NVARCHAR || normalizedType === SQLDataTypes.NCHAR)
+    return maxLenght === -1 ? `${normalizedType}(MAX)` : `${normalizedType}(${maxLenght / 2})` // se divide entre 2 porque internamente se guarda en Bytes
 
-  if (type === SQLDataTypes.BINARY || type === SQLDataTypes.VARBINARY)
-    return maxLenght === -1 ? `${type.toLowerCase()}(MAX)` : `${type.toLowerCase()}(${maxLenght})`
+  if (normalizedType === SQLDataTypes.NUMERIC || normalizedType === SQLDataTypes.DECIMAL) return `${normalizedType}(${precision}, ${scale})`
 
-  return type.toLowerCase()
+  // float(n) solo toma precisión, de 1 a 53 bits; la escala pertenece a numeric/decimal.
+  if (normalizedType === SQLDataTypes.FLOAT) return `${normalizedType}(${precision})`
+
+  if (normalizedType === SQLDataTypes.BINARY || normalizedType === SQLDataTypes.VARBINARY)
+    return maxLenght === -1 ? `${normalizedType}(MAX)` : `${normalizedType}(${maxLenght})`
+
+  return normalizedType
 }

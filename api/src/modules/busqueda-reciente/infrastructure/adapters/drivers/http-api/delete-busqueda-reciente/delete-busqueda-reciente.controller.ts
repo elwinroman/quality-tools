@@ -1,11 +1,14 @@
+import { CurrentStoreContextResolver } from '@auth/domain/ports/drivens/current-store-context-resolver.port'
 import { ForHttpManagingBusquedaRecientePort } from '@busqueda-reciente/domain/ports/drivers/for-http-managing-busqueda-reciente.port'
-import { buildStoreAuthContext } from '@core/utils'
 import { NextFunction, Request, Response } from 'express'
 
 import { DeleteBusquedaRecienteHttpDto, DeleteBusquedaRecienteParamsSchema } from './delete-busqueda-reciente.http-dto'
 
 export class DeleteBusquedaRecienteController {
-  constructor(private readonly service: ForHttpManagingBusquedaRecientePort) {}
+  constructor(
+    private readonly service: ForHttpManagingBusquedaRecientePort,
+    private readonly currentStoreContextResolver: CurrentStoreContextResolver,
+  ) {}
 
   async run(req: Request, res: Response, next: NextFunction) {
     const { id } = req.params
@@ -19,7 +22,7 @@ export class DeleteBusquedaRecienteController {
           credentials: { database },
         },
         authContext,
-      } = await buildStoreAuthContext()
+      } = await this.currentStoreContextResolver.resolve()
 
       const context = {
         idUser: authContext.userId,

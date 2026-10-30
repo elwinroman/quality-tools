@@ -87,6 +87,45 @@ El segundo parámetro de `logger.info()` es un objeto con datos relevantes para 
 | `error` | Error que afecta la operación         | Error de BD, servicio externo caído |
 | `fatal` | Error que detiene la aplicación       | No se puede conectar a BD al inicio |
 
+## Configuración recomendada para producción
+
+```env
+# Logging de la aplicación
+CONSOLE_LOGS_ENABLED=true
+CONSOLE_LOG_LEVEL=warn
+
+# Observabilidad OpenTelemetry
+OTEL_DEPLOYMENT_ENV=production
+OTEL_LOGS_ENABLED=true
+LOG_EXPORT_LEVEL=info
+
+# Error tracking
+SENTRY_REPORTING_ENABLED=true
+```
+
+| Destino | Nivel recomendado | Propósito |
+| ------- | ----------------- | --------- |
+| Consola | `warn` | Diagnóstico inmediato sin escribir cada operación exitosa en `stdout` |
+| OTLP/Loki | `info` | Operación, correlación y análisis histórico mediante exportación por lotes |
+| Sentry | Errores capturados | Agrupación, stack traces y alertas de errores accionables |
+
+`CONSOLE_LOG_LEVEL` y `LOG_EXPORT_LEVEL` son umbrales explícitos e independientes. Sus defaults son `warn` e `info`, respectivamente. Los eventos descartados se filtran antes de construir y serializar el contexto del request.
+
+No usar `OTEL_LOG_LEVEL` para este propósito: OpenTelemetry reserva esa variable para controlar sus diagnósticos internos y puede imprimir payloads del exportador en la consola.
+
+Si las pruebas de carga muestran latencia por `stdout`, establecer `CONSOLE_LOGS_ENABLED=false`. Esto no desactiva OTLP/Loki ni Sentry, y se conservan los mensajes directos de emergencia cuando falla la propia infraestructura de observabilidad.
+
+## Trazas (OpenTelemetry)
+
+Las trazas se exportan por OTLP/HTTP y se habilitan con `OTEL_TRACES_ENABLED=true`. Con el flag en `false` (default) el SDK no registra un `TracerProvider` global, por lo que el costo es cero.
+
+| Variable | Default | Propósito |
+| --- | --- | --- |
+| `OTEL_TRACES_ENABLED` | `false` | Habilita la exportación de spans por OTLP |
+| `OTEL_EXPORTER_OTLP_TRACES_ENDPOINT` | vacío | Endpoint propio de traces; si no se define se usa `${OTEL_EXPORTER_OTLP_ENDPOINT}/v1/traces` |
+
+La instrumentación automática de `http`, `express` y `tedious (vía mssql)` produce un span por request HTTP con las queries SQL como spans hijos. En spans de base de datos, `db.statement` y `db.query.text` se normalizan a una sola línea y el nombre resume el verbo y primer destino (por ejemplo, `SELECT sys.database_permissions`) para evitar nombres como `execSql <base>`. El texto SQL se conserva (`db.statement`, `db.query.text`): las queries del repo son parametrizadas (`@idUsuario`, `@scopeId`, `@serverName`), así que se exporta la forma de la query y no los valores. Antes de exportar solo se redacta `db.user`, el login de conexión, que es constante y no aporta al diagnóstico. Los spans de middleware de Express (`query`, `expressInit`, parsers) se ignoran; se conservan los de router y request handler. Se desactivan las instrumentaciones de `dns` y `net` (generan un span por resolución DNS y por conexión TCP) y se descarta el preflight CORS (`OPTIONS`): no aportan al diagnóstico y ensucian la lista de traces. El resto de los atributos de recurso que agregaba la autodetección del SDK (`process.command_args`, `process.executable.*`, `host.*`) también se desactiva con `autoDetectResources: false`. No se generan spans de use-case: la capa de aplicación no se modifica.
+
 ## Queries útiles en Grafana Loki (LogQL)
 
 ### Filtrar por módulo
@@ -144,4 +183,4 @@ Al agregar un nuevo módulo, registrarlo en esta tabla.
 
 ---
 
-**Última actualización:** 2026-06-25
+**Última actualización:** 2026-10-26

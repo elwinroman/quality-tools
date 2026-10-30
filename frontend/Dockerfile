@@ -4,7 +4,7 @@ ARG VITE_API_URL=PRODUCTION_API_URL
 
 WORKDIR /app
 
-RUN npm install -g pnpm@11.13.0
+RUN npm install -g pnpm@11.19.0
 
 RUN apt-get update && \
     apt-get install -y dos2unix

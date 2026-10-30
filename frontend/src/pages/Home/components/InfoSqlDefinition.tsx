@@ -2,7 +2,8 @@ import { Code2, GitCompare, Search, Settings, Shield } from 'lucide-react'
 import { type ReactNode } from 'react'
 
 import { TypeSysObjects } from '@/constants'
-import { cn } from '@/lib/utils'
+
+import { HomeInfoCard as Card } from './HomeInfoCard'
 
 export function InfoSqlDefinition() {
   const typeSysObjectsArray = Object.entries(TypeSysObjects).map(([, value]) => ({
@@ -22,7 +23,7 @@ export function InfoSqlDefinition() {
         <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
           {typeSysObjectsArray.map((obj) => (
             <div key={obj.type} className="bg-background-neutral flex items-center gap-3 rounded-lg px-3 py-2.5">
-              <span className="grid h-6 w-6 shrink-0 place-content-center rounded bg-amber-500/15 text-xs font-bold text-amber-600 dark:text-amber-400">
+              <span className="bg-champagne-400/20 text-champagne-800 dark:text-champagne-300 grid h-6 w-6 shrink-0 place-content-center rounded text-xs font-bold">
                 {obj.type}
               </span>
               <span className="text-secondary text-sm">{obj.description}</span>
@@ -72,17 +73,9 @@ export function InfoSqlDefinition() {
   )
 }
 
-function Card({ children, className }: { children: ReactNode; className?: string }) {
-  return (
-    <div className={cn('bg-background-paperchanel shadow-custom-card border-border flex flex-col gap-3 rounded-xl border p-6', className)}>
-      {children}
-    </div>
-  )
-}
-
 function CardIcon({ children }: { children: ReactNode }) {
   return (
-    <div className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400">
+    <div className="bg-champagne-400/15 text-champagne-700 dark:text-champagne-300 inline-flex h-10 w-10 items-center justify-center rounded-lg">
       {children}
     </div>
   )
