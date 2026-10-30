@@ -60,8 +60,13 @@ const envSchema = z
     OTEL_EXPORTER_OTLP_ENDPOINT: z.string().url().default('http://otel-collector:4318'),
     OTEL_EXPORTER_OTLP_LOGS_ENDPOINT: z.string().url().optional(),
     OTEL_EXPORTER_OTLP_METRICS_ENDPOINT: z.string().url().optional(),
+    OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: z.string().url().optional(),
     OTEL_RESOURCE_ATTRIBUTES: z.string().default('project=quality-tools'),
     OTEL_METRICS_ENABLED: z
+      .preprocess(val => val === 'true', z.boolean())
+      .optional()
+      .default(false),
+    OTEL_TRACES_ENABLED: z
       .preprocess(val => val === 'true', z.boolean())
       .optional()
       .default(false),
@@ -135,6 +140,14 @@ const envSchema = z
         path: ['OTEL_EXPORTER_OTLP_ENDPOINT'],
       })
     }
+
+    if (data.OTEL_TRACES_ENABLED && !data.OTEL_EXPORTER_OTLP_ENDPOINT && !data.OTEL_EXPORTER_OTLP_TRACES_ENDPOINT) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'OTEL_EXPORTER_OTLP_ENDPOINT u OTEL_EXPORTER_OTLP_TRACES_ENDPOINT es obligatorio cuando OTEL_TRACES_ENABLED=true',
+        path: ['OTEL_EXPORTER_OTLP_ENDPOINT'],
+      })
+    }
   })
 
 const { data, error, success } = envSchema.safeParse(process.env)
@@ -180,8 +193,10 @@ export const {
   OTEL_EXPORTER_OTLP_ENDPOINT,
   OTEL_EXPORTER_OTLP_LOGS_ENDPOINT,
   OTEL_EXPORTER_OTLP_METRICS_ENDPOINT,
+  OTEL_EXPORTER_OTLP_TRACES_ENDPOINT,
   OTEL_RESOURCE_ATTRIBUTES,
   OTEL_METRICS_ENABLED,
+  OTEL_TRACES_ENABLED,
   OTEL_METRIC_EXPORT_INTERVAL,
   OTEL_METRIC_EXPORT_TIMEOUT,
   OTEL_LOG_EXPORT_INTERVAL,
